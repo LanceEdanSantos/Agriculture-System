@@ -1,0 +1,174 @@
+<?php
+
+namespace App\Filament\Resources;
+
+use App\Filament\Resources\UnitResource\Pages;
+use App\Models\Unit;
+use Filament\Forms;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Table;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\BadgeColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\Filter;
+use Illuminate\Database\Eloquent\Builder;
+
+class UnitResource extends Resource
+{
+    protected static ?string $model = Unit::class;
+
+    protected static ?string $navigationIcon = 'heroicon-o-squares-2x2';
+
+    protected static ?string $navigationGroup = 'Inventory Management';
+
+    protected static ?int $navigationSort = 3;
+
+    public static function form(Form $form): Form
+    {
+        return $form
+            ->schema([
+                Section::make('Unit Information')
+                    ->schema([
+                        Grid::make(2)->schema([
+                            TextInput::make('name')
+                                ->label('Unit Name')
+                                ->required()
+                                ->maxLength(255)
+                                ->unique(ignoreRecord: true),
+                            TextInput::make('abbreviation')
+                                ->label('Abbreviation')
+                                ->maxLength(50),
+                        ]),
+                        Grid::make(2)->schema([
+                            Select::make('category')
+                                ->label('Category')
+                                ->options([
+                                    'count' => 'Count',
+                                    'weight' => 'Weight',
+                                    'volume' => 'Volume',
+                                    'area' => 'Area',
+                                    'length' => 'Length',
+                                    'custom' => 'Custom',
+                                ])
+                                ->required(),
+                            Toggle::make('is_custom')
+                                ->label('Custom Unit')
+                                ->default(false),
+                        ]),
+                        Textarea::make('description')
+                            ->label('Description')
+                            ->rows(3),
+                    ]),
+
+                Section::make('Status')
+                    ->schema([
+                        Select::make('status')
+                            ->label('Status')
+                            ->options([
+                                'active' => 'Active',
+                                'inactive' => 'Inactive',
+                            ])
+                            ->default('active')
+                            ->required(),
+                    ]),
+            ]);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return $table
+            ->columns([
+                TextColumn::make('name')
+                    ->label('Unit Name')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('abbreviation')
+                    ->label('Abbreviation')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('category')
+                    ->label('Category')
+                    ->badge()
+                    ->color('primary'),
+                BadgeColumn::make('is_custom')
+                    ->label('Type')
+                    ->colors([
+                        'success' => true,
+                        'warning' => false,
+                    ])
+                    ->formatStateUsing(fn(bool $state): string => $state ? 'Custom' : 'Standard'),
+                BadgeColumn::make('status')
+                    ->colors([
+                        'success' => 'active',
+                        'warning' => 'inactive',
+                    ]),
+                TextColumn::make('inventory_items_count')
+                    ->label('Items Using')
+                    ->counts('inventoryItems')
+                    ->sortable(),
+                TextColumn::make('created_at')
+                    ->label('Created')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+            ])
+            ->filters([
+                SelectFilter::make('category')
+                    ->label('Category')
+                    ->options([
+                        'count' => 'Count',
+                        'weight' => 'Weight',
+                        'volume' => 'Volume',
+                        'area' => 'Area',
+                        'length' => 'Length',
+                        'custom' => 'Custom',
+                    ]),
+                SelectFilter::make('status')
+                    ->label('Status')
+                    ->options([
+                        'active' => 'Active',
+                        'inactive' => 'Inactive',
+                    ]),
+                Filter::make('custom_units')
+                    ->label('Custom Units Only')
+                    ->query(fn(Builder $query): Builder => $query->where('is_custom', true)),
+                Filter::make('standard_units')
+                    ->label('Standard Units Only')
+                    ->query(fn(Builder $query): Builder => $query->where('is_custom', false)),
+            ])
+            ->actions([
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make()
+                    ->visible(fn(Unit $record): bool => $record->inventoryItems()->count() === 0),
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
+            ]);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            //
+        ];
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => Pages\ListUnits::route('/'),
+            'create' => Pages\CreateUnit::route('/create'),
+            'edit' => Pages\EditUnit::route('/{record}/edit'),
+        ];
+    }
+}
