@@ -231,6 +231,7 @@ class InventoryItemResource extends Resource
                     ->label('Expired Items')
                     ->query(fn(Builder $query): Builder => $query->where('expiration_date', '<', now())),
             ])
+            ->poll('2s')
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),

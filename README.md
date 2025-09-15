@@ -75,8 +75,8 @@ The system comes with three default users:
 | Role | Email | Password | Access Level |
 |------|-------|----------|--------------|
 | Administrator | admin@doa.gov.ph | password | Full access |
-| DOA Staff | staff@doa.gov.ph | password | Inventory & Purchase management |
-| Farmer | farmer@example.com | password | View-only access |
+| DOA Staff | staff@doa.gov.ph | password | Inventory & Purchase management | - wala pa
+| Farmer | farmer@example.com | password | View-only access | - wala pa (API Json Driven -> mobile app (React Native -> Javascript Framework (Android Application/IOS Applications)))
 
 ## Usage
 

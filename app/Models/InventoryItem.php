@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class InventoryItem extends Model
 {
@@ -44,7 +45,22 @@ class InventoryItem extends Model
     {
         return $this->hasMany(PurchaseRequestItem::class);
     }
+    protected static function booted()
+    {
+        static::saved(function (InventoryItem $item) {
+            if ($item->isLowStock()) {
+                $users = \App\Models\User::role('super_admin')->get(); // requires Spatie roles
 
+                foreach ($users as $user) {
+                    \Filament\Notifications\Notification::make()
+                        ->title('Low Stock Alert')
+                        ->body("{$item->name} is running low! Current stock: {$item->current_stock}")
+                        ->warning()
+                        ->sendToDatabase($user);
+                }
+            }
+        });
+    }
     /**
      * Get the category
      */
@@ -168,5 +184,11 @@ class InventoryItem extends Model
             ->where('status', '!=', 'cancelled')
             ->sum('quantity_purchased');
         $this->save();
+    }
+    public function farms(): BelongsToMany
+    {
+        return $this->belongsToMany(Farm::class, 'farm_inventory_visibility')
+            ->withPivot('is_visible')
+            ->withTimestamps();
     }
 }

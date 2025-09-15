@@ -9,7 +9,6 @@ use Illuminate\Support\Str;
 class Category extends Model
 {
     use HasFactory;
-
     protected $fillable = [
         'name',
         'slug',
@@ -19,6 +18,7 @@ class Category extends Model
         'is_active',
         'sort_order',
     ];
+
 
     protected $casts = [
         'is_active' => 'boolean',
@@ -102,4 +102,15 @@ class Category extends Model
             }
         });
     }
+    
+    /**
+     * Get farms associated with this category
+     */
+    public function farms()
+    {
+        return $this->belongsToMany(Farm::class, 'farm_category_visibility')
+            ->withPivot('is_visible')
+            ->withTimestamps();
+    }
+
 }

@@ -1,0 +1,91 @@
+<?php
+
+namespace App\Filament\Resources\FarmResource\RelationManagers;
+
+use App\Models\User;
+use Filament\Forms;
+use Filament\Forms\Form;
+use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Tables;
+use Filament\Tables\Table;
+
+class UsersRelationManager extends RelationManager
+{
+    protected static string $relationship = 'users';
+
+    public function form(Form $form): Form
+    {
+        return $form
+            ->schema([
+                // this form is only used by EditAction (on pivot)
+                Forms\Components\Select::make('id')
+                    ->label('User')
+                    ->options(User::pluck('name', 'id'))
+                    ->searchable()
+                    ->required()
+                    ->preload(),
+                Forms\Components\Select::make('role')
+                    ->options([
+                        'admin' => 'Admin',
+                        'manager' => 'Manager',
+                        'viewer' => 'Viewer',
+                    ])
+                    ->required(),
+            ]);
+    }
+
+    public function table(Table $table): Table
+    {
+        return $table
+            ->recordTitleAttribute('name')
+            ->columns([
+                Tables\Columns\TextColumn::make('name')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('email')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('pivot.role')
+                    ->label('Role')
+                    ->badge()
+                    ->formatStateUsing(fn(string $state): string => ucfirst($state)),
+            ])
+            ->headerActions([
+                Tables\Actions\AttachAction::make()
+                    ->form([
+                Forms\Components\Select::make('recordId')
+                    ->label('User')
+                    ->options(User::pluck('name', 'id'))
+                    ->searchable()
+                    ->required()
+                    ->preload(),
+                        Forms\Components\Select::make('role')
+                            ->options([
+                                'admin' => 'Admin',
+                                'manager' => 'Manager',
+                                'viewer' => 'Viewer',
+                            ])
+                            ->required(),
+                    ])
+                    ->preloadRecordSelect(),
+            ])
+            ->actions([
+                Tables\Actions\EditAction::make()
+                    ->form([
+                        Forms\Components\Select::make('role')
+                            ->options([
+                                'admin' => 'Admin',
+                                'manager' => 'Manager',
+                                'viewer' => 'Viewer',
+                            ])
+                            ->required(),
+                    ]),
+                Tables\Actions\DetachAction::make(),
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DetachBulkAction::make(),
+                ]),
+            ]);
+    }
+}

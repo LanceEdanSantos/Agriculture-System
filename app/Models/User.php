@@ -51,6 +51,16 @@ class User extends Authenticatable
     }
 
     /**
+     * Get user's initials
+     */
+    public function initials(): string
+    {
+        return implode('', array_map(function ($word) {
+            return strtoupper($word[0]);
+        }, explode(' ', $this->name)));
+    }
+
+    /**
      * Check if user is an administrator
      */
     public function isAdministrator(): bool
@@ -72,5 +82,11 @@ class User extends Authenticatable
     public function isFarmer(): bool
     {
         return $this->role === 'farmer';
+    }
+    public function farms()
+    {
+        return $this->belongsToMany(Farm::class)
+            ->withPivot(['role', 'is_visible', 'role'])
+            ->wherePivot('is_visible', true);
     }
 }
