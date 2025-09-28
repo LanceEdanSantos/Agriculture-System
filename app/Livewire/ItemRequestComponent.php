@@ -18,6 +18,10 @@ class ItemRequestComponent extends Component
     public $quantity;
     public $notes;
     public $mode = 'index'; // Can be 'index', 'create', 'show', 'edit'
+    public $hasFarms = false;
+    public $userFarmsCount = 0;
+    public $availableItems = [];
+    public $farmNames = [];
 
     protected $rules = [
         'farm_id' => 'required|exists:farms,id',
@@ -31,6 +35,7 @@ class ItemRequestComponent extends Component
         if ($this->mode === 'create') {
             $this->authorize('create', ItemRequest::class);
             $this->loadFarms();
+            $this->checkUserFarms();
         } elseif ($this->mode === 'edit' || $this->mode === 'show') {
             $this->authorize($this->mode === 'edit' ? 'update' : 'view', $this->itemRequest);
             if ($this->mode === 'edit' && $this->itemRequest->status !== 'pending') {
@@ -39,6 +44,7 @@ class ItemRequestComponent extends Component
             }
             if ($this->mode === 'edit') {
                 $this->loadFarms();
+                $this->checkUserFarms();
                 $this->farm_id = $this->itemRequest->farm_id;
                 $this->inventory_item_id = $this->itemRequest->inventory_item_id;
                 $this->quantity = $this->itemRequest->quantity;
@@ -56,63 +62,112 @@ class ItemRequestComponent extends Component
             }
         } else {
             $this->authorize('viewAny', ItemRequest::class);
+            $this->loadFarms();
+            $this->checkUserFarms();
         }
     }
 
     public function loadFarms()
     {
-        // First, get all farms visible to the user
-        $farms = Farm::whereHas('users', function ($query) {
-            $query->where('user_id', Auth::id())
-                ->where('is_visible', true);
-        })->get();
-
-        // Then, for each farm, get the visible inventory items
-        $this->farms = $farms->map(function ($farm) {
-            // Get inventory items directly visible to this farm
-            $directlyVisible = $farm->inventoryItems()
+        // Check if user has any farms associated
+        $userFarms = Auth::user()->farms()->get();
+        
+        if ($userFarms->isEmpty()) {
+            // User has no farms - return empty array
+            $this->farms = [];
+            return;
+        }
+        
+        // User has farms - get all inventory items from those farms
+        $inventoryItems = collect();
+        
+        foreach ($userFarms as $farm) {
+            // Get all active inventory items for this farm
+            $farmItems = $farm->inventoryItems()
                 ->where('is_active', true)
-                ->whereHas('farms', function ($query) use ($farm) {
-                    $query->where('farms.id', $farm->id)
-                        ->where('farm_inventory_visibility.is_visible', true);
-                })
                 ->get();
-
-            // Get inventory items visible through category
-            $categoryVisible = $farm->inventoryItems()
-                ->where('is_active', true)
-                ->whereHas('category.farms', function ($query) use ($farm) {
-                    $query->where('farms.id', $farm->id)
-                        ->where('farm_category_visibility.is_visible', true);
-                })
-                ->get();
-
-            // Merge and deduplicate the collections
-            $inventoryItems = $directlyVisible->merge($categoryVisible)->unique('id');
-
-            // Convert farm to array and add inventory items
-            $farmArray = $farm->toArray();
-            $farmArray['inventory_items'] = $inventoryItems->toArray();
+                
+            foreach ($farmItems as $item) {
+                $inventoryItems->push([
+                    'id' => $item->id,
+                    'name' => $item->name,
+                    'description' => $item->description,
+                    'unit' => $item->unit,
+                    'current_stock' => $item->current_stock,
+                    'unit_cost' => $item->unit_cost,
+                    'farm_name' => $farm->name,
+                    'farm_id' => $farm->id,
+                ]);
+            }
+        }
+        
+        // Group items by farm for easier display
+        $this->farms = $userFarms->map(function ($farm) use ($inventoryItems) {
+            $farmItems = $inventoryItems->where('farm_id', $farm->id);
             
-            return $farmArray;
+            return [
+                'id' => $farm->id,
+                'name' => $farm->name,
+                'description' => $farm->description,
+                'inventory_items' => $farmItems->values()->toArray(),
+            ];
         })->toArray();
     }
+
+    public function checkUserFarms()
+    {
+        $userFarms = Auth::user()->farms()->with(['inventoryItems'])->get();
+
+        $this->userFarmsCount = $userFarms->count();
+        $this->hasFarms = $this->userFarmsCount > 0;
+
+        if ($this->hasFarms) {
+            $this->availableItems = [];
+            $this->farmNames = [];
+
+            foreach ($userFarms as $farm) {
+                $this->farmNames[$farm->id] = $farm->name;
+
+                // If you want to filter using pivot "is_visible"
+                $farmItems = $farm->inventoryItems()
+                    ->wherePivot('is_visible', true)
+                    ->get();
+
+                foreach ($farmItems as $item) {
+                    $this->availableItems[] = [
+                        'id'            => $item->id,
+                        'name'          => $item->name,
+                        'farm_id'       => $farm->id,
+                        'farm_name'     => $farm->name,
+                        'unit'          => $item->unit,
+                        'current_stock' => $item->current_stock,
+                    ];
+                }
+            }
+
+            // Debug after collecting all items
+            // dd($this->availableItems);
+
+            // Auto-select farm if user has only one farm
+            if ($this->userFarmsCount === 1) {
+                $this->farm_id = $userFarms->first()->id;
+            }
+        }
+    }
+
 
     public function render()
     {
         if ($this->mode === 'create') {
-            return view('livewire.item-request.create')
-                ->layout('layouts.app');
+            return view('livewire.item-request.create');
         } elseif ($this->mode === 'show') {
             return view('livewire.item-request.show', [
                 'itemRequest' => $this->itemRequest,
-            ])->layout('layouts.app');
+            ]);
         } elseif ($this->mode === 'edit') {
-            return view('livewire.item-request.edit')
-                ->layout('layouts.app');
+            return view('livewire.item-request.edit');
         } else {
-            return view('livewire.item-request.index')
-                ->layout('layouts.app');
+            return view('livewire.item-request.index');
         }
     }
 
@@ -247,7 +302,10 @@ class ItemRequestComponent extends Component
 
     public function resetForm()
     {
-        $this->farm_id = null;
+        // Don't reset farm_id if user has only one farm (it was auto-selected)
+        if ($this->userFarmsCount !== 1) {
+            $this->farm_id = null;
+        }
         $this->inventory_item_id = null;
         $this->quantity = null;
         $this->notes = null;

@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Auth;
 class ItemRequestResource extends Resource
 {
     protected static ?string $model = ItemRequest::class;
-
+    
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
     protected static ?string $navigationGroup = 'Inventory';
     protected static ?int $navigationSort = 3;
@@ -31,7 +31,7 @@ class ItemRequestResource extends Resource
         $record = $form->getRecord();
         
         $canEdit = $isCreating || ($record && $user->can('update', $record));
-        $isAdminOrManager = $user->hasRole('admin') || $user->hasRole('farm_manager');
+        $isAdminOrManager = $user->hasRole('super_admin') || $user->hasRole('farm_manager');
         return $form
             ->schema([
                 Forms\Components\Select::make('user_id')
@@ -106,7 +106,7 @@ class ItemRequestResource extends Resource
     {
         $query = parent::getEloquentQuery();
         
-        if (!Auth::user()->hasRole('admin') && !Auth::user()->hasRole('farm_manager')) {
+        if (!Auth::user()->hasRole('super_admin') && !Auth::user()->hasRole('farm_manager')) {
             $query->where('user_id', Auth::id());
         }
         

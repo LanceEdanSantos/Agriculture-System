@@ -79,7 +79,6 @@ class FarmResource extends Resource
         return [
             RelationManagers\UsersRelationManager::class,
             RelationManagers\VisibilityRelationManager::class,
-            // RelationManagers\InventoryVisibilityRelationManager::class,
         ];
     }
 

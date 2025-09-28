@@ -15,24 +15,27 @@
     <form wire:submit.prevent="update" class="space-y-6">
         <div>
             <label for="farm_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Farm</label>
-            <select wire:model="farm_id" id="farm_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
-                <option value="">Select a farm</option>
-                @foreach ($farms as $farm)
-                    <option value="{{ $farm['id'] }}" {{ $farm['id'] == $farm_id ? 'selected' : '' }}>{{ $farm['name'] }}</option>
-                @endforeach
-            </select>
+            @if ($userFarmsCount === 1)
+                <div class="bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    {{ $farmNames[$farm_id] ?? 'Selected Farm' }} <span class="text-xs text-gray-500">(Auto-selected)</span>
+                </div>
+                <input type="hidden" wire:model="farm_id" value="{{ $farm_id }}">
+            @else
+                <select wire:model="farm_id" id="farm_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+                    <option value="">Select a farm</option>
+                    @foreach ($farms as $farm)
+                        <option value="{{ $farm['id'] }}" {{ $farm['id'] == $farm_id ? 'selected' : '' }}>{{ $farm['name'] }}</option>
+                    @endforeach
+                </select>
+            @endif
             @error('farm_id') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror
         </div>
         <div>
             <label for="inventory_item_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Inventory Item</label>
             <select wire:model="inventory_item_id" id="inventory_item_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
                 <option value="">Select an item</option>
-                @foreach ($farms as $farm)
-                    @if ($farm['id'] == $farm_id)
-                        @foreach ($farm['inventory_items'] as $item)
-                            <option value="{{ $item['id'] }}" {{ $item['id'] == $inventory_item_id ? 'selected' : '' }}>{{ $item['name'] }}</option>
-                        @endforeach
-                    @endif
+                @foreach ($availableItems as $item)
+                    <option value="{{ $item['id'] }}" {{ $item['id'] == $inventory_item_id ? 'selected' : '' }}>{{ $item['name'] }} ({{ $item['farm_name'] }})</option>
                 @endforeach
             </select>
             @error('inventory_item_id') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror

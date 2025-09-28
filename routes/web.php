@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
     if (Auth::check()) {
-        return redirect()->route('dashboard');
+        return redirect()->route('item-requests.index');
     }
     return redirect()->route('login');
 })->name('home');

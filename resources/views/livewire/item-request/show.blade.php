@@ -38,12 +38,12 @@
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Requested At</p>
                 <p class="text-lg text-gray-900 dark:text-white">{{ $itemRequest->requested_at->format('Y-m-d H:i') }}</p>
             </div>
-            @if ($itemRequest->feedback)
+            {{-- @if ($itemRequest->feedback)
                 <div class="col-span-2">
                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Feedback</p>
                     <p class="text-lg text-gray-900 dark:text-white">{{ $itemRequest->feedback->content }}</p>
                 </div>
-            @endif
+            @endif --}}
             <div class="col-span-2">
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Notes</p>
                 <p class="text-lg text-gray-900 dark:text-white">{{ $itemRequest->notes ?? 'N/A' }}</p>

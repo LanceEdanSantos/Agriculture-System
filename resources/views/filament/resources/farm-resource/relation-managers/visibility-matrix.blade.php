@@ -62,7 +62,7 @@
             @if ($category->inventoryItems->count())
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     @foreach ($category->inventoryItems as $item)
-                        <div class="flex items-center justify-between px-3 py-2 bg-gray-50 rounded-md shadow-inner">
+                        <div class="flex items-center justify-between px-3 py-2 rounded-md shadow-inner">
                             <span class="text-sm">{{ $item->name }}</span>
 
                             {{-- Filament checkbox, manual Alpine binding --}}
