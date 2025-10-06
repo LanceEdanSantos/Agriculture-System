@@ -16,7 +16,10 @@ return new class extends Migration
             $table->foreignId('item_request_id')->constrained()->onDelete('cascade');
             $table->string('status'); // pending, approved, rejected, in_progress, delivered, cancelled
             $table->text('notes')->nullable();
-            $table->foreignId('changed_by')->constrained('users')->onDelete('set null');
+            $table->foreignId('changed_by')
+                ->nullable()
+                ->constrained('users')
+                ->onDelete('set null');
             $table->timestamps();
             
             // Index for better performance when querying by status
