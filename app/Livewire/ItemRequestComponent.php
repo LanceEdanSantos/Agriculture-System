@@ -84,7 +84,7 @@ class ItemRequestComponent extends Component
         foreach ($userFarms as $farm) {
             // Get all active inventory items for this farm
             $farmItems = $farm->inventoryItems()
-                ->where('is_active', true)
+                ->where('status', 'active')
                 ->get();
                 
             foreach ($farmItems as $item) {
