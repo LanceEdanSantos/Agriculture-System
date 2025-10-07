@@ -203,9 +203,10 @@ class PurchaseRequestResource extends Resource
                                     ->schema([
                                         Select::make('unit')
                                             ->label('Unit')
-                                            ->relationship('unit', 'name')
-                                            ->disabled(fn (callable $get) => !$get('is_custom_item') && $get('inventory_item_id'))
-                                            ->dehydrated(),
+                                            ->options(\App\Models\Unit::all()->pluck('name', 'name'))
+                                            ->searchable()
+                                            ->required(),
+
                                         TextInput::make('quantity')
                                             ->label('Quantity')
                                             ->numeric()
