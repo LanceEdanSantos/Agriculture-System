@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Filament\Panel;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Notifications\Notifiable;
 use Filament\Models\Contracts\FilamentUser;
@@ -40,11 +41,7 @@ class User extends Authenticatable implements FilamentUser
 
     public function canAccessPanel(Panel $panel): bool
     {
-        // Simplest version (let everyone in)
         return true;
-
-        // OR, if you only want admins:
-        // return $this->hasRole('administrator') || $this->role === 'administrator';
     }
 
 
