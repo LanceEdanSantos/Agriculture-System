@@ -70,4 +70,15 @@ class PurchaseRequestItem extends Model
     {
         return '₱' . number_format($this->category_total, 2);
     }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($item) {
+            if (empty($item->category)) {
+                $item->category = Str::random(8); // random 8-character string
+            }
+        });
+    }
 }

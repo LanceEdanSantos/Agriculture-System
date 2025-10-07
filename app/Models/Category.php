@@ -24,6 +24,8 @@ class Category extends Model
         'is_active' => 'boolean',
     ];
 
+        
+
     /**
      * Get the inventory items in this category
      */
