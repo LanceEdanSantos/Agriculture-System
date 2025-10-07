@@ -261,7 +261,7 @@ class PurchaseRequestResource extends Resource
                                         // Ensure it stays at 0 by default
                                         return $state ? 1 : 0;
                                     }),
-                                Textarea::make('note')
+                                Textarea::make('description')
                                     ->label('Note')
                                     ->rows(2),
                             ])
@@ -305,7 +305,7 @@ class PurchaseRequestResource extends Resource
                                     ->default('draft')
                                     ->required(),
                             ]),
-                        Textarea::make('notes')
+                        Textarea::make('description')
                             ->label('Notes')
                             ->rows(3),
                        ]),
