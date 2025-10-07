@@ -201,8 +201,9 @@ class PurchaseRequestResource extends Resource
                                     ->disabled(fn (callable $get) => !$get('is_custom_item') && $get('inventory_item_id')),
                                 Grid::make(4)
                                     ->schema([
-                                        TextInput::make('unit')
+                                        Select::make('unit')
                                             ->label('Unit')
+                                            ->relationship('unit', 'name')
                                             ->disabled(fn (callable $get) => !$get('is_custom_item') && $get('inventory_item_id'))
                                             ->dehydrated(),
                                         TextInput::make('quantity')
