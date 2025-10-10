@@ -40,12 +40,12 @@ class InventoryOverview extends BaseWidget
                 ->descriptionIcon('heroicon-m-currency-dollar')
                 ->color('success'),
 
-            Stat::make('Pending Purchase Requests', $pendingRequests)
+            Stat::make('Pending Item Requests', $pendingRequests)
                 ->description('Awaiting approval')
                 ->descriptionIcon('heroicon-m-document-text')
                 ->color('info'),
 
-            Stat::make('Approved Purchase Requests', $approvedRequests)
+            Stat::make('Approved Item Requests', $approvedRequests)
                 ->description('Ready for procurement')
                 ->descriptionIcon('heroicon-m-check-circle')
                 ->color('success'),

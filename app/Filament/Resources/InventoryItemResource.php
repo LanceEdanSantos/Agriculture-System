@@ -162,10 +162,10 @@ class InventoryItemResource extends Resource
                     ->label('Item Name')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('category.name')
-                    ->label('Category')
-                    ->badge()
-                    ->color('primary'),
+                // TextColumn::make('category.name')
+                //     ->label('Category')
+                //     ->badge()
+                //     ->color('primary'),
                 TextColumn::make('current_stock')
                     ->label('Current Stock')
                     ->sortable()
@@ -183,10 +183,10 @@ class InventoryItemResource extends Resource
                     ->label('Total Value')
                     ->money('PHP')
                     ->sortable(),
-                TextColumn::make('supplier.name')
-                    ->label('Supplier')
-                    ->searchable()
-                    ->sortable(),
+                // TextColumn::make('supplier.name')
+                //     ->label('Supplier')
+                //     ->searchable()
+                //     ->sortable(),
                 TextColumn::make('unit.name')
                     ->label('Unit')
                     ->searchable()
