@@ -232,13 +232,31 @@ class ItemRequest extends Model
      */
     public function approve(int $approvedBy, ?string $notes = null): bool
     {
-        return $this->update([
+        $wasUpdated = $this->update([
             'status' => self::STATUS_APPROVED,
             'approved_by' => $approvedBy,
             'approved_at' => now(),
             'rejection_reason' => null,
         ]);
+
+        if ($wasUpdated && $this->inventoryItem) {
+            // Automatically create a stock movement (OUT)
+            \App\Models\StockMovement::create([
+                'inventory_item_id' => $this->inventory_item_id,
+                'user_id' => $approvedBy,
+                'type' => 'out',
+                'quantity' => $this->quantity,
+                'unit_cost' => $this->inventoryItem->average_unit_cost ?? 0,
+                'total_cost' => ($this->inventoryItem->average_unit_cost ?? 0) * $this->quantity,
+                'reason' => 'Item request approval',
+                'notes' => $notes ?? 'Automatically created from approved item request #' . $this->id,
+                'movement_date' => now(),
+            ]);
+        }
+
+        return $wasUpdated;
     }
+
 
     /**
      * Reject the request.
