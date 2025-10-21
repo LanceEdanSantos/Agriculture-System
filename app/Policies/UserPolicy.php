@@ -60,8 +60,19 @@ class UserPolicy
      * @param  \App\Models\User  $user
      * @return bool
      */
-    public function delete(User $user): bool
+    public function delete(User $user, User $model): bool
     {
+        // Prevent self-deletion
+        if ($user->id === $model->id) {
+            return false;
+        }
+
+        // Optional: prevent deleting any Super Admin at all
+        if ($model->hasRole('super_admin')) {
+            return false;
+        }
+
+        // Let Filament Shield handle the rest
         return $user->can('delete_user');
     }
 
