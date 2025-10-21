@@ -6,9 +6,6 @@ use App\Http\Controllers\ItemRequestController;
 
 // All routes in this file are protected by 'auth' and 'role:farmer' middleware
 
-Route::get('/', function () {
-    return redirect()->route('item-requests.index');
-})->name('dashboard');
 
 Route::middleware(['auth'])->group(function () {
     // Item Requests

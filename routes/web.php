@@ -11,6 +11,14 @@ Route::get('/inventory/print', [InventoryPrintController::class, 'print'])
     ->name('inventory.print')
     ->middleware(['auth']);
 
+Route::get('/dashboard', function () {
+    return redirect()->route('item-requests.index');
+})->name('dashboard')->middleware('auth');
+
+Route::get('/', function () {
+    return redirect()->route('login');
+})->name('home');
+
 // Authentication routes
 require __DIR__.'/auth.php';
 
