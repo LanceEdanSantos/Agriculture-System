@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class PurchaseRequest extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity;
 
     protected $fillable = [
         'province',
@@ -35,6 +37,33 @@ class PurchaseRequest extends Model
         'lgu' => 'boolean',
         'approved_by' => 'array',
     ];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly([
+                'province',
+                'lgu',
+                'responsibility_center',
+                'account_code',
+                'department',
+                'pr_no',
+                'sai_no',
+                'date',
+                'grand_total',
+                'delivery_place',
+                'delivery_date_terms',
+                'prepared_by',
+                'certified_by',
+                'requested_by',
+                'approved_by',
+                'status',
+                'notes',
+            ])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->dontLogIfAttributesChangedOnly(['updated_at']);
+    }
 
     /**
      * Get the items for this purchase request

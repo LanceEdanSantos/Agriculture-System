@@ -22,6 +22,7 @@ return new class extends Migration
             $table->text('reason')->nullable();
             $table->text('notes')->nullable();
             $table->timestamp('movement_date')->useCurrent();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

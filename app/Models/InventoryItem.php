@@ -5,10 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class InventoryItem extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes, LogsActivity;
 
     protected $fillable = [
         'name',
@@ -28,7 +31,6 @@ class InventoryItem extends Model
         'last_supplier',
         'expiration_date',
         'notes',
-        'status',
     ];
 
     protected $casts = [
@@ -37,6 +39,26 @@ class InventoryItem extends Model
         'expiration_date' => 'date',
         'last_purchase_date' => 'date',
     ];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly([
+                'name',
+                'description',
+                'category_id',
+                'unit_id',
+                'unit_cost',
+                'current_stock',
+                'minimum_stock',
+                'item_code',
+                'supplier_id',
+                'expiration_date',
+                'notes',
+            ])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
+    }
 
     /**
      * Get the purchase request items for this inventory item
@@ -185,10 +207,11 @@ class InventoryItem extends Model
             ->sum('quantity_purchased');
         $this->save();
     }
-    public function farms(): BelongsToMany
+    /**
+     * Get available stock for stock out movements
+     */
+    public function getAvailableStockForOut(): float
     {
-        return $this->belongsToMany(Farm::class, 'farm_inventory_visibility')
-            ->withPivot('is_visible')
-            ->withTimestamps();
+        return max(0, $this->current_stock);
     }
 }

@@ -2,18 +2,22 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\ItemRequestResource\Pages;
-use App\Filament\Resources\ItemRequestResource\RelationManagers;
-use App\Models\ItemRequest;
-use App\Models\User;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
+use App\Models\User;
 use Filament\Tables;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
+use App\Models\ItemRequest;
+use Filament\Resources\Resource;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Auth;
+use App\Filament\Resources\ItemRequestResource\Pages;
+use App\Filament\Resources\ItemRequestResource\RelationManagers;
+use Rmsramos\Activitylog\Actions\ActivityLogTimelineTableAction;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Section;
+use Filament\Tables\Columns\ImageColumn;
 
 class ItemRequestResource extends Resource
 {
@@ -99,6 +103,38 @@ class ItemRequestResource extends Resource
                     ->columnSpanFull()
                     ->disabled(!$isAdminOrManager)
                     ->visible($isAdminOrManager),
+                Section::make('Attachments')
+                    ->description('Upload images or documents related to this request')
+                    ->schema([
+                        FileUpload::make('attachments')
+                            ->label('Attachments')
+                            ->multiple()
+                            ->directory('item-requests')
+                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/jpg', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'])
+                            ->maxSize(10240)
+                            ->maxFiles(5)
+                            ->imagePreviewHeight('250')
+                            ->loadingIndicatorPosition('left')
+                            ->panelAspectRatio('2:1')
+                            ->panelLayout('integrated')
+                            ->downloadable()
+                            ->openable()
+                            ->previewable()
+                            ->reorderable()
+                            ->appendFiles()
+                            ->preserveFilenames()
+                            ->imageEditor()
+                            ->imageEditorAspectRatios([
+                                null,
+                                '16:9',
+                                '4:3',
+                                '1:1',
+                            ])
+                            ->columnSpanFull(),
+                    ])
+                    ->columns(1)
+                    ->collapsible()
+                    ->collapsed(),
             ]);
     }
 
@@ -151,6 +187,13 @@ class ItemRequestResource extends Resource
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('attachments_count')
+                    ->label('Attachments')
+                    ->badge()
+                    ->color('gray')
+                    ->formatStateUsing(fn (ItemRequest $record): string => $record->attachments()->count() . ' files')
+                    ->sortable()
+                    ->toggleable(),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
@@ -229,6 +272,18 @@ if (!Auth::user()->can('approve', $record)) {
                             'notes' => 'Request rejected: ' . $data['rejection_reason'],
                         ]);
                     }),
+            ActivityLogTimelineTableAction::make('Activities')
+                ->timelineIcons([
+                    'created' => 'heroicon-m-check-badge',
+                    'updated' => 'heroicon-m-pencil-square',
+                    'deleted' => 'heroicon-m-trash',
+                ])
+                ->timelineIconColors([
+                    'created' => 'success',
+                    'updated' => 'warning',
+                    'deleted' => 'danger',
+                ])
+                ->limit(20),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

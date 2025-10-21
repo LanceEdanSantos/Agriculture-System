@@ -8,9 +8,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\Auth;
 use App\Models\RequestFeedback;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class ItemRequest extends Model
 {
+    use LogsActivity;
     public const STATUS_PENDING = 'pending';
     public const STATUS_APPROVED = 'approved';
     public const STATUS_IN_DELIVERY = 'in_delivery';
@@ -38,6 +41,24 @@ class ItemRequest extends Model
         'approved_at' => 'datetime',
         'delivered_at' => 'datetime',
     ];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly([
+                'user_id',
+                'farm_id',
+                'inventory_item_id',
+                'quantity',
+                'notes',
+                'status',
+                'approved_by',
+                'rejection_reason',
+            ])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->dontLogIfAttributesChangedOnly(['updated_at']);
+    }
 
     protected $with = ['statuses'];
 
@@ -263,10 +284,10 @@ class ItemRequest extends Model
     }
 
     /**
-     * Get the user who approved the request (alias for approvedBy).
+     * Get all attachments for the request.
      */
-    public function approver(): BelongsTo
+    public function attachments(): HasMany
     {
-        return $this->approvedBy();
+        return $this->hasMany(ItemRequestAttachment::class);
     }
 }

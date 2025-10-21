@@ -2,30 +2,31 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\PurchaseRequestResource\Pages;
-use App\Models\PurchaseRequest;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
+use App\Models\PurchaseRequest;
+use Filament\Resources\Resource;
+use Filament\Forms\Components\Grid;
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Filters\Filter;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\KeyValue;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Textarea;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
+use Filament\Tables\Columns\BadgeColumn;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\RichEditor;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Toggle;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\KeyValue;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\BadgeColumn;
-use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Filters\Filter;
-use Filament\Tables\Actions\Action;
-use Filament\Forms\Components\RichEditor;
+use App\Filament\Resources\PurchaseRequestResource\Pages;
+use Rmsramos\Activitylog\Actions\ActivityLogTimelineTableAction;
 
 class PurchaseRequestResource extends Resource
 {
@@ -386,6 +387,18 @@ class PurchaseRequestResource extends Resource
                     ->action(function (PurchaseRequest $record): void {
                         $record->update(['status' => 'rejected']);
                     }),
+                ActivityLogTimelineTableAction::make('Activities')
+                    ->timelineIcons([
+                        'created' => 'heroicon-m-check-badge',
+                        'updated' => 'heroicon-m-pencil-square',
+                        'deleted' => 'heroicon-m-trash',
+                    ])
+                    ->timelineIconColors([
+                        'created' => 'success',
+                        'updated' => 'warning',
+                        'deleted' => 'danger',
+                    ])
+                    ->limit(20),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

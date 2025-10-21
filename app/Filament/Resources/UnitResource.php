@@ -2,24 +2,25 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\UnitResource\Pages;
-use App\Models\Unit;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
+use App\Models\Unit;
 use Filament\Tables;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
-use Filament\Forms\Components\Section;
+use Filament\Resources\Resource;
 use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
+use Filament\Tables\Filters\Filter;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Filters\Filter;
 use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Resources\UnitResource\Pages;
+use Rmsramos\Activitylog\Actions\ActivityLogTimelineTableAction;
 
 class UnitResource extends Resource
 {
@@ -148,6 +149,18 @@ class UnitResource extends Resource
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make()
                     ->visible(fn(Unit $record): bool => $record->inventoryItems()->count() === 0),
+                ActivityLogTimelineTableAction::make('Activities')
+                    ->timelineIcons([
+                        'created' => 'heroicon-m-check-badge',
+                        'updated' => 'heroicon-m-pencil-square',
+                        'deleted' => 'heroicon-m-trash',
+                    ])
+                    ->timelineIconColors([
+                        'created' => 'success',
+                        'updated' => 'warning',
+                        'deleted' => 'danger',
+                    ])
+                    ->limit(20),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

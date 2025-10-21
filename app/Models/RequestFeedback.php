@@ -4,9 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class RequestFeedback extends Model
 {
+    use LogsActivity;
     public const TYPE_COMMENT = 'comment';
     public const TYPE_ISSUE = 'issue';
     public const TYPE_COMPLAINT = 'complaint';
@@ -29,6 +32,23 @@ class RequestFeedback extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly([
+                'item_request_id',
+                'user_id',
+                'feedback',
+                'type',
+                'resolved',
+                'resolution_notes',
+                'resolved_by',
+            ])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->dontLogIfAttributesChangedOnly(['updated_at']);
+    }
 
     public static function types(): array
     {

@@ -2,26 +2,27 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\CategoryResource\Pages;
-use App\Models\Category;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
+use App\Models\Category;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
-use Filament\Forms\Components\Section;
+use Filament\Resources\Resource;
 use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
+use Filament\Tables\Filters\Filter;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Components\ColorPicker;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\ColorColumn;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Filters\Filter;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\ColorPicker;
+use App\Filament\Resources\CategoryResource\Pages;
+use Rmsramos\Activitylog\Actions\ActivityLogTimelineTableAction;
 
 class CategoryResource extends Resource
 {
@@ -132,6 +133,18 @@ class CategoryResource extends Resource
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make()
                     ->visible(fn (Category $record): bool => $record->inventoryItems()->count() === 0),
+                ActivityLogTimelineTableAction::make('Activities')
+                    ->timelineIcons([
+                        'created' => 'heroicon-m-check-badge',
+                        'updated' => 'heroicon-m-pencil-square',
+                        'deleted' => 'heroicon-m-trash',
+                    ])
+                    ->timelineIconColors([
+                        'created' => 'success',
+                        'updated' => 'warning',
+                        'deleted' => 'danger',
+                    ])
+                    ->limit(20),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

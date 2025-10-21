@@ -2,25 +2,26 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\SupplierResource\Pages;
-use App\Models\Supplier;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
+use App\Models\Supplier;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
-use Filament\Forms\Components\Section;
+use Filament\Resources\Resource;
 use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
+use Filament\Tables\Filters\Filter;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Filters\Filter;
 use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Resources\SupplierResource\Pages;
+use Rmsramos\Activitylog\Actions\ActivityLogTimelineTableAction;
 
 class SupplierResource extends Resource
 {
@@ -28,7 +29,7 @@ class SupplierResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-truck';
 
-    protected static ?string $navigationGroup = 'Inventory Management';
+    protected static ?string $navigationGroup = 'Purchase Management';
 
     protected static ?int $navigationSort = 2;
 
@@ -81,6 +82,7 @@ class SupplierResource extends Resource
                             ])
                             ->defaultItems(1)
                             ->reorderable(false)
+                    ->disableItemDeletion(fn(array $state): bool => count($state) <= 1)
                             ->collapsible()
                             ->itemLabel(fn(array $state): ?string => $state['number'] ?? null),
 
@@ -94,6 +96,7 @@ class SupplierResource extends Resource
                             ])
                             ->defaultItems(1)
                             ->reorderable(false)
+                            ->disableItemDeletion(fn (array $state): bool => count($state) <= 1)
                             ->collapsible()
                             ->itemLabel(fn(array $state): ?string => $state['email'] ?? null),
                     ]),
@@ -183,6 +186,18 @@ class SupplierResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
+                ActivityLogTimelineTableAction::make('Activities')
+                    ->timelineIcons([
+                        'created' => 'heroicon-m-check-badge',
+                        'updated' => 'heroicon-m-pencil-square',
+                        'deleted' => 'heroicon-m-trash',
+                    ])
+                    ->timelineIconColors([
+                        'created' => 'success',
+                        'updated' => 'warning',
+                        'deleted' => 'danger',
+                    ])
+                    ->limit(20),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

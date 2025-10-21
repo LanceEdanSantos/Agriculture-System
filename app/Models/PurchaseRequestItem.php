@@ -7,10 +7,12 @@ use App\Models\InventoryItem;
 use App\Models\PurchaseRequest;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class PurchaseRequestItem extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity;
 
     protected $fillable = [
         'purchase_request_id',
@@ -29,10 +31,35 @@ class PurchaseRequestItem extends Model
     ];
 
     protected $casts = [
+        'quantity' => 'decimal:2',
         'unit_cost' => 'decimal:2',
         'total_cost' => 'decimal:2',
         'category_total' => 'decimal:2',
+        'is_custom_item' => 'boolean',
     ];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly([
+                'purchase_request_id',
+                'inventory_item_id',
+                'category',
+                'note',
+                'item_no',
+                'item_code',
+                'description',
+                'unit',
+                'quantity',
+                'unit_cost',
+                'total_cost',
+                'category_total',
+                'is_custom_item',
+            ])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->dontLogIfAttributesChangedOnly(['updated_at']);
+    }
 
     /**
      * Get the purchase request that owns this item

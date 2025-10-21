@@ -2,16 +2,17 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\FarmResource\Pages;
-use App\Filament\Resources\FarmResource\RelationManagers;
-use App\Models\Farm;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
+use App\Models\Farm;
 use Filament\Tables;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Filament\Resources\Resource;
 use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Resources\FarmResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\FarmResource\RelationManagers;
+use Rmsramos\Activitylog\Actions\ActivityLogTimelineTableAction;
 
 class FarmResource extends Resource
 {
@@ -66,6 +67,18 @@ class FarmResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                ActivityLogTimelineTableAction::make('Activities')
+                    ->timelineIcons([
+                        'created' => 'heroicon-m-check-badge',
+                        'updated' => 'heroicon-m-pencil-square',
+                        'deleted' => 'heroicon-m-trash',
+                    ])
+                    ->timelineIconColors([
+                        'created' => 'success',
+                        'updated' => 'warning',
+                        'deleted' => 'danger',
+                    ])
+                    ->limit(20),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

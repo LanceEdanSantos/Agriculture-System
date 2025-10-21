@@ -3,12 +3,16 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Facades\Log;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class StockMovement extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity, SoftDeletes;
 
     protected $fillable = [
         'inventory_item_id',
@@ -26,7 +30,27 @@ class StockMovement extends Model
         'unit_cost' => 'decimal:2',
         'total_cost' => 'decimal:2',
         'movement_date' => 'datetime',
+        'deleted_at' => 'datetime',
     ];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly([
+                'inventory_item_id',
+                'user_id',
+                'type',
+                'quantity',
+                'unit_cost',
+                'total_cost',
+                'reason',
+                'notes',
+                'movement_date',
+            ])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->dontLogIfAttributesChangedOnly(['updated_at']);
+    }
     protected static function booted()
     {
         static::created(function (StockMovement $movement) {
@@ -42,7 +66,39 @@ class StockMovement extends Model
                 $item->last_purchase_date = $movement->movement_date ?? now();
                 $item->last_supplier = $movement->user?->name;
             } else {
-                $item->current_stock = ($item->current_stock ?? 0) - $movement->quantity;
+                // For stock out, ensure we don't go negative
+                $availableStock = $item->getAvailableStockForOut();
+                $originalQuantity = $movement->quantity;
+
+                if ($movement->quantity > $availableStock) {
+                    // If trying to stock out more than available, adjust to available amount
+                    $movement->quantity = $availableStock;
+                    // Recalculate total cost if quantity was adjusted
+                    if ($movement->unit_cost) {
+                        $movement->total_cost = $movement->unit_cost * $movement->quantity;
+                    }
+
+                    // Log the adjustment for transparency
+                    Log::info("Stock movement quantity adjusted", [
+                        'movement_id' => $movement->id,
+                        'item_name' => $item->name,
+                        'requested_quantity' => $originalQuantity,
+                        'adjusted_quantity' => $movement->quantity,
+                        'available_stock' => $availableStock,
+                        'user_id' => $movement->user_id
+                    ]);
+
+                    // Notify user about the adjustment
+                    Notification::make()
+                        ->title('Stock Quantity Adjusted')
+                        ->body("Requested quantity ({$originalQuantity}) exceeded available stock. Adjusted to available amount ({$movement->quantity}) for {$item->name}.")
+                        ->warning()
+                        ->sendToDatabase($movement->user);
+                }
+
+                if ($movement->quantity > 0) {
+                    $item->current_stock = ($item->current_stock ?? 0) - $movement->quantity;
+                }
             }
 
             // Update average cost (only for stock in)

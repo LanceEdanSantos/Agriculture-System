@@ -2,25 +2,30 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\StockMovementResource\Pages;
-use App\Models\StockMovement;
+use Closure;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Forms\Get;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
+use App\Models\InventoryItem;
+use App\Models\StockMovement;
+use Illuminate\Validation\Rule;
+use Filament\Resources\Resource;
+use Filament\Forms\Components\Grid;
+use Filament\Tables\Filters\Filter;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Textarea;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
+use Filament\Tables\Columns\BadgeColumn;
+use Filament\Forms\Components\DatePicker;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\DatePicker;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\BadgeColumn;
-use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Filters\Filter;
+use App\Filament\Resources\StockMovementResource\Pages;
+use Rmsramos\Activitylog\Actions\ActivityLogTimelineTableAction;
 
 class StockMovementResource extends Resource
 {
@@ -53,27 +58,60 @@ class StockMovementResource extends Resource
                                     ])
                                     ->required(),
                             ]),
-                        Grid::make(3)
+                        Grid::make(1)
                             ->schema([
                                 TextInput::make('quantity')
                                     ->label('Quantity')
                                     ->numeric()
-                                    ->required(),
-                                TextInput::make('unit_cost')
-                                    ->label('Unit Cost (₱)')
-                                    ->numeric()
-                                    ->prefix('₱'),
-                                TextInput::make('total_cost')
-                                    ->label('Total Cost (₱)')
-                                    ->numeric()
-                                    ->prefix('₱')
-                                    ->disabled()
-                                    ->dehydrated(false),
+                                    ->required()
+                                    ->reactive()
+                                    ->live(debounce: 500)
+                                    ->rules([
+                                        fn(Get $get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
+                                            $inventoryItemId = $get('inventory_item_id');
+                                            $type = $get('type');
+
+                                            if (! $inventoryItemId || ! $type) {
+                                                return;
+                                            }
+
+                                            $inventoryItem = \App\Models\InventoryItem::find($inventoryItemId);
+
+                                            if (! $inventoryItem) {
+                                                return;
+                                            }
+
+                                            if ($type === 'out') {
+                                                $available = $inventoryItem->getAvailableStockForOut();
+
+                                                if ($available <= 0) {
+                                                    $fail("{$inventoryItem->name} has no stock available.");
+                                                    return;
+                                                }
+
+                                                if ($value > $available) {
+                                                    $fail("Insufficient stock for {$inventoryItem->name}. Available: {$available} {$inventoryItem->unit?->name}");
+                                                }
+                                            } elseif ($type === 'in' && $value <= 0) {
+                                                $fail('Quantity must be greater than zero for stock-in.');
+                                            }
+                                        },
+                                    ]),
+                                // TextInput::make('unit_cost')
+                                //     ->label('Unit Cost (₱)')
+                                //     ->numeric()
+                                //     ->prefix('₱'),
+                                // TextInput::make('total_cost')
+                                //     ->label('Total Cost (₱)')
+                                //     ->numeric()
+                                //     ->prefix('₱')
+                                //     ->disabled()
+                                //     ->dehydrated(false),
                             ]),
-                        Textarea::make('reason')
-                            ->label('Reason')
-                            ->required()
-                            ->rows(2),
+                        // Textarea::make('reason')
+                        //     ->label('Reason')
+                        //     ->required()
+                        //     ->rows(2),
                         Textarea::make('notes')
                             ->label('Notes')
                             ->rows(3),
@@ -107,19 +145,24 @@ class StockMovementResource extends Resource
                 TextColumn::make('formatted_quantity')
                     ->label('Quantity')
                     ->alignCenter(),
-                TextColumn::make('formatted_unit_cost')
-                    ->label('Unit Cost')
-                    ->alignCenter(),
-                TextColumn::make('formatted_total_cost')
-                    ->label('Total Cost')
-                    ->alignCenter(),
-                TextColumn::make('reason')
-                    ->label('Reason')
-                    ->searchable(),
+                // TextColumn::make('formatted_unit_cost')
+                //     ->label('Unit Cost')
+                //     ->alignCenter(),
+                // TextColumn::make('formatted_total_cost')
+                //     ->label('Total Cost')
+                //     ->alignCenter(),
+                // TextColumn::make('reason')
+                //     ->label('Reason')
+                //     ->searchable(),
                 TextColumn::make('movement_date')
                     ->label('Date')
                     ->dateTime()
                     ->sortable(),
+                TextColumn::make('deleted_at')
+                    ->label('Deleted At')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 SelectFilter::make('type')
@@ -149,15 +192,31 @@ class StockMovementResource extends Resource
                                 fn (Builder $query, $date): Builder => $query->whereDate('movement_date', '<=', $date),
                             );
                     }),
+                Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
+                Tables\Actions\RestoreAction::make(),
+                ActivityLogTimelineTableAction::make('Activities')
+                    ->timelineIcons([
+                        'created' => 'heroicon-m-check-badge',
+                        'updated' => 'heroicon-m-pencil-square',
+                        'deleted' => 'heroicon-m-trash',
+                    ])
+                    ->timelineIconColors([
+                        'created' => 'success',
+                        'updated' => 'warning',
+                        'deleted' => 'danger',
+                    ])
+                ->limit(20),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\RestoreBulkAction::make(),
+                    Tables\Actions\ForceDeleteBulkAction::make(),
                 ]),
             ]);
     }

@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class PurchaseHistory extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity;
 
     protected $table = 'purchase_history';
 
@@ -40,6 +42,27 @@ class PurchaseHistory extends Model
         'total_cost' => 'decimal:2',
         'received_at' => 'datetime',
     ];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly([
+                'inventory_item_id',
+                'purchase_request_id',
+                'supplier_id',
+                'quantity_purchased',
+                'unit_cost',
+                'total_cost',
+                'purchase_date',
+                'delivery_date',
+                'expiration_date',
+                'status',
+                'received_by',
+            ])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->dontLogIfAttributesChangedOnly(['updated_at']);
+    }
 
     /**
      * Get the inventory item
