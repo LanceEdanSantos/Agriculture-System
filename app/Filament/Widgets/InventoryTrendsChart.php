@@ -7,7 +7,7 @@ use Flowframe\Trend\Trend;
 use Flowframe\Trend\TrendValue;
 use App\Models\InventoryItem;
 use App\Models\ItemRequest;
-use App\Models\PurchaseHistory;
+use App\Models\StockMovement;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
 
@@ -26,10 +26,10 @@ class InventoryTrendsChart extends ChartWidget
 
     protected function getData(): array
     {
-        // Inventory Value (12 months)
-        $inventoryValueData = collect(DB::select("
+        // Total Stock Levels (12 months)
+        $stockLevelData = collect(DB::select("
             SELECT DATE_FORMAT(created_at, '%Y-%m') as date,
-                   SUM(current_stock * unit_cost) as total_value
+                   SUM(current_stock) as total_stock
             FROM inventory_items
             WHERE created_at BETWEEN ? AND ? AND deleted_at IS NULL
             GROUP BY DATE_FORMAT(created_at, '%Y-%m')
@@ -39,23 +39,23 @@ class InventoryTrendsChart extends ChartWidget
             now()->endOfMonth()->format('Y-m-d H:i:s'),
         ]))->map(function ($item) {
             $date = Carbon::createFromFormat('Y-m', $item->date)->endOfMonth();
-            return new TrendValue(date: $date, aggregate: (float) $item->total_value);
+            return new TrendValue(date: $date, aggregate: (float) $item->total_stock);
         });
 
-        // Fill missing months
+        // Fill missing months for stock levels
         $startDate = now()->subMonths(11)->startOfMonth();
         $endDate = now()->endOfMonth();
-        $filledData = collect();
+        $filledStockData = collect();
 
         while ($startDate->lte($endDate)) {
             $monthKey = $startDate->format('Y-m');
 
-            $existing = $inventoryValueData->first(function ($item) use ($monthKey) {
+            $existing = $stockLevelData->first(function ($item) use ($monthKey) {
                 $itemDate = $item->date instanceof Carbon ? $item->date : Carbon::parse($item->date);
                 return $itemDate->format('Y-m') === $monthKey;
             });
 
-            $filledData->push($existing ?: new TrendValue(
+            $filledStockData->push($existing ?: new TrendValue(
                 date: $startDate->copy()->endOfMonth(),
                 aggregate: 0
             ));
@@ -63,25 +63,55 @@ class InventoryTrendsChart extends ChartWidget
             $startDate->addMonth();
         }
 
-        $inventoryValueData = $filledData;
+        $stockLevelData = $filledStockData;
 
-        // Item Requests trend
-        $requestsData = Trend::model(ItemRequest::class)
-            ->between(start: now()->subMonths(11)->startOfMonth(), end: now()->endOfMonth())
-            ->perMonth()
-            ->count();
+        // Stock Movements (In vs Out)
+        $stockInData = Trend::query(
+            StockMovement::where('type', 'in')
+                ->whereBetween('created_at', [now()->subMonths(11)->startOfMonth(), now()->endOfMonth()])
+        )
+        ->between(start: now()->subMonths(11)->startOfMonth(), end: now()->endOfMonth())
+        ->perMonth()
+        ->sum('quantity');
 
-        // Purchases trend
-        $purchasesData = Trend::model(PurchaseHistory::class)
-            ->between(start: now()->subMonths(11)->startOfMonth(), end: now()->endOfMonth())
-            ->perMonth()
-            ->count();
+        $stockOutData = Trend::query(
+            StockMovement::where('type', 'out')
+                ->whereBetween('created_at', [now()->subMonths(11)->startOfMonth(), now()->endOfMonth()])
+        )
+        ->between(start: now()->subMonths(11)->startOfMonth(), end: now()->endOfMonth())
+        ->perMonth()
+        ->sum('quantity');
+
+        // Low Stock Alerts over time
+        $lowStockAlerts = collect();
+        $currentDate = now()->subMonths(11)->startOfMonth();
+
+        while ($currentDate->lte(now()->endOfMonth())) {
+            $monthEnd = $currentDate->copy()->endOfMonth();
+
+            $lowStockCount = InventoryItem::where('created_at', '<=', $monthEnd)
+                ->where(function ($query) use ($monthEnd) {
+                    $query->whereRaw('current_stock <= minimum_stock')
+                          ->where(function ($q) use ($monthEnd) {
+                              $q->where('updated_at', '<=', $monthEnd)
+                                ->orWhereNull('updated_at');
+                          });
+                })
+                ->count();
+
+            $lowStockAlerts->push(new TrendValue(
+                date: $monthEnd,
+                aggregate: $lowStockCount
+            ));
+
+            $currentDate->addMonth();
+        }
 
         return [
             'datasets' => [
                 [
-                    'label' => 'Inventory Value (₱)',
-                    'data' => $inventoryValueData->map(fn(TrendValue $v) => round($v->aggregate / 1000, 2)),
+                    'label' => 'Total Stock Level',
+                    'data' => $stockLevelData->map(fn(TrendValue $v) => round($v->aggregate, 0)),
                     'borderColor' => '#10B981',
                     'backgroundColor' => 'rgba(16, 185, 129, 0.25)',
                     'fill' => true,
@@ -92,31 +122,43 @@ class InventoryTrendsChart extends ChartWidget
                     'yAxisID' => 'y',
                 ],
                 [
-                    'label' => 'Item Requests',
-                    'data' => $requestsData->map(fn(TrendValue $v) => $v->aggregate),
-                    'borderColor' => '#F59E0B',
-                    'backgroundColor' => 'rgba(245, 158, 11, 0.25)',
-                    'fill' => true,
+                    'label' => 'Stock In (Monthly)',
+                    'data' => $stockInData->map(fn(TrendValue $v) => $v->aggregate),
+                    'borderColor' => '#3B82F6',
+                    'backgroundColor' => 'rgba(59, 130, 246, 0.25)',
+                    'fill' => false,
                     'tension' => 0.4,
-                    'pointBackgroundColor' => '#F59E0B',
+                    'pointBackgroundColor' => '#3B82F6',
                     'pointRadius' => 3,
                     'pointHoverRadius' => 6,
                     'yAxisID' => 'y1',
                 ],
                 [
-                    'label' => 'Purchases',
-                    'data' => $purchasesData->map(fn(TrendValue $v) => $v->aggregate),
-                    'borderColor' => '#8B5CF6',
-                    'backgroundColor' => 'rgba(139, 92, 246, 0.25)',
-                    'fill' => true,
+                    'label' => 'Stock Out (Monthly)',
+                    'data' => $stockOutData->map(fn(TrendValue $v) => $v->aggregate),
+                    'borderColor' => '#EF4444',
+                    'backgroundColor' => 'rgba(239, 68, 68, 0.25)',
+                    'fill' => false,
                     'tension' => 0.4,
-                    'pointBackgroundColor' => '#8B5CF6',
+                    'pointBackgroundColor' => '#EF4444',
                     'pointRadius' => 3,
                     'pointHoverRadius' => 6,
                     'yAxisID' => 'y1',
                 ],
+                [
+                    'label' => 'Low Stock Alerts',
+                    'data' => $lowStockAlerts->map(fn(TrendValue $v) => $v->aggregate),
+                    'borderColor' => '#F59E0B',
+                    'backgroundColor' => 'rgba(245, 158, 11, 0.25)',
+                    'fill' => false,
+                    'tension' => 0.4,
+                    'pointBackgroundColor' => '#F59E0B',
+                    'pointRadius' => 3,
+                    'pointHoverRadius' => 6,
+                    'yAxisID' => 'y2',
+                ],
             ],
-            'labels' => $inventoryValueData->map(function (TrendValue $v) {
+            'labels' => $stockLevelData->map(function (TrendValue $v) {
                 $date = $v->date instanceof Carbon ? $v->date : Carbon::parse($v->date);
                 return $date->format('M Y');
             }),
@@ -142,19 +184,26 @@ class InventoryTrendsChart extends ChartWidget
                 'y' => [
                     'type' => 'linear',
                     'position' => 'left',
-                    'title' => ['display' => true, 'text' => 'Inventory Value (₱K)'],
+                    'title' => ['display' => true, 'text' => 'Stock Levels (Units)'],
                     'ticks' => [
                         'color' => 'rgba(50,50,50,0.8)',
-                        'callback' => 'function(value){return "₱" + value + "k"}',
+                        'callback' => 'function(value){return value.toLocaleString()}',
                     ],
                     'grid' => ['color' => 'rgba(0,0,0,0.05)'],
                 ],
                 'y1' => [
                     'type' => 'linear',
                     'position' => 'right',
-                    'title' => ['display' => true, 'text' => 'Requests / Purchases'],
+                    'title' => ['display' => true, 'text' => 'Movements (Units)'],
                     'grid' => ['drawOnChartArea' => false],
                     'ticks' => ['color' => 'rgba(120,120,120,0.8)'],
+                ],
+                'y2' => [
+                    'type' => 'linear',
+                    'position' => 'right',
+                    'title' => ['display' => true, 'text' => 'Low Stock Alerts'],
+                    'grid' => ['drawOnChartArea' => false],
+                    'ticks' => ['color' => 'rgba(150,150,150,0.8)'],
                 ],
             ],
             'plugins' => [
@@ -175,8 +224,11 @@ class InventoryTrendsChart extends ChartWidget
                     'padding' => 10,
                     'callbacks' => [
                         'label' => 'function(context) {
-                            if (context.dataset.label.includes("Value")) {
-                                return "₱" + context.parsed.y.toLocaleString() + "k";
+                            if (context.dataset.label.includes("Stock Level")) {
+                                return context.dataset.label + ": " + context.parsed.y.toLocaleString() + " units";
+                            }
+                            if (context.dataset.label.includes("Stock In") || context.dataset.label.includes("Stock Out")) {
+                                return context.dataset.label + ": " + context.parsed.y.toLocaleString() + " units";
                             }
                             return context.dataset.label + ": " + context.parsed.y;
                         }',
