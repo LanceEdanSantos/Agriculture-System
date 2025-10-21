@@ -14,7 +14,7 @@ class ListInventoryItems extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            ImportInventoryAction::make(),
+            // ImportInventoryAction::make(),
             Actions\CreateAction::make(),
         ];
     }

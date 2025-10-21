@@ -90,25 +90,25 @@ class InventoryItemResource extends Resource
                                 ->numeric()
                                 ->default(10)
                                 ->required(),
-                            TextInput::make('unit_cost')
-                                ->label('Unit Cost (₱)')
-                                ->numeric()
-                                ->prefix('₱')
-                                ->required(),
+                            // TextInput::make('unit_cost')
+                            //     ->label('Unit Cost (₱)')
+                            //     ->numeric()
+                            //     ->prefix('₱')
+                            //     ->required(),
                         ]),
-                        Grid::make(2)->schema([
-                            TextInput::make('average_unit_cost')
-                                ->label('Average Unit Cost (₱)')
-                                ->numeric()
-                                ->prefix('₱')
-                                ->disabled()
-                                ->dehydrated(false),
-                            TextInput::make('total_purchased')
-                                ->label('Total Purchased')
-                                ->numeric()
-                                ->disabled()
-                                ->dehydrated(false),
-                        ]),
+                        // Grid::make(2)->schema([
+                        //     TextInput::make('average_unit_cost')
+                        //         ->label('Average Unit Cost (₱)')
+                        //         ->numeric()
+                        //         ->prefix('₱')
+                        //         ->disabled()
+                        //         ->dehydrated(false),
+                        //     TextInput::make('total_purchased')
+                        //         ->label('Total Purchased')
+                        //         ->numeric()
+                        //         ->disabled()
+                        //         ->dehydrated(false),
+                        // ]),
                     ]),
 
                 Section::make('Supplier Information')
@@ -262,12 +262,12 @@ class InventoryItemResource extends Resource
             ->defaultSort('name')
             ->paginated([10, 25, 50, 100])
             ->headerActions([
-                Action::make('print')
-                    ->label('Print Report')
-                    ->icon('heroicon-o-printer')
-                    ->color('gray')
-                    ->url(fn (): string => route('inventory.print', ['table' => request()->query()]))
-                    ->openUrlInNewTab(),
+                // Action::make('print')
+                //     ->label('Print Report')
+                //     ->icon('heroicon-o-printer')
+                //     ->color('gray')
+                //     ->url(fn (): string => route('inventory.print', ['table' => request()->query()]))
+                //     ->openUrlInNewTab(),
             ])
             ->actions([
                 EditAction::make(),
