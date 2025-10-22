@@ -32,7 +32,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\InventoryItemResource\Pages;
 use Rmsramos\Activitylog\Actions\ActivityLogTimelineTableAction;
 use App\Filament\Resources\InventoryItemResource\RelationManagers;
-use Filament\Actions\ActionGroup;
+use Filament\Tables\Actions\ActionGroup;
 
 class InventoryItemResource extends Resource
 {
