@@ -20,14 +20,14 @@ class InventoryItemExporter extends Exporter
             ExportColumn::make('category.name')->label('Category'),
             ExportColumn::make('unit.name')->label('Unit'),
             ExportColumn::make('current_stock')->label('Current Stock'),
-            ExportColumn::make('minimum_stock')->label('Minimum Stock'),
-            ExportColumn::make('unit_cost')
-                ->label('Unit Cost')
-                ->formatStateUsing(fn($state) => '₱' . number_format($state, 2)),
-            ExportColumn::make('total_stock_value')
-                ->label('Total Value')
-                ->state(fn(InventoryItem $record) => $record->current_stock * $record->unit_cost)
-                ->formatStateUsing(fn($state) => '₱' . number_format($state, 2)),
+            // ExportColumn::make('minimum_stock')->label('Minimum Stock'),
+            // ExportColumn::make('unit_cost')
+            //     ->label('Unit Cost')
+            //     ->formatStateUsing(fn($state) => '₱' . number_format($state, 2)),
+            // ExportColumn::make('total_stock_value')
+            //     ->label('Total Value')
+            //     ->state(fn(InventoryItem $record) => $record->current_stock * $record->unit_cost)
+            //     ->formatStateUsing(fn($state) => '₱' . number_format($state, 2)),
             ExportColumn::make('supplier.name')->label('Supplier'),
             ExportColumn::make('last_purchase_date')->label('Last Purchase Date'),
             ExportColumn::make('expiration_date')->label('Expiration Date'),

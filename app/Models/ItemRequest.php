@@ -101,6 +101,22 @@ class ItemRequest extends Model
                 }
             }
         });
+
+        static::updated(function ($itemRequest){
+            if($itemRequest->wasChanged('status')&& $itemRequest->status === self::STATUS_APPROVED) {
+                if($itemRequest->inventoryItem){
+                    \App\Models\StockMovement::firstOrCreate([
+                        'inventory_item_id' => $itemRequest->inventoryItem->id,
+                        'user_id' => $itemRequest->user_id,
+                        'type' => 'out',
+                        'quantity' => $itemRequest->quantity,
+                        'notes' => $itemRequest->notes,
+                        'created_by' => Auth::id(),
+                    ],
+                );
+                }
+            }
+        });
     }
 
     public static function getStatuses(): array

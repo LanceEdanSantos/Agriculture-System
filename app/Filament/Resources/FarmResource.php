@@ -32,14 +32,14 @@ class FarmResource extends Resource
                         Forms\Components\Textarea::make('description')
                             ->maxLength(65535)
                             ->columnSpanFull(),
-                        Forms\Components\Select::make('is_active')
-                            ->label('Status')
-                            ->options([
-                                0 => 'Inactive',
-                                1 => 'Active',
-                            ])
-                            ->default(true)
-                            ->required(),
+                        // Forms\Components\Select::make('is_active')
+                        //     ->label('Status')
+                        //     ->options([
+                        //         0 => 'Inactive',
+                        //         1 => 'Active',
+                        //     ])
+                        //     ->default(true)
+                        //     ->required(),
                     ])->columns(2),
             ]);
     }
