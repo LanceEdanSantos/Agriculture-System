@@ -15,5 +15,13 @@ class EditInventoryItem extends EditRecord
         return [
             Actions\DeleteAction::make(),
         ];
+
+        
+    }
+
+    protected function getRedirectUrl(): string
+    {
+        // Redirect to the table (index) after saving
+        return $this->getResource()::getUrl('index');
     }
 }
