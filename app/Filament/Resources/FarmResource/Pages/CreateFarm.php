@@ -9,4 +9,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateFarm extends CreateRecord
 {
     protected static string $resource = FarmResource::class;
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 }
