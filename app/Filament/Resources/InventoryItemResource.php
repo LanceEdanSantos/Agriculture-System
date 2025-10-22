@@ -68,11 +68,13 @@ class InventoryItemResource extends Resource
                             Select::make('category_id')
                                 ->label('Category')
                                 ->relationship('category', 'name')
+                                ->preload()
                                 ->searchable()
                                 ->required(),
                             Select::make('unit_id')
                                 ->label('Unit')
                                 ->relationship('unit', 'name')
+                                ->preload()
                                 ->searchable()
                                 ->required(),
                         ]),
@@ -118,6 +120,7 @@ class InventoryItemResource extends Resource
                             Select::make('supplier_id')
                                 ->label('Supplier')
                                 ->relationship('supplier', 'name')
+                                ->preload()
                                 ->searchable()
                                 ->createOptionForm([
                                     TextInput::make('name')
