@@ -16,6 +16,7 @@ use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
@@ -146,21 +147,23 @@ class UnitResource extends Resource
                     ->query(fn(Builder $query): Builder => $query->where('is_custom', false)),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make()
-                    ->visible(fn(Unit $record): bool => $record->inventoryItems()->count() === 0),
-                ActivityLogTimelineTableAction::make('Activities')
-                    ->timelineIcons([
-                        'created' => 'heroicon-m-check-badge',
-                        'updated' => 'heroicon-m-pencil-square',
-                        'deleted' => 'heroicon-m-trash',
-                    ])
-                    ->timelineIconColors([
-                        'created' => 'success',
-                        'updated' => 'warning',
-                        'deleted' => 'danger',
-                    ])
-                    ->limit(20),
+                ActionGroup::make([
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make()
+                        ->visible(fn(Unit $record): bool => $record->inventoryItems()->count() === 0),
+                    ActivityLogTimelineTableAction::make('Activities')
+                        ->timelineIcons([
+                            'created' => 'heroicon-m-check-badge',
+                            'updated' => 'heroicon-m-pencil-square',
+                            'deleted' => 'heroicon-m-trash',
+                        ])
+                        ->timelineIconColors([
+                            'created' => 'success',
+                            'updated' => 'warning',
+                            'deleted' => 'danger',
+                        ])
+                        ->limit(20),
+                ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

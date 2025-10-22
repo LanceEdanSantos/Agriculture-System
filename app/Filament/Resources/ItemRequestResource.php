@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use App\Filament\Resources\ItemRequestResource\Pages;
 use App\Filament\Resources\ItemRequestResource\RelationManagers;
+use Filament\Actions\ActionGroup;
 use Rmsramos\Activitylog\Actions\ActivityLogTimelineTableAction;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Section;
@@ -188,17 +189,18 @@ class ItemRequestResource extends Resource
                     })
             ])
             ->actions([
+               ActionGroup::make([
                 Tables\Actions\ViewAction::make()
-                    ->visible(fn (ItemRequest $record): bool => Auth::user()->can('view', $record)),
+                    ->visible(fn(ItemRequest $record): bool => Auth::user()->can('view', $record)),
                 Tables\Actions\EditAction::make()
-                    ->visible(fn (ItemRequest $record): bool => Auth::user()->can('update', $record)),
+                    ->visible(fn(ItemRequest $record): bool => Auth::user()->can('update', $record)),
                 Tables\Actions\Action::make('approve')
-                    ->visible(fn (ItemRequest $record): bool => Auth::user()->can('approve', $record))
+                    ->visible(fn(ItemRequest $record): bool => Auth::user()->can('approve', $record))
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
                     ->requiresConfirmation()
                     ->action(function (ItemRequest $record) {
-if (!Auth::user()->can('approve', $record)) {
+                        if (!Auth::user()->can('approve', $record)) {
                             throw new \Exception('You are not authorized to approve this request.');
                         }
                         $record->update([
@@ -206,7 +208,7 @@ if (!Auth::user()->can('approve', $record)) {
                             'approved_at' => now(),
                             'approved_by' => Auth::id(),
                         ]);
-                        
+
                         // Log status change
                         $record->statuses()->create([
                             'status' => ItemRequest::STATUS_APPROVED,
@@ -215,7 +217,7 @@ if (!Auth::user()->can('approve', $record)) {
                         ]);
                     }),
                 Tables\Actions\Action::make('reject')
-                    ->visible(fn (ItemRequest $record): bool => Auth::user()->can('reject', $record))
+                    ->visible(fn(ItemRequest $record): bool => Auth::user()->can('reject', $record))
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
                     ->requiresConfirmation()
@@ -232,7 +234,7 @@ if (!Auth::user()->can('approve', $record)) {
                             'status' => ItemRequest::STATUS_REJECTED,
                             'rejection_reason' => $data['rejection_reason'],
                         ]);
-                        
+
                         // Log status change
                         $record->statuses()->create([
                             'status' => ItemRequest::STATUS_REJECTED,
@@ -240,18 +242,19 @@ if (!Auth::user()->can('approve', $record)) {
                             'notes' => 'Request rejected: ' . $data['rejection_reason'],
                         ]);
                     }),
-            ActivityLogTimelineTableAction::make('Activities')
-                ->timelineIcons([
-                    'created' => 'heroicon-m-check-badge',
-                    'updated' => 'heroicon-m-pencil-square',
-                    'deleted' => 'heroicon-m-trash',
-                ])
-                ->timelineIconColors([
-                    'created' => 'success',
-                    'updated' => 'warning',
-                    'deleted' => 'danger',
-                ])
-                ->limit(20),
+                ActivityLogTimelineTableAction::make('Activities')
+                    ->timelineIcons([
+                        'created' => 'heroicon-m-check-badge',
+                        'updated' => 'heroicon-m-pencil-square',
+                        'deleted' => 'heroicon-m-trash',
+                    ])
+                    ->timelineIconColors([
+                        'created' => 'success',
+                        'updated' => 'warning',
+                        'deleted' => 'danger',
+                    ])
+                    ->limit(20),
+            ])
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

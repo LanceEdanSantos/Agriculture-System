@@ -8,7 +8,7 @@ use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
-use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables\Actions\ActionGroup;
 use App\Filament\Resources\FarmResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\FarmResource\RelationManagers;
@@ -71,19 +71,21 @@ class FarmResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                ActivityLogTimelineTableAction::make('Activities')
-                    ->timelineIcons([
-                        'created' => 'heroicon-m-check-badge',
-                        'updated' => 'heroicon-m-pencil-square',
-                        'deleted' => 'heroicon-m-trash',
-                    ])
-                    ->timelineIconColors([
-                        'created' => 'success',
-                        'updated' => 'warning',
-                        'deleted' => 'danger',
-                    ])
-                    ->limit(20),
+                ActionGroup::make([
+                    Tables\Actions\EditAction::make(),
+                    ActivityLogTimelineTableAction::make('Activities')
+                        ->timelineIcons([
+                            'created' => 'heroicon-m-check-badge',
+                            'updated' => 'heroicon-m-pencil-square',
+                            'deleted' => 'heroicon-m-trash',
+                        ])
+                        ->timelineIconColors([
+                            'created' => 'success',
+                            'updated' => 'warning',
+                            'deleted' => 'danger',
+                        ])
+                        ->limit(20),
+                ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

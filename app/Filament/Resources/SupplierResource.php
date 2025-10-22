@@ -17,6 +17,7 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
@@ -184,6 +185,7 @@ class SupplierResource extends Resource
                     ->query(fn(Builder $query): Builder => $query->whereNotNull('email_addresses')),
             ])
             ->actions([
+               ActionGroup::make([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
                 ActivityLogTimelineTableAction::make('Activities')
@@ -198,6 +200,7 @@ class SupplierResource extends Resource
                         'deleted' => 'danger',
                     ])
                     ->limit(20),
+               ])
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

@@ -19,6 +19,7 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\RichEditor;
@@ -368,6 +369,7 @@ class PurchaseRequestResource extends Resource
                     ]),
             ])
             ->actions([
+               ActionGroup::make([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
@@ -399,6 +401,7 @@ class PurchaseRequestResource extends Resource
                         'deleted' => 'danger',
                     ])
                     ->limit(20),
+               ])
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
