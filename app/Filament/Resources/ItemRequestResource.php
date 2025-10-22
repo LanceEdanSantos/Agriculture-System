@@ -101,9 +101,9 @@ class ItemRequestResource extends Resource
     {
         $query = parent::getEloquentQuery();
 
-        if (!Auth::user()->hasRole('super_admin') && !Auth::user()->hasRole('farm_manager')) {
-            $query->where('user_id', Auth::id());
-        }
+        // if (!Auth::user()->hasRole('super_admin') && !Auth::user()->hasRole('farm_manager')) {
+        //     $query->where('user_id', Auth::id());
+        // }
 
         return $query;
     }
