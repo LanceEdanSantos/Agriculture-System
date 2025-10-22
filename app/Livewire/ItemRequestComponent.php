@@ -28,7 +28,16 @@ class ItemRequestComponent extends Component
     public $availableItems = [];
     public $farmNames = [];
     public $attachments = [];
-    public $existingAttachments = [];
+    public $existingAttachments;
+
+    // Computed property to ensure existingAttachments is always a collection
+    public function getExistingAttachmentsProperty()
+    {
+        if (is_array($this->existingAttachments)) {
+            return empty($this->existingAttachments) ? collect() : collect($this->existingAttachments);
+        }
+        return $this->existingAttachments ?? collect();
+    }
 
     protected $rules = [
         'farm_id' => 'required|exists:farms,id',
@@ -57,7 +66,7 @@ class ItemRequestComponent extends Component
                 $this->inventory_item_id = $this->itemRequest->inventory_item_id;
                 $this->quantity = $this->itemRequest->quantity;
                 $this->notes = $this->itemRequest->notes;
-                $this->existingAttachments = $this->itemRequest->attachments;
+                $this->existingAttachments = $this->itemRequest->attachments->toArray();
             }
             if ($this->mode === 'show') {
                 $this->itemRequest->load([
@@ -69,6 +78,13 @@ class ItemRequestComponent extends Component
                     'feedback',
                     'attachments'
                 ]);
+                // Ensure relationships are collections to prevent serialization issues
+                if ($this->itemRequest->relationLoaded('attachments')) {
+                    $this->itemRequest->setRelation('attachments', collect($this->itemRequest->attachments));
+                }
+                if ($this->itemRequest->relationLoaded('statuses')) {
+                    $this->itemRequest->setRelation('statuses', collect($this->itemRequest->statuses));
+                }
             }
         } else {
             $this->authorize('viewAny', ItemRequest::class);
@@ -195,7 +211,13 @@ class ItemRequestComponent extends Component
             $attachment = $this->itemRequest->attachments()->find($attachmentId);
             if ($attachment) {
                 $attachment->deleteWithFile();
-                $this->existingAttachments = $this->existingAttachments->reject(fn($a) => $a->id == $attachmentId);
+
+                // Handle both array and collection cases
+                if (is_array($this->existingAttachments)) {
+                    $this->existingAttachments = array_filter($this->existingAttachments, fn($a) => $a['id'] != $attachmentId);
+                } else {
+                    $this->existingAttachments = $this->existingAttachments->reject(fn($a) => $a->id == $attachmentId);
+                }
             }
         }
     }

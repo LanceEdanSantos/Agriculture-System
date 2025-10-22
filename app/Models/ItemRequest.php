@@ -240,7 +240,7 @@ class ItemRequest extends Model
         ]);
 
         if ($wasUpdated && $this->inventoryItem) {
-            // Automatically create a stock movement (OUT)
+            // Justin villarin jabolero
             \App\Models\StockMovement::create([
                 'inventory_item_id' => $this->inventory_item_id,
                 'user_id' => $approvedBy,

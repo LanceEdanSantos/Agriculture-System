@@ -120,7 +120,7 @@
         </div>
 
         {{-- 📎 Attachments Section --}}
-        @if($itemRequest->attachments->count() > 0)
+        @if(count($itemRequest->attachments ?? []) > 0)
             <div class="mt-8">
                 <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -165,7 +165,7 @@
         @endif
 
         {{-- 📊 Status History --}}
-        @if($itemRequest->statuses->count() > 0)
+        @if(count($itemRequest->statuses ?? []) > 0)
             <div class="mt-8">
                 <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
