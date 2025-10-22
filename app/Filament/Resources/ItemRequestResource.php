@@ -183,9 +183,6 @@ class ItemRequestResource extends Resource
                         ->color('success')
                         ->requiresConfirmation()
                         ->action(function (ItemRequest $record) {
-                            if (!Auth::user()->can('approve', $record)) {
-                                throw new \Exception('You are not authorized to approve this request.');
-                            }
                             $record->update([
                                 'status' => ItemRequest::STATUS_APPROVED,
                                 'approved_at' => now(),
@@ -210,9 +207,6 @@ class ItemRequestResource extends Resource
                                 ->required(),
                         ])
                         ->action(function (ItemRequest $record, array $data) {
-                            if (!Auth::user()->can('reject', $record)) {
-                                throw new \Exception('You are not authorized to reject this request.');
-                            }
                             $record->update([
                                 'status' => ItemRequest::STATUS_REJECTED,
                                 'rejection_reason' => $data['rejection_reason'],
