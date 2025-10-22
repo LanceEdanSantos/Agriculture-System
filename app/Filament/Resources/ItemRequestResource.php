@@ -146,13 +146,6 @@ class ItemRequestResource extends Resource
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('attachments_count')
-                    ->label('Attachments')
-                    ->badge()
-                    ->color('gray')
-                    ->formatStateUsing(fn(ItemRequest $record): string => $record->attachments()->count() . ' files')
-                    ->sortable()
-                    ->toggleable(),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
@@ -185,7 +178,7 @@ class ItemRequestResource extends Resource
                     Tables\Actions\EditAction::make()
                         ->visible(fn(ItemRequest $record): bool => Auth::user()->can('update', $record)),
                     Tables\Actions\Action::make('approve')
-                        ->visible(fn(ItemRequest $record): bool => Auth::user()->can('approve', $record))
+                        // ->visible(fn(ItemRequest $record): bool => Auth::user()->can('approve', $record))
                         ->icon('heroicon-o-check-circle')
                         ->color('success')
                         ->requiresConfirmation()
@@ -207,7 +200,7 @@ class ItemRequestResource extends Resource
                             ]);
                         }),
                     Tables\Actions\Action::make('reject')
-                        ->visible(fn(ItemRequest $record): bool => Auth::user()->can('reject', $record))
+                        // ->visible(fn(ItemRequest $record): bool => Auth::user()->can('reject', $record))
                         ->icon('heroicon-o-x-circle')
                         ->color('danger')
                         ->requiresConfirmation()
