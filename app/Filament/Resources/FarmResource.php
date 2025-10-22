@@ -32,7 +32,11 @@ class FarmResource extends Resource
                         Forms\Components\Textarea::make('description')
                             ->maxLength(65535)
                             ->columnSpanFull(),
-                        Forms\Components\Toggle::make('is_active')
+                        Forms\Components\Select::make('is_active')
+                            ->options([
+                                0 => 'Inactive',
+                                1 => 'Active',
+                            ])
                             ->default(true)
                             ->required(),
                     ])->columns(2),
@@ -51,6 +55,7 @@ class FarmResource extends Resource
                     ->label('Users')
                     ->sortable(),
                 Tables\Columns\IconColumn::make('is_active')
+                    ->label('Status')
                     ->boolean()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')

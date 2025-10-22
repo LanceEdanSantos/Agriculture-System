@@ -103,38 +103,6 @@ class ItemRequestResource extends Resource
                     ->columnSpanFull()
                     ->disabled(!$isAdminOrManager)
                     ->visible($isAdminOrManager),
-                Section::make('Attachments')
-                    ->description('Upload images or documents related to this request')
-                    ->schema([
-                        FileUpload::make('attachments')
-                            ->label('Attachments')
-                            ->multiple()
-                            ->directory('item-requests')
-                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/jpg', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'])
-                            ->maxSize(10240)
-                            ->maxFiles(5)
-                            ->imagePreviewHeight('250')
-                            ->loadingIndicatorPosition('left')
-                            ->panelAspectRatio('2:1')
-                            ->panelLayout('integrated')
-                            ->downloadable()
-                            ->openable()
-                            ->previewable()
-                            ->reorderable()
-                            ->appendFiles()
-                            ->preserveFilenames()
-                            ->imageEditor()
-                            ->imageEditorAspectRatios([
-                                null,
-                                '16:9',
-                                '4:3',
-                                '1:1',
-                            ])
-                            ->columnSpanFull(),
-                    ])
-                    ->columns(1)
-                    ->collapsible()
-                    ->collapsed(),
             ]);
     }
 

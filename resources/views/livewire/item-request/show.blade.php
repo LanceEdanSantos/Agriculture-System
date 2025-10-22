@@ -1,7 +1,7 @@
-<div class="max-w-4xl mx-auto px-6 py-8">
-    <div class="bg-white dark:bg-gray-900 shadow-xl rounded-2xl p-8 border border-gray-100 dark:border-gray-800 transition-all duration-300">
-        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-8 flex items-center gap-3">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+<div class="w-full px-4 sm:px-6 lg:px-8 py-8">
+    <div class="bg-white dark:bg-gray-900 shadow-xl rounded-2xl p-6 sm:p-8 border border-gray-100 dark:border-gray-800 transition-all duration-300">
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-6 sm:mb-8 flex items-center gap-3">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 sm:h-8 w-6 sm:w-8 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
             Item Request Details
@@ -27,8 +27,8 @@
         @endif
 
         {{-- 📋 Request Details Card --}}
-        <div class="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-6 mb-8">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 sm:p-6 mb-6 sm:mb-8">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {{-- Farm --}}
                 <div class="space-y-2">
                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-2">
@@ -37,7 +37,7 @@
                         </svg>
                         Farm
                     </p>
-                    <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ $itemRequest->farm->name }}</p>
+                    <p class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">{{ $itemRequest->farm->name }}</p>
                 </div>
 
                 {{-- Item --}}
@@ -48,7 +48,7 @@
                         </svg>
                         Item
                     </p>
-                    <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ $itemRequest->inventoryItem->name }}</p>
+                    <p class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">{{ $itemRequest->inventoryItem->name }}</p>
                 </div>
 
                 {{-- Quantity --}}
@@ -59,7 +59,7 @@
                         </svg>
                         Quantity
                     </p>
-                    <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ $itemRequest->quantity }}</p>
+                    <p class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">{{ $itemRequest->quantity }}</p>
                 </div>
 
                 {{-- Status --}}
@@ -70,7 +70,7 @@
                         </svg>
                         Status
                     </p>
-                    <span class="inline-flex px-3 py-1 text-sm font-medium rounded-full
+                    <span class="inline-flex px-2 py-1 text-sm font-medium rounded-full
                         @if($itemRequest->status === 'pending') bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300
                         @elseif($itemRequest->status === 'approved') bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300
                         @elseif($itemRequest->status === 'rejected') bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300
@@ -88,7 +88,7 @@
                         </svg>
                         Requested By
                     </p>
-                    <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ $itemRequest->user->name }}</p>
+                    <p class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">{{ $itemRequest->user->name }}</p>
                 </div>
 
                 {{-- Requested At --}}
@@ -99,7 +99,7 @@
                         </svg>
                         Requested At
                     </p>
-                    <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ $itemRequest->requested_at->format('M j, Y \a\t g:i A') }}</p>
+                    <p class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">{{ $itemRequest->requested_at->format('M j, Y \a\t g:i A') }}</p>
                 </div>
             </div>
 
@@ -119,55 +119,10 @@
             @endif
         </div>
 
-        {{-- 📎 Attachments Section --}}
-        @if(count($itemRequest->attachments ?? []) > 0)
-            <div class="mt-8">
-                <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                    </svg>
-                    Attachments
-                </h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    @foreach($itemRequest->attachments as $attachment)
-                        <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow">
-                            <div class="flex items-start gap-3">
-                                @if($attachment->isImage())
-                                    <div class="flex-shrink-0">
-                                        <img src="{{ $attachment->url }}" alt="{{ $attachment->original_name }}"
-                                             class="w-12 h-12 object-cover rounded-lg border border-gray-200 dark:border-gray-600">
-                                    </div>
-                                @else
-                                    <div class="flex-shrink-0">
-                                        <div class="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 flex items-center justify-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                            </svg>
-                                        </div>
-                                    </div>
-                                @endif
-                                <div class="flex-1 min-w-0">
-                                    <p class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ $attachment->original_name }}</p>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ $attachment->formatted_file_size }}</p>
-                                    <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">{{ strtoupper($attachment->file_extension) }}</p>
-                                </div>
-                                <div class="flex-shrink-0">
-                                    <a href="{{ $attachment->url }}" target="_blank"
-                                       class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium">
-                                        View
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-        @endif
-
         {{-- 📊 Status History --}}
         @if(count($itemRequest->statuses ?? []) > 0)
-            <div class="mt-8">
-                <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+            <div class="mt-6 sm:mt-8">
+                <h2 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
@@ -176,7 +131,7 @@
                 <div class="space-y-3">
                     @foreach ($itemRequest->statuses as $status)
                         <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                            <div class="flex items-center justify-between">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                                 <div class="flex items-center gap-3">
                                     <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full
                                         @if($status->status === 'pending') bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300
@@ -207,17 +162,17 @@
 
         {{-- ⚡ Action Buttons --}}
         @if ($itemRequest->status === 'pending')
-            <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+            <div class="mt-6 sm:mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
                 <div class="flex flex-col sm:flex-row gap-3">
                     <button wire:click="edit({{ $itemRequest->id }})"
-                        class="flex-1 sm:flex-none bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-3 rounded-lg shadow-md transition-all duration-200 focus:ring-4 focus:ring-green-300 dark:focus:ring-green-800 flex items-center justify-center gap-2">
+                        class="flex-1 sm:flex-none bg-green-600 hover:bg-green-700 text-white font-semibold px-4 sm:px-6 py-2 sm:py-3 rounded-lg shadow-md transition-all duration-200 focus:ring-4 focus:ring-green-300 dark:focus:ring-green-800 flex items-center justify-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
                         Edit Request
                     </button>
                     <button data-modal-target="delete-modal" data-modal-toggle="delete-modal"
-                        class="flex-1 sm:flex-none bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-3 rounded-lg shadow-md transition-all duration-200 focus:ring-4 focus:ring-red-300 dark:focus:ring-red-800 flex items-center justify-center gap-2">
+                        class="flex-1 sm:flex-none bg-red-600 hover:bg-red-700 text-white font-semibold px-4 sm:px-6 py-2 sm:py-3 rounded-lg shadow-md transition-all duration-200 focus:ring-4 focus:ring-red-300 dark:focus:ring-red-800 flex items-center justify-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>

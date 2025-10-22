@@ -7,6 +7,7 @@ use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Notifications\Notifiable;
 use Filament\Models\Contracts\FilamentUser;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
@@ -110,10 +111,21 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->role === 'farmer';
     }
-    public function farms()
+    public function farms(): BelongsToMany
+    {
+        return $this->belongsToMany(Farm::class, 'farm_user', 'user_id', 'farm_id')
+            ->withPivot(['role', 'is_visible'])
+            ->withTimestamps();
+    }
+
+    /**
+     * Get only visible farms (for admin UI purposes)
+     */
+    public function visibleFarms(): BelongsToMany
     {
         return $this->belongsToMany(Farm::class)
-            ->withPivot(['role', 'is_visible', 'role'])
+            ->withPivot(['role', 'is_visible'])
+            ->withTimestamps()
             ->wherePivot('is_visible', true);
     }
 }

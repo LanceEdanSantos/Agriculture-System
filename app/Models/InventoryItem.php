@@ -106,6 +106,27 @@ class InventoryItem extends Model
     }
 
     /**
+     * Get the farms that have this inventory item
+     */
+    public function farms(): BelongsToMany
+    {
+        return $this->belongsToMany(Farm::class, 'farm_inventory_visibility')
+            ->withPivot(['is_visible'])
+            ->withTimestamps();
+    }
+
+    /**
+     * Get only visible farms for this inventory item (for admin UI purposes)
+     */
+    public function visibleFarms(): BelongsToMany
+    {
+        return $this->belongsToMany(Farm::class, 'farm_inventory_visibility')
+            ->withPivot(['is_visible'])
+            ->withTimestamps()
+            ->wherePivot('is_visible', true);
+    }
+
+    /**
      * Get the purchase history for this item
      */
     public function purchaseHistory()

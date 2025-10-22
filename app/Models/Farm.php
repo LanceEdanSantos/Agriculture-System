@@ -35,7 +35,17 @@ class Farm extends Model
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class)
-            ->withPivot(['role', 'is_visible','role'])
+            ->withPivot(['role', 'is_visible'])
+            ->withTimestamps();
+    }
+
+    /**
+     * Get only visible users (for UI purposes)
+     */
+    public function visibleUsers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class)
+            ->withPivot(['role', 'is_visible'])
             ->withTimestamps()
             ->wherePivot('is_visible', true);
     }
@@ -52,5 +62,16 @@ class Farm extends Model
         return $this->belongsToMany(InventoryItem::class, 'farm_inventory_visibility')
             ->withPivot('is_visible')
             ->withTimestamps();
+    }
+
+    /**
+     * Get only visible inventory items (for admin UI purposes)
+     */
+    public function visibleInventoryItems(): BelongsToMany
+    {
+        return $this->belongsToMany(InventoryItem::class, 'farm_inventory_visibility')
+            ->withPivot('is_visible')
+            ->withTimestamps()
+            ->wherePivot('is_visible', true);
     }
 }

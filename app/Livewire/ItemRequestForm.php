@@ -37,11 +37,9 @@ class ItemRequestForm extends Component
     
     public function loadFarms(): void
     {
-        $this->farms = Auth::user()
-            ->farms()
-            ->wherePivot('is_visible', true)
-            ->get();
-            
+        // Use explicit query to avoid ambiguous column error
+        $this->farms = \App\Models\Farm::whereHas('users', fn($q) => $q->where('user_id', Auth::id()))->get();
+
         if ($this->farms->count() === 1) {
             $this->farmId = (string)$this->farms->first()->id;
             $this->updatedFarmId($this->farmId);
@@ -52,15 +50,16 @@ class ItemRequestForm extends Component
     {
         $this->inventoryItems = collect();
         $this->inventoryItemId = '';
-        
+
         if (!empty($value)) {
-            $this->inventoryItems = InventoryItem::query()
-                ->whereHas('farms', function($query) use ($value) {
-                    $query->where('farms.id', $value);
-                })
-                ->get();
+            $farm = $this->farms->where('id', $value)->first();
+            if ($farm) {
+                $this->inventoryItems = $farm->inventoryItems()
+                    ->where('status', 'active')
+                    ->get();
+            }
         }
-        
+
         if ($this->inventoryItems->count() === 1) {
             $this->inventoryItemId = (string)$this->inventoryItems->first()->id;
         }

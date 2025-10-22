@@ -1,159 +1,172 @@
-<div class="max-w-3xl mx-auto px-6 py-8">
-    <div class="bg-white dark:bg-gray-900 shadow-xl rounded-2xl p-8 border border-gray-100 dark:border-gray-800 transition-all duration-300">
-        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-8 flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            Create Item Request
-        </h1>
-
-        {{-- ✅ Session Alerts --}}
-        @if (session()->has('success'))
-            <div class="mb-6 p-4 flex items-center gap-3 bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-300 border border-green-200 dark:border-green-800 rounded-xl">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.707a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 10-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+<div class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-8 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header Section -->
+        <div class="mb-8 text-center">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl shadow-lg mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
-                <span>{{ session('success') }}</span>
             </div>
-        @endif
+            <h1 class="text-4xl font-extrabold text-gray-900 dark:text-white mb-2">
+                Create Item Request
+            </h1>
+            <p class="text-gray-600 dark:text-gray-400 text-lg">
+                Request items from your assigned farms
+            </p>
+        </div>
 
-        @if (session()->has('error'))
-            <div class="mb-6 p-4 flex items-center gap-3 bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-800 rounded-xl">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M8.257 3.099c.366-.756 1.42-.756 1.786 0l6.518 13.47A1 1 0 0115.518 18H4.482a1 1 0 01-.894-1.431l6.518-13.47zM11 14a1 1 0 11-2 0 1 1 0 012 0zm-.25-7.25a.75.75 0 00-1.5 0v4.5a.75.75 0 001.5 0v-4.5z" clip-rule="evenodd" />
-                </svg>
-                <span>{{ session('error') }}</span>
-            </div>
-        @endif
-
-        {{-- ⚠️ No Farms Available --}}
-        @if (!$hasFarms)
-            <div class="p-6 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl">
-                <h2 class="text-lg font-semibold text-yellow-800 dark:text-yellow-300 mb-2">No Farms Available</h2>
-                <p class="text-yellow-700 dark:text-yellow-400 leading-relaxed">
-                    You currently don’t have access to any farms. Please contact your administrator to request access before creating item requests.
-                </p>
-            </div>
-        @else
-            {{-- 🧾 Item Request Form --}}
-            <form wire:submit.prevent="store" class="space-y-6">
-                {{-- Farm --}}
-                <div>
-                    <label for="farm_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-100">Farm</label>
-
-                    @if ($userFarmsCount === 1)
-                        <div class="bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg p-3 text-gray-900 dark:text-gray-200">
-                            {{ $farmNames[$farm_id] ?? 'Selected Farm' }}
-                            <span class="text-xs text-gray-500 ml-1">(Auto-selected)</span>
-                        </div>
-                        <input type="hidden" wire:model="farm_id" value="{{ $farm_id }}">
-                    @else
-                        <select wire:model="farm_id" id="farm_id"
-                            class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-3">
-                            <option value="">Select a farm</option>
-                            @foreach ($farms as $farm)
-                                <option value="{{ $farm['id'] }}">{{ $farm['name'] }}</option>
-                            @endforeach
-                        </select>
-                    @endif
-                    @error('farm_id') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
-                </div>
-
-                {{-- Inventory Item --}}
-                <div>
-                    <label for="inventory_item_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-100">Inventory Item</label>
-                    <select wire:model="inventory_item_id" id="inventory_item_id"
-                        class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-3">
-                        <option value="">Select an item</option>
-                        @foreach ($availableItems as $item)
-                            <option value="{{ $item['id'] }}">{{ $item['name'] }} ({{ $item['farm_name'] }})</option>
-                        @endforeach
-                    </select>
-                    @error('inventory_item_id') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
-                </div>
-
-                {{-- Quantity --}}
-                <div>
-                    <label for="quantity" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-100">Quantity</label>
-                    <input type="number" wire:model="quantity" id="quantity" step="0.01"
-                        class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-3"
-                        placeholder="Enter quantity">
-                    @error('quantity') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
-                </div>
-
-                {{-- Notes --}}
-                <div>
-                    <label for="notes" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+        <!-- Main Card -->
+        <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden border border-gray-200 dark:border-gray-700">
+            @if (!$hasFarms)
+                <!-- No Farms State -->
+                <div class="p-12 text-center">
+                    <div class="inline-flex items-center justify-center w-20 h-20 bg-yellow-100 dark:bg-yellow-900/30 rounded-full mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-yellow-600 dark:text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                         </svg>
-                        Notes
-                    </label>
-                    <textarea wire:model="notes" id="notes" rows="4"
-                        class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-3 transition-colors"
-                        placeholder="Add any details or remarks..."></textarea>
-                    @error('notes') <p class="text-red-600 text-sm mt-1 flex items-center gap-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        {{ $message }}
-                    </p> @enderror
-                </div>
-
-                {{-- File Attachments --}}
-                <div>
-                    <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                        </svg>
-                        Attachments
-                    </label>
-                    <div class="space-y-3">
-                        <input type="file" wire:model="attachments" multiple
-                            class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-3 transition-colors"
-                            accept=".jpg,.jpeg,.png,.pdf,.doc,.docx">
-                        @error('attachments.*') <p class="text-red-600 text-sm mt-1 flex items-center gap-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            {{ $message }}
-                        </p> @enderror
-
-                        {{-- Show uploading files --}}
-                        @if ($attachments)
-                            <div class="space-y-2">
-                                @foreach ($attachments as $index => $file)
-                                    <div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                        </svg>
-                                        <div class="flex-1">
-                                            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $file->getClientOriginalName() }}</p>
-                                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ number_format($file->getSize() / 1024, 1) }} KB</p>
-                                        </div>
-                                        <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        @endif
-
-                        <p class="text-xs text-gray-500 dark:text-gray-400">
-                            Supported formats: JPG, PNG, PDF, DOC, DOCX (Max: 10MB each)
-                        </p>
                     </div>
-                </div>
-
-                {{-- Submit Button --}}
-                <div class="pt-2">
-                    <button type="submit"
-                        class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg shadow-md transition-all duration-200 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-800 flex items-center justify-center gap-2">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">No Farms Available</h2>
+                    <p class="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
+                        You currently don't have access to any farms. Please contact your administrator to get assigned to a farm.
+                    </p>
+                    <button wire:click="$set('mode', 'index')" class="inline-flex items-center gap-2 px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-xl shadow-lg transition-all duration-200">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                         </svg>
-                        Submit Request
+                        Back to Requests
                     </button>
                 </div>
-            </form>
-        @endif
+            @else
+                <!-- Form Section -->
+                <form wire:submit.prevent="store" class="p-8 space-y-6">
+                    <!-- Farm Selection -->
+                    <div class="space-y-2">
+                        <label for="farm_id" class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                            </svg>
+                            Farm
+                        </label>
+                        @if ($userFarmsCount === 1)
+                            <div class="relative">
+                                <div class="flex items-center gap-3 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-2 border-green-300 dark:border-green-700 rounded-xl p-4">
+                                    <div class="flex-shrink-0 w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="font-semibold text-gray-900 dark:text-white">{{ $farmNames[$farm_id] ?? 'Selected Farm' }}</p>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400">Auto-selected (your only farm)</p>
+                                    </div>
+                                </div>
+                                <input type="hidden" wire:model="farm_id" value="{{ $farm_id }}">
+                            </div>
+                        @else
+                            <select wire:model="farm_id" id="farm_id"
+                                class="w-full bg-white dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-base rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 p-4 transition-all duration-200 shadow-sm hover:border-gray-400 dark:hover:border-gray-500">
+                                <option value="">🏡 Select a farm...</option>
+                                @foreach ($farms as $farm)
+                                    <option value="{{ $farm['id'] }}">{{ $farm['name'] }}</option>
+                                @endforeach
+                            </select>
+                        @endif
+                        @error('farm_id') 
+                            <p class="flex items-center gap-2 text-red-600 dark:text-red-400 text-sm mt-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                {{ $message }}
+                            </p> 
+                        @enderror
+                    </div>
+
+                    <!-- Inventory Item Selection -->
+                    <div class="space-y-2">
+                        <label for="inventory_item_id" class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                            </svg>
+                            Inventory Item
+                        </label>
+                        <select wire:model="inventory_item_id" id="inventory_item_id"
+                            class="w-full bg-white dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-base rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 p-4 transition-all duration-200 shadow-sm hover:border-gray-400 dark:hover:border-gray-500">
+                            <option value="">📦 Select an item...</option>
+                            @foreach ($availableItems as $item)
+                                <option value="{{ $item['id'] }}">{{ $item['name'] }} ({{ $item['farm_name'] }}) - Stock: {{ $item['current_stock'] }} {{ $item['unit'] }}</option>
+                            @endforeach
+                        </select>
+                        @error('inventory_item_id') 
+                            <p class="flex items-center gap-2 text-red-600 dark:text-red-400 text-sm mt-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                {{ $message }}
+                            </p> 
+                        @enderror
+                    </div>
+
+                    <!-- Quantity Input -->
+                    <div class="space-y-2">
+                        <label for="quantity" class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
+                            </svg>
+                            Quantity
+                        </label>
+                        <input type="number" wire:model="quantity" id="quantity" step="0.01" min="0.01"
+                            class="w-full bg-white dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-base rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 p-4 transition-all duration-200 shadow-sm hover:border-gray-400 dark:hover:border-gray-500"
+                            placeholder="Enter quantity (e.g., 10.5)">
+                        @error('quantity') 
+                            <p class="flex items-center gap-2 text-red-600 dark:text-red-400 text-sm mt-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                {{ $message }}
+                            </p> 
+                        @enderror
+                    </div>
+
+                    <!-- Notes Textarea -->
+                    <div class="space-y-2">
+                        <label for="notes" class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-amber-600 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                            Notes <span class="text-gray-500 font-normal">(Optional)</span>
+                        </label>
+                        <textarea wire:model="notes" id="notes" rows="4"
+                            class="w-full bg-white dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-base rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 p-4 transition-all duration-200 shadow-sm hover:border-gray-400 dark:hover:border-gray-500 resize-none"
+                            placeholder="Add any additional details or special requirements..."></textarea>
+                        @error('notes') 
+                            <p class="flex items-center gap-2 text-red-600 dark:text-red-400 text-sm mt-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                {{ $message }}
+                            </p> 
+                        @enderror
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex flex-col sm:flex-row gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
+                        <button type="submit"
+                            class="flex-1 inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold px-6 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Submit Request
+                        </button>
+                        <button type="button" wire:click="$set('mode', 'index')"
+                            class="inline-flex items-center justify-center gap-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-semibold px-6 py-4 rounded-xl shadow-md hover:shadow-lg transition-all duration-200">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            @endif
+        </div>
     </div>
 </div>

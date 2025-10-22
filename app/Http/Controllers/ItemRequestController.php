@@ -20,8 +20,8 @@ class ItemRequestController extends Controller
     {
         // dd(auth()->user()->getAllPermissions()->pluck('name'));
         $this->authorize('viewAny', ItemRequest::class);
-        
-        return view('item-requests.index')->layout('layouts.app');
+
+        return redirect()->route('item-requests.index');
     }
 
     /**
@@ -30,12 +30,9 @@ class ItemRequestController extends Controller
     public function create()
     {
         $this->authorize('create', ItemRequest::class);
-        
-        $farms = Farm::whereHas('users', function($query) {
-            $query->where('user_id', Auth::id())
-                  ->where('is_visible', true);
-        })->with(['inventoryItems' => function($query) {
-            $query->where('is_active', true);
+
+        $farms = \App\Models\Farm::whereHas('users', fn($q) => $q->where('user_id', Auth::id()))->with(['inventoryItems' => function($query) {
+            $query->where('status', 'active');
         }])->get();
 
         return view('item-requests.create', [
@@ -117,17 +114,14 @@ class ItemRequestController extends Controller
     public function edit(ItemRequest $itemRequest)
     {
         $this->authorize('update', $itemRequest);
-        
+
         if ($itemRequest->status !== 'pending') {
             return redirect()->route('item-requests.show', $itemRequest)
                 ->with('error', 'Only pending requests can be edited.');
         }
-        
-        $farms = Farm::whereHas('users', function($query) use ($itemRequest) {
-            $query->where('user_id', Auth::id())
-                  ->where('is_visible', true);
-        })->with(['inventoryItems' => function($query) {
-            $query->where('is_active', true);
+
+        $farms = \App\Models\Farm::whereHas('users', fn($q) => $q->where('user_id', Auth::id()))->with(['inventoryItems' => function($query) {
+            $query->where('status', 'active');
         }])->get();
 
         return view('item-requests.edit', [
