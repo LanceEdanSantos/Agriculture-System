@@ -56,7 +56,9 @@
                     </thead>
                     <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                         @php
-                            $userFarmIds = Auth::user()->farms()->pluck('farms.id');
+                            $userFarmIds = DB::table('farm_user')
+                                ->where('user_id', Auth::id())
+                                ->pluck('farm_id');
                             $requests = \App\Models\ItemRequest::whereIn('farm_id', $userFarmIds)->with(['farm', 'inventoryItem'])->latest()->paginate(10);
                         @endphp
                         @forelse ($requests as $request)

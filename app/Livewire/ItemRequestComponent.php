@@ -33,7 +33,6 @@ class ItemRequestComponent extends Component
     public function mount()
     {
         $this->loadData();
-
         if ($this->mode === 'create') {
             $this->authorize('create', ItemRequest::class);
         } elseif ($this->mode === 'edit' || $this->mode === 'show') {
@@ -49,8 +48,22 @@ class ItemRequestComponent extends Component
 
     public function loadData()
     {
-        // Get user's farms directly through the relationship
-        $farms = Auth::user()->farms()->where('is_active', true)->get();
+        // Query farm_user table directly to get user's farm IDs
+        $farmIds = DB::table('farm_user')
+            ->where('user_id', Auth::id())
+            ->pluck('farm_id');
+        if ($farmIds->isEmpty()) {
+            $this->farms = [];
+            $this->availableItems = [];
+            $this->hasFarms = false;
+            $this->userFarmsCount = 0;
+            return;
+        }
+
+        // Get the actual farm records
+        $farms = Farm::whereIn('id', $farmIds)
+            ->where('is_active', true)
+            ->get();
         
         $this->userFarmsCount = $farms->count();
         $this->hasFarms = $this->userFarmsCount > 0;
@@ -69,8 +82,13 @@ class ItemRequestComponent extends Component
         foreach ($farms as $farm) {
             $this->farmNames[$farm->id] = $farm->name;
 
-            // Get visible and active inventory items for this farm
-            $farmItems = $farm->visibleInventoryItems()
+            // Get inventory items visible to this farm
+            $farmItemIds = DB::table('farm_inventory_visibility')
+                ->where('farm_id', $farm->id)
+                ->where('is_visible', true)
+                ->pluck('inventory_item_id');
+
+            $farmItems = InventoryItem::whereIn('id', $farmItemIds)
                 ->where('status', 'active')
                 ->get();
 
