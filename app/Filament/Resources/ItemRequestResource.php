@@ -58,10 +58,7 @@ class ItemRequestResource extends Resource
                     ->searchable()
                     ->preload()
                     ->disabled(!$canEdit)
-                    ->reactive()
-                    ->afterStateUpdated(function ($state, callable $set) {
-                        // You can add logic here to update other fields when inventory item changes
-                    }),
+                    ->reactive(),
                 Forms\Components\TextInput::make('quantity')
                     ->numeric()
                     ->required()
@@ -88,11 +85,11 @@ class ItemRequestResource extends Resource
                     ->disabled()
                     ->visible($isAdminOrManager),
                 Forms\Components\Select::make('approved_by')
-                    ->relationship('approver', 'name')
+                    ->relationship('user', 'name')
+                    ->label('Approved By')
                     ->searchable()
                     ->disabled()
-                    ->preload()
-                    ->visible($isAdminOrManager),
+                    ->preload(),
                 Forms\Components\Textarea::make('rejection_reason')
                     ->columnSpanFull()
                     ->disabled(!$isAdminOrManager)
