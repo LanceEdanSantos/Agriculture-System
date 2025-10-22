@@ -7,7 +7,6 @@ use App\Models\InventoryItem;
 use App\Models\ItemRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use Livewire\Component;
 
 class ItemRequestComponent extends Component
@@ -23,8 +22,6 @@ class ItemRequestComponent extends Component
     public $availableItems = [];
     public $farmNames = [];
     public $farms = [];
-    public $search = '';
-    public $statusFilter = '';
 
     protected $rules = [
         'farm_id' => 'required|exists:farms,id',
@@ -45,7 +42,6 @@ class ItemRequestComponent extends Component
                 $this->mode = 'show';
             }
         } else {
-            // For index mode (dashboard view)
             $this->authorize('viewAny', ItemRequest::class);
         }
     }
@@ -68,7 +64,7 @@ class ItemRequestComponent extends Component
         $farms = Farm::whereIn('id', $farmIds)
             ->where('is_active', true)
             ->get();
-        
+
         $this->userFarmsCount = $farms->count();
         $this->hasFarms = $this->userFarmsCount > 0;
 
@@ -100,7 +96,7 @@ class ItemRequestComponent extends Component
                 'id' => $farm->id,
                 'name' => $farm->name,
                 'description' => $farm->description,
-                'inventory_items' => $farmItems->map(function($item) {
+                'inventory_items' => $farmItems->map(function ($item) {
                     return [
                         'id' => $item->id,
                         'name' => $item->name,
@@ -140,11 +136,7 @@ class ItemRequestComponent extends Component
         } elseif ($this->mode === 'edit') {
             return view('livewire.item-request.edit');
         } else {
-            // For index mode (dashboard view)
-            return view('item-requests.index', [
-                'search' => $this->search,
-                'statusFilter' => $this->statusFilter,
-            ]);
+            return view('livewire.item-request.index');
         }
     }
 
@@ -281,7 +273,7 @@ class ItemRequestComponent extends Component
             DB::commit();
 
             session()->flash('success', 'Item request deleted successfully.');
-            $this->mode = 'index'; // Stay on dashboard after deletion
+            $this->mode = 'index';
         } catch (\Exception $e) {
             DB::rollBack();
             session()->flash('error', 'Failed to delete item request: ' . $e->getMessage());
