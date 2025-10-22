@@ -7,6 +7,7 @@ use App\Models\InventoryItem;
 use App\Models\ItemRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Livewire\Component;
 
 class ItemRequestComponent extends Component
@@ -22,6 +23,8 @@ class ItemRequestComponent extends Component
     public $availableItems = [];
     public $farmNames = [];
     public $farms = [];
+    public $search = '';
+    public $statusFilter = '';
 
     protected $rules = [
         'farm_id' => 'required|exists:farms,id',
@@ -42,6 +45,7 @@ class ItemRequestComponent extends Component
                 $this->mode = 'show';
             }
         } else {
+            // For index mode (dashboard view)
             $this->authorize('viewAny', ItemRequest::class);
         }
     }
@@ -136,7 +140,11 @@ class ItemRequestComponent extends Component
         } elseif ($this->mode === 'edit') {
             return view('livewire.item-request.edit');
         } else {
-            return view('livewire.item-request.index');
+            // For index mode (dashboard view)
+            return view('item-requests.index', [
+                'search' => $this->search,
+                'statusFilter' => $this->statusFilter,
+            ]);
         }
     }
 
@@ -273,7 +281,7 @@ class ItemRequestComponent extends Component
             DB::commit();
 
             session()->flash('success', 'Item request deleted successfully.');
-            $this->mode = 'index';
+            $this->mode = 'index'; // Stay on dashboard after deletion
         } catch (\Exception $e) {
             DB::rollBack();
             session()->flash('error', 'Failed to delete item request: ' . $e->getMessage());

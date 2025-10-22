@@ -10,15 +10,16 @@ use Filament\Tables\Table;
 use App\Models\ItemRequest;
 use Filament\Resources\Resource;
 use Illuminate\Support\Facades\Auth;
+use Filament\Forms\Components\Section;
+use Filament\Notifications\Notification;
+use Filament\Tables\Actions\ActionGroup;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use App\Filament\Resources\ItemRequestResource\Pages;
 use App\Filament\Resources\ItemRequestResource\RelationManagers;
 use Rmsramos\Activitylog\Actions\ActivityLogTimelineTableAction;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Section;
-use Filament\Tables\Columns\ImageColumn;
-use Filament\Tables\Actions\ActionGroup;
 
 class ItemRequestResource extends Resource
 {
@@ -125,7 +126,15 @@ class ItemRequestResource extends Resource
                     ->numeric(2)
                     ->sortable(),
                 Tables\Columns\SelectColumn::make('status')
-                    ->options(ItemRequest::getStatuses()),
+                    ->options(
+                        collect(ItemRequest::getStatuses())
+                            ->except(['approved', 'rejected'])
+                            ->toArray()
+                    )
+                    ->disabled(fn(ItemRequest $record) => in_array(
+                        $record->status,
+                        [ItemRequest::STATUS_APPROVED, ItemRequest::STATUS_REJECTED]
+                    )),
                 Tables\Columns\TextColumn::make('requested_at')
                     ->dateTime()
                     ->sortable(),
@@ -168,26 +177,75 @@ class ItemRequestResource extends Resource
                         ->visible(fn(ItemRequest $record): bool => Auth::user()->can('view', $record)),
                     Tables\Actions\EditAction::make()
                         ->visible(fn(ItemRequest $record): bool => Auth::user()->can('update', $record)),
-                    Tables\Actions\Action::make('approve')
-                        // ->visible(fn(ItemRequest $record): bool => Auth::user()->can('approve', $record))
-                        ->icon('heroicon-o-check-circle')
-                        ->color('success')
-                        ->requiresConfirmation()
-                        ->action(function (ItemRequest $record) {
-                            $record->update([
-                                'status' => ItemRequest::STATUS_APPROVED,
-                                'approved_at' => now(),
-                                'approved_by' => Auth::id(),
-                            ]);
+                Tables\Actions\Action::make('approve')
+                    ->icon('heroicon-o-check-circle')
+                    ->color('success')
+                    ->label('Approve')
+                    ->requiresConfirmation()
+                    ->modalHeading('Approve Item Request')
+                    ->modalDescription('Confirm stock adjustment before approving this request.')
+                    ->form([
+                        Forms\Components\TextInput::make('approved_quantity')
+                            ->numeric()
+                            ->required()
+                            ->minValue(0.01)
+                            ->label('Approved Quantity'),
+                        Forms\Components\Textarea::make('notes')
+                            ->label('Approval Notes'),
+                    ])
+                    ->action(function (ItemRequest $record, array $data) {
+                        $item = $record->inventoryItem;
 
-                            // Log status change
-                            $record->statuses()->create([
-                                'status' => ItemRequest::STATUS_APPROVED,
-                                'changed_by' => Auth::id(),
-                                'notes' => 'Request approved',
-                            ]);
-                        }),
-                    Tables\Actions\Action::make('reject')
+                        if (!$item) {
+                            return Notification::make()
+                                ->title('No linked inventory item.')
+                                ->danger()
+                                ->send();
+                        }
+
+                        $availableStock = $item->getAvailableStockForOut();
+
+                        $approvedQuantity = min($data['approved_quantity'], $availableStock);
+                        $adjusted = $approvedQuantity < $data['approved_quantity'];
+
+                        // Create a stock movement
+                        \App\Models\StockMovement::create([
+                            'inventory_item_id' => $item->id,
+                            'user_id' => Auth::id(),
+                            'type' => 'out',
+                            'quantity' => $approvedQuantity,
+                            'unit_cost' => $item->average_unit_cost ?? 0,
+                            'total_cost' => ($item->average_unit_cost ?? 0) * $approvedQuantity,
+                            'reason' => 'Item Request Approval',
+                            'notes' => $data['notes'] ?? null,
+                            'movement_date' => now(),
+                        ]);
+
+                        // Update item request
+                        $record->update([
+                            'status' => ItemRequest::STATUS_APPROVED,
+                            'approved_at' => now(),
+                            'approved_by' => Auth::id(),
+                        ]);
+
+                        // Log status change
+                        $record->statuses()->create([
+                            'status' => ItemRequest::STATUS_APPROVED,
+                            'changed_by' => Auth::id(),
+                            'notes' => $data['notes'] ?? 'Approved item request',
+                        ]);
+
+                        $msg = $adjusted
+                            ? "Approved but adjusted to available stock: {$approvedQuantity} (was {$data['approved_quantity']})"
+                            : "Request approved successfully for {$approvedQuantity} units.";
+
+                        Notification::make()
+                            ->title('Item Request Approved')
+                            ->body($msg)
+                            ->success()
+                            ->send();
+                    }),
+                Tables\Actions\Action::make('reject')
                         // ->visible(fn(ItemRequest $record): bool => Auth::user()->can('reject', $record))
                         ->icon('heroicon-o-x-circle')
                         ->color('danger')
