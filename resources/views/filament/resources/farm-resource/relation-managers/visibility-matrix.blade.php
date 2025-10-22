@@ -7,12 +7,10 @@
                 @endforeach
             },
             init() {
-                // Convert string 'true'/'false' to actual booleans
                 Object.keys(this.items).forEach(key => {
                     this.items[key] = this.items[key] === true || this.items[key] === 'true';
                 });
-                
-                // Watch for changes and update the category state
+
                 this.$watch('items', () => {
                     this.$nextTick(() => {
                         const allChecked = Object.values(this.items).every(Boolean);
@@ -21,7 +19,7 @@
                 }, { deep: true });
             },
             get allChecked() {
-                return Object.values(this.items).every(Boolean);
+                return Object.values(this.items).length > 0 && Object.values(this.items).every(Boolean);
             },
             get someChecked() {
                 return Object.values(this.items).some(Boolean) && !this.allChecked;
@@ -32,30 +30,17 @@
                     this.items[key] = newValue;
                     this.$wire.call('syncItem', key, newValue);
                 });
-            },
-            toggleItem(id) {
-                this.items[id] = !this.items[id];
-                this.$wire.call('syncItem', id, this.items[id]);
             }
         }" x-init="init()">
+
             {{-- Category Header --}}
             <div class="flex items-center justify-between mb-3">
                 <span class="font-semibold text-lg">{{ $category->name }}</span>
 
-                {{-- Filament checkbox (Alpine binding via :checked + manual click) --}}
                 <x-filament::input.checkbox 
-                    :checked="$category->inventoryItems->count() > 0 && $category->inventoryItems->every(
-                        fn($item) => $farm->inventoryItems()
-                            ->where('inventory_items.id', $item->id)
-                            ->wherePivot('is_visible', true)
-                            ->exists()
-                    )"
-                    :attributes="new \Illuminate\View\ComponentAttributeBag([
-                        'x-ref' => 'categoryCheckbox',
-                        'x-bind:checked' => 'allChecked',
-                        'x-bind:indeterminate.prop' => 'someChecked',
-                        'x-on:change' => 'toggleAll()'
-                    ])" />
+                    x-bind:checked="allChecked"
+                    x-bind:indeterminate.prop="someChecked"
+                    x-on:change="toggleAll()" />
             </div>
 
             {{-- Inventory Items --}}
@@ -65,16 +50,9 @@
                         <div class="flex items-center justify-between px-3 py-2 rounded-md shadow-inner">
                             <span class="text-sm">{{ $item->name }}</span>
 
-                            {{-- Filament checkbox, manual Alpine binding --}}
                             <x-filament::input.checkbox 
-                                :checked="$farm->inventoryItems()
-                                    ->where('inventory_items.id', $item->id)
-                                    ->wherePivot('is_visible', true)
-                                    ->exists()"
-                                :attributes="new \Illuminate\View\ComponentAttributeBag([
-                                    'x-model' => 'items[' . $item->id . ']',
-                                    'x-on:change' => 'toggleItem(' . $item->id . ')'
-                                ])" />
+                                x-model="items[{{ $item->id }}]"
+                                x-on:change="$wire.call('syncItem', {{ $item->id }}, items[{{ $item->id }}])" />
                         </div>
                     @endforeach
                 </div>

@@ -33,6 +33,7 @@ class FarmResource extends Resource
                             ->maxLength(65535)
                             ->columnSpanFull(),
                         Forms\Components\Select::make('is_active')
+                            ->label('Status')
                             ->options([
                                 0 => 'Inactive',
                                 1 => 'Active',
