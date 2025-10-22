@@ -277,7 +277,6 @@ class InventoryItemResource extends Resource
                 ActionGroup::make([
                 EditAction::make(),
                 ForceDeleteAction::make(),
-                RestoreAction::make(),
                 Action::make('delete_with_reason')
                     ->label('Delete')
                     ->icon('heroicon-o-trash')
