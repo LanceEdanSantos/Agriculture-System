@@ -32,6 +32,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\InventoryItemResource\Pages;
 use Rmsramos\Activitylog\Actions\ActivityLogTimelineTableAction;
 use App\Filament\Resources\InventoryItemResource\RelationManagers;
+use Filament\Actions\ActionGroup;
 
 class InventoryItemResource extends Resource
 {
@@ -270,6 +271,7 @@ class InventoryItemResource extends Resource
                 //     ->openUrlInNewTab(),
             ])
             ->actions([
+                ActionGroup::make([
                 EditAction::make(),
                 Action::make('delete_with_reason')
                     ->label('Delete')
@@ -330,6 +332,7 @@ class InventoryItemResource extends Resource
                         'deleted' => 'danger',
                     ])
                     ->limit(20),
+                ]),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
