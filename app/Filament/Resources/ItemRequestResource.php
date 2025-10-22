@@ -23,7 +23,7 @@ use Filament\Tables\Actions\ActionGroup;
 class ItemRequestResource extends Resource
 {
     protected static ?string $model = ItemRequest::class;
-    
+
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
     protected static ?string $navigationGroup = 'Inventory';
     protected static ?int $navigationSort = 3;
@@ -34,7 +34,7 @@ class ItemRequestResource extends Resource
         $isCreating = $form->getOperation() === 'create';
         $isEditing = $form->getOperation() === 'edit';
         $record = $form->getRecord();
-        
+
         $canEdit = $isCreating || ($record && $user->can('update', $record));
         $isAdminOrManager = $user->hasRole('super_admin') || $user->hasRole('farm_manager');
         return $form
@@ -43,7 +43,7 @@ class ItemRequestResource extends Resource
                     ->relationship('user', 'name')
                     ->required()
                     ->searchable()
-                    ->default(fn () => Auth::id())
+                    ->default(fn() => Auth::id())
                     ->disabled(!$isAdminOrManager)
                     ->preload()
                     ->visible($isAdminOrManager),
@@ -54,13 +54,6 @@ class ItemRequestResource extends Resource
                     ->preload()
                     ->disabled(!$canEdit),
                 Forms\Components\Select::make('inventory_item_id')
-                    ->relationship(
-                        'inventoryItem',
-                        'name',
-                        fn (Builder $query) => $isCreating || !$record ? 
-                            $query->whereHas('farms', fn ($q) => $q->where('farm_id', $form->getRecord()?->farm_id ?? 0)) :
-                            $query->where('id', $record->inventory_item_id)
-                    )
                     ->required()
                     ->searchable()
                     ->preload()
@@ -110,14 +103,14 @@ class ItemRequestResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery();
-        
+
         if (!Auth::user()->hasRole('super_admin') && !Auth::user()->hasRole('farm_manager')) {
             $query->where('user_id', Auth::id());
         }
-        
+
         return $query;
     }
-    
+
     public static function table(Table $table): Table
     {
         return $table
@@ -136,7 +129,7 @@ class ItemRequestResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn(string $state): string => match ($state) {
                         ItemRequest::STATUS_PENDING => 'gray',
                         ItemRequest::STATUS_APPROVED => 'info',
                         ItemRequest::STATUS_IN_DELIVERY => 'warning',
@@ -144,7 +137,7 @@ class ItemRequestResource extends Resource
                         ItemRequest::STATUS_REJECTED => 'danger',
                         ItemRequest::STATUS_CANCELLED => 'danger',
                     })
-                    ->formatStateUsing(fn (string $state): string => ItemRequest::getStatuses()[$state] ?? $state),
+                    ->formatStateUsing(fn(string $state): string => ItemRequest::getStatuses()[$state] ?? $state),
                 Tables\Columns\TextColumn::make('requested_at')
                     ->dateTime()
                     ->sortable(),
@@ -160,7 +153,7 @@ class ItemRequestResource extends Resource
                     ->label('Attachments')
                     ->badge()
                     ->color('gray')
-                    ->formatStateUsing(fn (ItemRequest $record): string => $record->attachments()->count() . ' files')
+                    ->formatStateUsing(fn(ItemRequest $record): string => $record->attachments()->count() . ' files')
                     ->sortable()
                     ->toggleable(),
             ])
@@ -180,81 +173,81 @@ class ItemRequestResource extends Resource
                         return $query
                             ->when(
                                 $data['requested_from'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('requested_at', '>=', $date),
+                                fn(Builder $query, $date): Builder => $query->whereDate('requested_at', '>=', $date),
                             )
                             ->when(
                                 $data['requested_until'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('requested_at', '<=', $date),
+                                fn(Builder $query, $date): Builder => $query->whereDate('requested_at', '<=', $date),
                             );
                     })
             ])
             ->actions([
-               ActionGroup::make([
-                Tables\Actions\ViewAction::make()
-                    ->visible(fn(ItemRequest $record): bool => Auth::user()->can('view', $record)),
-                Tables\Actions\EditAction::make()
-                    ->visible(fn(ItemRequest $record): bool => Auth::user()->can('update', $record)),
-                Tables\Actions\Action::make('approve')
-                    ->visible(fn(ItemRequest $record): bool => Auth::user()->can('approve', $record))
-                    ->icon('heroicon-o-check-circle')
-                    ->color('success')
-                    ->requiresConfirmation()
-                    ->action(function (ItemRequest $record) {
-                        if (!Auth::user()->can('approve', $record)) {
-                            throw new \Exception('You are not authorized to approve this request.');
-                        }
-                        $record->update([
-                            'status' => ItemRequest::STATUS_APPROVED,
-                            'approved_at' => now(),
-                            'approved_by' => Auth::id(),
-                        ]);
+                ActionGroup::make([
+                    Tables\Actions\ViewAction::make()
+                        ->visible(fn(ItemRequest $record): bool => Auth::user()->can('view', $record)),
+                    Tables\Actions\EditAction::make()
+                        ->visible(fn(ItemRequest $record): bool => Auth::user()->can('update', $record)),
+                    Tables\Actions\Action::make('approve')
+                        ->visible(fn(ItemRequest $record): bool => Auth::user()->can('approve', $record))
+                        ->icon('heroicon-o-check-circle')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->action(function (ItemRequest $record) {
+                            if (!Auth::user()->can('approve', $record)) {
+                                throw new \Exception('You are not authorized to approve this request.');
+                            }
+                            $record->update([
+                                'status' => ItemRequest::STATUS_APPROVED,
+                                'approved_at' => now(),
+                                'approved_by' => Auth::id(),
+                            ]);
 
-                        // Log status change
-                        $record->statuses()->create([
-                            'status' => ItemRequest::STATUS_APPROVED,
-                            'changed_by' => Auth::id(),
-                            'notes' => 'Request approved',
-                        ]);
-                    }),
-                Tables\Actions\Action::make('reject')
-                    ->visible(fn(ItemRequest $record): bool => Auth::user()->can('reject', $record))
-                    ->icon('heroicon-o-x-circle')
-                    ->color('danger')
-                    ->requiresConfirmation()
-                    ->form([
-                        Forms\Components\Textarea::make('rejection_reason')
-                            ->label('Reason for Rejection')
-                            ->required(),
-                    ])
-                    ->action(function (ItemRequest $record, array $data) {
-                        if (!Auth::user()->can('reject', $record)) {
-                            throw new \Exception('You are not authorized to reject this request.');
-                        }
-                        $record->update([
-                            'status' => ItemRequest::STATUS_REJECTED,
-                            'rejection_reason' => $data['rejection_reason'],
-                        ]);
+                            // Log status change
+                            $record->statuses()->create([
+                                'status' => ItemRequest::STATUS_APPROVED,
+                                'changed_by' => Auth::id(),
+                                'notes' => 'Request approved',
+                            ]);
+                        }),
+                    Tables\Actions\Action::make('reject')
+                        ->visible(fn(ItemRequest $record): bool => Auth::user()->can('reject', $record))
+                        ->icon('heroicon-o-x-circle')
+                        ->color('danger')
+                        ->requiresConfirmation()
+                        ->form([
+                            Forms\Components\Textarea::make('rejection_reason')
+                                ->label('Reason for Rejection')
+                                ->required(),
+                        ])
+                        ->action(function (ItemRequest $record, array $data) {
+                            if (!Auth::user()->can('reject', $record)) {
+                                throw new \Exception('You are not authorized to reject this request.');
+                            }
+                            $record->update([
+                                'status' => ItemRequest::STATUS_REJECTED,
+                                'rejection_reason' => $data['rejection_reason'],
+                            ]);
 
-                        // Log status change
-                        $record->statuses()->create([
-                            'status' => ItemRequest::STATUS_REJECTED,
-                            'changed_by' => Auth::id(),
-                            'notes' => 'Request rejected: ' . $data['rejection_reason'],
-                        ]);
-                    }),
-                ActivityLogTimelineTableAction::make('Activities')
-                    ->timelineIcons([
-                        'created' => 'heroicon-m-check-badge',
-                        'updated' => 'heroicon-m-pencil-square',
-                        'deleted' => 'heroicon-m-trash',
-                    ])
-                    ->timelineIconColors([
-                        'created' => 'success',
-                        'updated' => 'warning',
-                        'deleted' => 'danger',
-                    ])
-                    ->limit(20),
-            ])
+                            // Log status change
+                            $record->statuses()->create([
+                                'status' => ItemRequest::STATUS_REJECTED,
+                                'changed_by' => Auth::id(),
+                                'notes' => 'Request rejected: ' . $data['rejection_reason'],
+                            ]);
+                        }),
+                    ActivityLogTimelineTableAction::make('Activities')
+                        ->timelineIcons([
+                            'created' => 'heroicon-m-check-badge',
+                            'updated' => 'heroicon-m-pencil-square',
+                            'deleted' => 'heroicon-m-trash',
+                        ])
+                        ->timelineIconColors([
+                            'created' => 'success',
+                            'updated' => 'warning',
+                            'deleted' => 'danger',
+                        ])
+                        ->limit(20),
+                ])
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
