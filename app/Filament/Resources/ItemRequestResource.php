@@ -124,17 +124,8 @@ class ItemRequestResource extends Resource
                 Tables\Columns\TextColumn::make('quantity')
                     ->numeric(2)
                     ->sortable(),
-                Tables\Columns\TextColumn::make('status')
-                    ->badge()
-                    ->color(fn(string $state): string => match ($state) {
-                        ItemRequest::STATUS_PENDING => 'gray',
-                        ItemRequest::STATUS_APPROVED => 'info',
-                        ItemRequest::STATUS_IN_DELIVERY => 'warning',
-                        ItemRequest::STATUS_DELIVERED => 'success',
-                        ItemRequest::STATUS_REJECTED => 'danger',
-                        ItemRequest::STATUS_CANCELLED => 'danger',
-                    })
-                    ->formatStateUsing(fn(string $state): string => ItemRequest::getStatuses()[$state] ?? $state),
+                Tables\Columns\SelectColumn::make('status')
+                    ->options(ItemRequest::getStatuses()),
                 Tables\Columns\TextColumn::make('requested_at')
                     ->dateTime()
                     ->sortable(),
