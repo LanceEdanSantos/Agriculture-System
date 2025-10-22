@@ -19,20 +19,22 @@ use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Actions\RestoreAction;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\ExportBulkAction;
+use Filament\Tables\Actions\ForceDeleteAction;
 use App\Filament\Exports\InventoryItemExporter;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\InventoryItemResource\Pages;
 use Rmsramos\Activitylog\Actions\ActivityLogTimelineTableAction;
 use App\Filament\Resources\InventoryItemResource\RelationManagers;
-use Filament\Tables\Actions\ActionGroup;
 
 class InventoryItemResource extends Resource
 {
@@ -259,9 +261,7 @@ class InventoryItemResource extends Resource
                 Filter::make('low_stock')
                     ->label('Low Stock Items')
                     ->query(fn(Builder $query): Builder => $query->whereRaw('current_stock <= minimum_stock')),
-                Filter::make('deleted')
-                    ->label('Show Deleted Items')
-                    ->query(fn(Builder $query): Builder => $query->onlyTrashed()),
+                TrashedFilter::make(),
             ])
             ->defaultSort('name')
             ->paginated([10, 25, 50, 100])
@@ -276,6 +276,8 @@ class InventoryItemResource extends Resource
             ->actions([
                 ActionGroup::make([
                 EditAction::make(),
+                ForceDeleteAction::make(),
+                RestoreAction::make(),
                 Action::make('delete_with_reason')
                     ->label('Delete')
                     ->icon('heroicon-o-trash')
