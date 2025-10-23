@@ -187,17 +187,18 @@ class InventoryItemResource extends Resource
             //     ->sortable()
             //     ->limit(20)
             //     ->tooltip(fn($record) => optional(\App\Models\Supplier::find($record->supplier_id))->name ?? 'No supplier'),
-            TextColumn::make('notes')
-                ->label('Notes')
-                ->searchable()
-                ->sortable()
-                ->alignCenter()
-                ->limit(30),
+            
                 TextColumn::make('unit.name')
                     ->label('Unit')
                     ->searchable()
                     ->sortable()
                     ->alignCenter(),
+                    TextColumn::make('notes')
+                ->label('Notes')
+                ->searchable()
+                ->sortable()
+                ->alignCenter()
+                ->limit(30),
                 TextColumn::make('created_at')
                     ->label('Date Added')
                     ->dateTime()
