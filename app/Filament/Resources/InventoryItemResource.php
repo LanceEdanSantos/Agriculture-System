@@ -181,12 +181,18 @@ class InventoryItemResource extends Resource
                     })
                     ->formatStateUsing(fn($state): string => $state <= 0 ? 'No Stock' : ($state <= 10 ? 'Low Stock' : 'In Stock'))
                     ->alignCenter(),
-            TextColumn::make('supplier.name')
-                ->label('Supplier')
+            // TextColumn::make('supplier.name')
+            //     ->label('Supplier')
+            //     ->searchable()
+            //     ->sortable()
+            //     ->limit(20)
+            //     ->tooltip(fn($record) => optional(\App\Models\Supplier::find($record->supplier_id))->name ?? 'No supplier'),
+            TextColumn::make('notes')
+                ->label('Notes')
                 ->searchable()
                 ->sortable()
-                ->limit(20)
-                ->tooltip(fn($record) => optional(\App\Models\Supplier::find($record->supplier_id))->name ?? 'No supplier'),
+                ->alignCenter()
+                ->limit(30),
                 TextColumn::make('unit.name')
                     ->label('Unit')
                     ->searchable()

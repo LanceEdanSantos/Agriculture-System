@@ -2,9 +2,11 @@
 
 namespace App\Filament\Resources\InventoryItemResource\Pages;
 
-use App\Filament\Resources\InventoryItemResource;
 use Filament\Actions;
+use Illuminate\Database\Eloquent\Model;
 use Filament\Resources\Pages\EditRecord;
+use App\Filament\Resources\InventoryItemResource;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class EditInventoryItem extends EditRecord
 {
@@ -18,7 +20,14 @@ class EditInventoryItem extends EditRecord
 
         
     }
-
+    protected function resolveRecord(int|string $key): Model
+    {
+        // Allow viewing even if the record is soft deleted
+        return static::getResource()::getEloquentQuery()
+            ->withoutGlobalScopes([SoftDeletingScope::class])
+            ->withTrashed()
+            ->findOrFail($key);
+    }
     protected function getRedirectUrl(): string
     {
         // Redirect to the table (index) after saving
