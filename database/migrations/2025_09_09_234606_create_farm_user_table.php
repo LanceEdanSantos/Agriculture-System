@@ -16,6 +16,8 @@ return new class extends Migration
             $table->foreignId('farm_id')->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->string('role');
+            $table->string('association')->nullable();
+            $table->string('phone_number')->nullable();
             $table->boolean('is_visible')->default(true);
             $table->timestamps();
             

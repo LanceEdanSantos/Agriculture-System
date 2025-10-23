@@ -17,6 +17,7 @@ use Filament\Tables\Columns\ImageColumn;
 use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 use App\Filament\Resources\ItemRequestResource\Pages;
 use App\Filament\Resources\ItemRequestResource\RelationManagers;
 use Rmsramos\Activitylog\Actions\ActivityLogTimelineTableAction;
@@ -102,11 +103,24 @@ class ItemRequestResource extends Resource
     {
         $query = parent::getEloquentQuery();
 
-        // if (!Auth::user()->hasRole('super_admin') && !Auth::user()->hasRole('farm_manager')) {
-        //     $query->where('user_id', Auth::id());
-        // }
+        $user = Auth::user();
 
-        return $query;
+        // Super admins and farm managers can see all requests
+        if ($user->hasRole('super_admin') || $user->hasRole('farm_manager')) {
+            return $query;
+        }
+
+        // Regular users can only see requests from their associated farms
+        $farmIds = DB::table('farm_user')
+            ->where('user_id', $user->id)
+            ->pluck('farm_id');
+
+        if ($farmIds->isEmpty()) {
+            // User has no farms, return empty query
+            return $query->whereRaw('1 = 0');
+        }
+
+        return $query->whereIn('farm_id', $farmIds);
     }
 
     public static function table(Table $table): Table

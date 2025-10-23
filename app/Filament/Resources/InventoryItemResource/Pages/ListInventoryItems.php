@@ -2,10 +2,11 @@
 
 namespace App\Filament\Resources\InventoryItemResource\Pages;
 
-use App\Filament\Resources\InventoryItemResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 use App\Filament\Actions\ImportInventoryAction;
+use App\Filament\Resources\InventoryItemResource;
+use App\Filament\Resources\StockMovementResource;
 
 class ListInventoryItems extends ListRecords
 {
@@ -14,7 +15,11 @@ class ListInventoryItems extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            // ImportInventoryAction::make(),
+            Actions\Action::make('goToCreate')
+                ->label('Create Stock Movement')
+                ->icon('heroicon-o-plus')
+                ->color('primary')
+                ->url(StockMovementResource::getUrl('create')),
             Actions\CreateAction::make(),
         ];
     }

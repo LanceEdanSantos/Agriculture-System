@@ -114,7 +114,7 @@
                             </svg>
                             Quantity
                         </label>
-                        <input type="number" wire:model="quantity" id="quantity" step="0.01" min="0.01"
+                        <input type="number" wire:model="quantity" id="quantity" step="1" min="1"
                             class="w-full bg-white dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-base rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 p-4 transition-all duration-200 shadow-sm hover:border-gray-400 dark:hover:border-gray-500"
                             placeholder="Enter quantity (e.g., 10.5)">
                         @error('quantity') 

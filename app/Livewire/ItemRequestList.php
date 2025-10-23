@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\ItemRequest;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -51,9 +52,14 @@ class ItemRequestList extends Component
      */
     public function render(): View
     {
+        // Get user's farm IDs for privacy filtering
+        $farmIds = DB::table('farm_user')
+            ->where('user_id', Auth::id())
+            ->pluck('farm_id');
+
         $query = ItemRequest::query()
             ->with(['farm:id,name', 'inventoryItem:id,name,unit'])
-            ->where('user_id', Auth::id())
+            ->whereIn('farm_id', $farmIds)
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
                     $q->whereHas('inventoryItem', function ($q) {

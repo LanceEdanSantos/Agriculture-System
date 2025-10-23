@@ -309,6 +309,13 @@ class InventoryItemResource extends Resource
                     ->label('Restore')
                     ->icon('heroicon-o-arrow-uturn-left')
                     ->color('success'),
+                Action::make('create_stock_movement')
+                    ->label('Log Stock')
+                    ->icon('heroicon-o-arrow-path')
+                    ->url(fn(InventoryItem $record) => StockMovementResource::getUrl('create', [
+                        'inventory_item_id' => $record->id, // preselect this item
+                    ]))
+                    ->openUrlInNewTab(),
                 Action::make('adjust_stock')
                     ->label('Adjust Stock')
                     ->icon('heroicon-o-plus-circle')

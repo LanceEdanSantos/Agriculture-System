@@ -10,7 +10,6 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\InventoryItem;
 use App\Models\StockMovement;
-use Illuminate\Validation\Rule;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Grid;
 use Filament\Tables\Filters\Filter;
@@ -24,9 +23,11 @@ use Filament\Tables\Columns\BadgeColumn;
 use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables\Filters\TrashedFilter;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\StockMovementResource\Pages;
 use Rmsramos\Activitylog\Actions\ActivityLogTimelineTableAction;
+use App\Filament\Resources\StockMovementResource\Pages\ListStockMovements;
+use App\Filament\Resources\StockMovementResource\Pages\CreateStockMovement;
 
 class StockMovementResource extends Resource
 {
@@ -35,6 +36,8 @@ class StockMovementResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-arrow-path';
 
     protected static ?string $navigationGroup = 'Inventory Management';
+
+    protected static ?string $navigationLabel = 'History Log';
 
     protected static ?int $navigationSort = 2;
 
@@ -50,9 +53,10 @@ class StockMovementResource extends Resource
                                     ->label('Inventory Item')
                                     ->relationship('inventoryItem', 'name')
                                     ->searchable()
+                                    ->default(fn() => request()->query('inventory_item_id'))
                                     ->required(),
                                 Select::make('type')
-                                    ->label('Movement Type')
+                                    ->label('Action')
                                     ->options([
                                         'in' => 'Stock In',
                                         'out' => 'Stock Out',
@@ -76,7 +80,7 @@ class StockMovementResource extends Resource
                                                 return;
                                             }
 
-                                            $inventoryItem = \App\Models\InventoryItem::find($inventoryItemId);
+                                            $inventoryItem = InventoryItem::find($inventoryItemId);
 
                                             if (! $inventoryItem) {
                                                 return;
@@ -98,21 +102,7 @@ class StockMovementResource extends Resource
                                             }
                                         },
                                     ]),
-                                // TextInput::make('unit_cost')
-                                //     ->label('Unit Cost (₱)')
-                                //     ->numeric()
-                                //     ->prefix('₱'),
-                                // TextInput::make('total_cost')
-                                //     ->label('Total Cost (₱)')
-                                //     ->numeric()
-                                //     ->prefix('₱')
-                                //     ->disabled()
-                                //     ->dehydrated(false),
                             ]),
-                        // Textarea::make('reason')
-                        //     ->label('Reason')
-                        //     ->required()
-                        //     ->rows(2),
                         Textarea::make('notes')
                             ->label('Notes')
                             ->rows(3),
@@ -142,19 +132,10 @@ class StockMovementResource extends Resource
                         'success' => 'in',
                         'danger' => 'out',
                     ])
-                    ->formatStateUsing(fn (string $state): string => $state === 'in' ? 'Stock In' : 'Stock Out'),
+                    ->formatStateUsing(fn(string $state): string => $state === 'in' ? 'Stock In' : 'Stock Out'),
                 TextColumn::make('formatted_quantity')
                     ->label('Quantity')
                     ->alignCenter(),
-                // TextColumn::make('formatted_unit_cost')
-                //     ->label('Unit Cost')
-                //     ->alignCenter(),
-                // TextColumn::make('formatted_total_cost')
-                //     ->label('Total Cost')
-                //     ->alignCenter(),
-                // TextColumn::make('reason')
-                //     ->label('Reason')
-                //     ->searchable(),
                 TextColumn::make('movement_date')
                     ->label('Date')
                     ->dateTime()
@@ -177,43 +158,39 @@ class StockMovementResource extends Resource
                     ->relationship('inventoryItem', 'name'),
                 Filter::make('date_range')
                     ->form([
-                        DatePicker::make('moved_from')
-                            ->label('Moved From'),
-                        DatePicker::make('moved_until')
-                            ->label('Moved Until'),
+                        DatePicker::make('moved_from')->label('Moved From'),
+                        DatePicker::make('moved_until')->label('Moved Until'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
-                            ->when(
-                                $data['moved_from'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('movement_date', '>=', $date),
-                            )
-                            ->when(
-                                $data['moved_until'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('movement_date', '<=', $date),
-                            );
+                            ->when($data['moved_from'], fn(Builder $query, $date) => $query->whereDate('movement_date', '>=', $date))
+                            ->when($data['moved_until'], fn(Builder $query, $date) => $query->whereDate('movement_date', '<=', $date));
                     }),
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
-               ActionGroup::make([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
-                Tables\Actions\RestoreAction::make(),
-                ActivityLogTimelineTableAction::make('Activities')
-                    ->timelineIcons([
-                        'created' => 'heroicon-m-check-badge',
-                        'updated' => 'heroicon-m-pencil-square',
-                        'deleted' => 'heroicon-m-trash',
-                    ])
-                    ->timelineIconColors([
-                        'created' => 'success',
-                        'updated' => 'warning',
-                        'deleted' => 'danger',
-                    ])
-                ->limit(20),
-               ])
+                ActionGroup::make([
+                    Tables\Actions\ViewAction::make()
+                        ->modalHeading('View Stock Movement')
+                        ->modalWidth('lg'),
+                    Tables\Actions\EditAction::make()
+                        ->modalHeading('Edit Stock Movement')
+                        ->modalWidth('lg'),
+                    Tables\Actions\DeleteAction::make(),
+                    Tables\Actions\RestoreAction::make(),
+                    ActivityLogTimelineTableAction::make('Activities')
+                        ->timelineIcons([
+                            'created' => 'heroicon-m-check-badge',
+                            'updated' => 'heroicon-m-pencil-square',
+                            'deleted' => 'heroicon-m-trash',
+                        ])
+                        ->timelineIconColors([
+                            'created' => 'success',
+                            'updated' => 'warning',
+                            'deleted' => 'danger',
+                        ])
+                        ->limit(20),
+                ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -224,28 +201,44 @@ class StockMovementResource extends Resource
             ]);
     }
 
+    // protected function getHeaderActions(): array
+    // {
+    //     return [
+    //         Tables\Actions\CreateAction::make()
+    //             ->modalHeading('Create Stock Movement')
+    //             ->modalWidth('lg')
+    //             ->icon('heroicon-o-plus')
+    //             ->mutateFormDataUsing(function (array $data) {
+    //                 // Set the logged-in user ID using the same logic as your CreateStockMovement page
+    //                 $data['user_id'] = auth()->id();
+
+    //                 // Optional: keep your unit_cost / total_cost logic if needed
+    //                 if (isset($data['unit_cost']) && isset($data['quantity'])) {
+    //                     $data['total_cost'] = $data['unit_cost'] * $data['quantity'];
+    //                 }
+
+    //                 return $data;
+    //             }),
+    //     ];
+    // }
+
     public static function getRelations(): array
     {
-        return [
-            //
-        ];
+        return [];
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListStockMovements::route('/'),
-            'create' => Pages\CreateStockMovement::route('/create'),
-            'view' => Pages\ViewStockMovement::route('/{record}'),
-            'edit' => Pages\EditStockMovement::route('/{record}/edit'),
+            'index' => ListStockMovements::route('/'),
+            'create' => CreateStockMovement::route('/create'),
+            // The create/edit/view pages are no longer needed since modals handle them
         ];
     }
 
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->withoutGlobalScopes([
-                SoftDeletingScope::class,
-            ]);
+            ->withoutGlobalScopes([SoftDeletingScope::class]);
     }
 }

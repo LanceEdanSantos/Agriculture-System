@@ -19,6 +19,10 @@ class CreateStockMovement extends CreateRecord
             $data['total_cost'] = $data['unit_cost'] * $data['quantity'];
         }
 
+        if ($inventoryItemId = request()->query('inventory_item_id')) {
+            $data['inventory_item_id'] = $inventoryItemId;
+        }
+
         return $data;
     }
 

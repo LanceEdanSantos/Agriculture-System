@@ -31,6 +31,15 @@ class UsersRelationManager extends RelationManager
                         'viewer' => 'Viewer',
                     ])
                     ->required(),
+                Forms\Components\TextInput::make('phone_number')
+                    ->label('Phone Number')
+                    ->required(),
+                Forms\Components\TextInput::make('association')
+                    ->datalist([
+                        'List',
+                    ])
+                    ->label('Associations')
+                    ->required(),
             ]);
     }
 

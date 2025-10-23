@@ -13,7 +13,19 @@ class ListStockMovements extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            
+            Actions\CreateAction::make()
+                ->mutateFormDataUsing(function (array $data) {
+                    // Set the logged-in user ID using the same logic as your CreateStockMovement page
+                    $data['user_id'] = auth()->id();
+
+                    // Optional: keep your unit_cost / total_cost logic if needed
+                    if (isset($data['unit_cost']) && isset($data['quantity'])) {
+                        $data['total_cost'] = $data['unit_cost'] * $data['quantity'];
+                    }
+
+                    return $data;
+                }),
         ];
     }
 }
