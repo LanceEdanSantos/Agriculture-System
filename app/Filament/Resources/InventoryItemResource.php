@@ -118,34 +118,34 @@ class InventoryItemResource extends Resource
                         // ]),
                     ]),
 
-                Section::make('Supplier Information')
-                    ->schema([
-                        Grid::make(2)->schema([
-                            Select::make('supplier_id')
-                                ->label('Supplier')
-                                ->relationship('supplier', 'name')
-                                ->preload()
-                                ->searchable()
-                                ->createOptionForm([
-                                    TextInput::make('name')
-                                        ->label('Supplier Name')
-                                        ->required(),
-                                    TextInput::make('company_name')
-                                        ->label('Company Name'),
-                                    Textarea::make('address')
-                                        ->label('Address')
-                                        ->rows(2),
-                                ]),
-                            TextInput::make('last_supplier')
-                                ->label('Last Supplier')
-                                ->disabled()
-                                ->dehydrated(false),
-                        ]),
-                        DatePicker::make('last_purchase_date')
-                            ->label('Last Purchase Date')
-                            ->disabled()
-                            ->dehydrated(false),
-                    ]),
+                // Section::make('Supplier Information')
+                //     ->schema([
+                //         Grid::make(2)->schema([
+                //             Select::make('supplier_id')
+                //                 ->label('Supplier')
+                //                 ->relationship('supplier', 'name')
+                //                 ->preload()
+                //                 ->searchable()
+                //                 ->createOptionForm([
+                //                     TextInput::make('name')
+                //                         ->label('Supplier Name')
+                //                         ->required(),
+                //                     TextInput::make('company_name')
+                //                         ->label('Company Name'),
+                //                     Textarea::make('address')
+                //                         ->label('Address')
+                //                         ->rows(2),
+                //                 ]),
+                //             TextInput::make('last_supplier')
+                //                 ->label('Last Supplier')
+                //                 ->disabled()
+                //                 ->dehydrated(false),
+                //         ]),
+                //         DatePicker::make('last_purchase_date')
+                //             ->label('Last Purchase Date')
+                //             ->disabled()
+                //             ->dehydrated(false),
+                //     ]),
 
                 Section::make('Additional Information')
                     ->schema([
@@ -198,41 +198,46 @@ class InventoryItemResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->alignCenter(),
-            BadgeColumn::make('current_stock')
-                ->label('Stock Status')
-                ->sortable()
-                ->formatStateUsing(function (InventoryItem $record) {
-                    $stock = $record->current_stock;
-                    $min = $record->minimum_stock ?? 10;
-
-                    if ($stock <= 0) {
-                        return "No Stock ({$stock})";
-                    } elseif ($stock <= $min) {
-                        return "Low Stock ({$stock})";
-                    }
-                    return "In Stock ({$stock})";
-                })
-                ->color(function (InventoryItem $record) {
-                    $stock = $record->current_stock;
-                    $min = $record->minimum_stock ?? 10;
-
-                    return match (true) {
-                        $stock <= 0 => 'danger',
-                        $stock <= $min => 'warning',
-                        default => 'success',
-                    };
-                })
-                ->icon(function (InventoryItem $record) {
-                    $stock = $record->current_stock;
-                    $min = $record->minimum_stock ?? 10;
-
-                    return match (true) {
-                        $stock <= 0 => 'heroicon-o-x-circle',
-                        $stock <= $min => 'heroicon-o-exclamation-triangle',
-                        default => 'heroicon-o-check-circle',
-                    };
-                })
-                ->alignCenter(),
+                    BadgeColumn::make('current_stock')
+                    ->label('Stock Status')
+                    ->sortable()
+                    ->formatStateUsing(function (InventoryItem $record) {
+                        $stock = $record->current_stock;
+                        $min = $record->minimum_stock ?? 10;
+                
+                        if ($stock <= 0) {
+                            $text = "No Stock ({$stock})";
+                        } elseif ($stock <= $min) {
+                            $text = "Low Stock ({$stock})";
+                        } else {
+                            $text = "In Stock ({$stock})";
+                        }
+                
+                        // return HTML with bold tag (or span with Tailwind)
+                        return "<span class=\"font-bold\">{$text}</span>";
+                    })
+                    ->html() // <-- allow raw HTML to be rendered
+                    ->color(function (InventoryItem $record) {
+                        $stock = $record->current_stock;
+                        $min = $record->minimum_stock ?? 10;
+                
+                        return match (true) {
+                            $stock <= 0 => 'danger',
+                            $stock <= $min => 'warning',
+                            default => 'success',
+                        };
+                    })
+                    ->icon(function (InventoryItem $record) {
+                        $stock = $record->current_stock;
+                        $min = $record->minimum_stock ?? 10;
+                
+                        return match (true) {
+                            $stock <= 0 => 'heroicon-o-x-circle',
+                            $stock <= $min => 'heroicon-o-exclamation-triangle',
+                            default => 'heroicon-o-check-circle',
+                        };
+                    })
+                    ->alignCenter(),
                 // TextColumn::make('expiration_date')
                 //     ->label('Expiration')
                 //     ->date()
@@ -263,6 +268,25 @@ class InventoryItemResource extends Resource
                 Filter::make('low_stock')
                     ->label('Low Stock Items')
                     ->query(fn(Builder $query): Builder => $query->whereRaw('current_stock <= minimum_stock')),
+                Filter::make('created_at')
+                    ->label('Created At')
+                    ->form([
+                        DatePicker::make('from')
+                            ->label('From'),
+                        DatePicker::make('until')
+                            ->label('Until'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['from'],
+                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                            )
+                            ->when(
+                                $data['until'],
+                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                            );
+                    }),
                 TrashedFilter::make(),
             ])
             ->defaultSort('name')

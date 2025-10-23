@@ -56,10 +56,8 @@
                     </thead>
                     <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                         @php
-                            $userFarmIds = DB::table('farm_user')
-                                ->where('user_id', Auth::id())
-                                ->pluck('farm_id');
-                            $requests = \App\Models\ItemRequest::whereIn('farm_id', $userFarmIds)->with(['farm', 'inventoryItem'])->latest()->paginate(10);
+                            // Only show user's own requests (not all requests from their farms)
+                            $requests = \App\Models\ItemRequest::where('user_id', Auth::id())->with(['farm', 'inventoryItem'])->latest()->paginate(10);
                         @endphp
                         @forelse ($requests as $request)
                             <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-150">

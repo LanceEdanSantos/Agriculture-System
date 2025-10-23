@@ -8,7 +8,6 @@ In the farmer system, when creating a new item request, create a new field for s
 
 In inventory items tab, I bold Ang number sa available stocks sa inventory item. Para mas clear daw lantawun
 
-
 (Separate message)
 In farms tab in categories, place something similar to a side bar or drop down for each category for easier viewing
 Justin Josh

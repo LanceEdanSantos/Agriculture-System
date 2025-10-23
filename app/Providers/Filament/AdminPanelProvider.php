@@ -9,11 +9,12 @@ use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Http\Middleware\Authenticate;
 use App\Filament\Widgets\InventoryOverview;
-use App\Filament\Widgets\InventoryTrendsChart;
 use Rmsramos\Activitylog\ActivitylogPlugin;
+use App\Filament\Widgets\InventoryTrendsChart;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Filament\Http\Middleware\AuthenticateSession;
+use App\Filament\Resources\CustomActivityLogResource;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
@@ -60,7 +61,10 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->plugins([
                 ActivitylogPlugin::make()
-                ->isRestoreModelActionHidden(true),
+                ->isRestoreModelActionHidden(false)
+                ->navigationGroup('System Logs')
+                ->navigationIcon('heroicon-o-clipboard-document-list')
+                ->resource(CustomActivityLogResource::class),
                 FilamentShieldPlugin::make(),
             ])
             ->authMiddleware([

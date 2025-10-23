@@ -64,8 +64,8 @@ class ItemRequestResource extends Resource
                 Forms\Components\TextInput::make('quantity')
                     ->numeric()
                     ->required()
-                    ->minValue(0.01)
-                    ->step(0.01)
+                    ->minValue(1)
+                    ->step(1)
                     ->disabled(!$canEdit),
                 Forms\Components\Textarea::make('notes')
                     ->columnSpanFull()
@@ -110,17 +110,8 @@ class ItemRequestResource extends Resource
             return $query;
         }
 
-        // Regular users can only see requests from their associated farms
-        $farmIds = DB::table('farm_user')
-            ->where('user_id', $user->id)
-            ->pluck('farm_id');
-
-        if ($farmIds->isEmpty()) {
-            // User has no farms, return empty query
-            return $query->whereRaw('1 = 0');
-        }
-
-        return $query->whereIn('farm_id', $farmIds);
+        // Regular users can only see their own requests (not all requests from their farms)
+        return $query->where('user_id', $user->id);
     }
 
     public static function table(Table $table): Table
@@ -137,7 +128,7 @@ class ItemRequestResource extends Resource
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('quantity')
-                    ->numeric(2)
+                    ->numeric()
                     ->sortable(),
                 Tables\Columns\SelectColumn::make('status')
                     ->options(
@@ -202,7 +193,8 @@ class ItemRequestResource extends Resource
                         Forms\Components\TextInput::make('approved_quantity')
                             ->numeric()
                             ->required()
-                            ->minValue(0.01)
+                            ->minValue(1)
+                            ->step(1)
                             ->label('Approved Quantity'),
                         Forms\Components\Textarea::make('notes')
                             ->label('Approval Notes'),

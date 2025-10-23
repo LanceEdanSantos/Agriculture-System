@@ -40,9 +40,20 @@
             </select>
             @error('inventory_item_id') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror
         </div>
+
+        <!-- Available Stock Display -->
+        @if($selectedItemStock)
+        <div>
+            <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Available Stock</label>
+            <div class="bg-green-50 border border-green-300 text-green-900 text-sm rounded-lg block w-full p-2.5 dark:bg-green-900/20 dark:border-green-700 dark:text-green-100">
+                <strong>{{ $selectedItemStock['current_stock'] }} {{ $selectedItemStock['unit'] }}</strong> available in {{ $selectedItemStock['name'] }}
+            </div>
+        </div>
+        @endif
+
         <div>
             <label for="quantity" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Quantity</label>
-            <input type="number" wire:model="quantity" id="quantity" step="0.01" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+            <input type="number" wire:model="quantity" id="quantity" step="1" min="1" placeholder="Enter quantity (e.g., 10)" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
             @error('quantity') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror
         </div>
         <div>

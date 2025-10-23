@@ -26,9 +26,28 @@ class ItemRequestComponent extends Component
     protected $rules = [
         'farm_id' => 'required|exists:farms,id',
         'inventory_item_id' => 'required|exists:inventory_items,id',
-        'quantity' => 'required|numeric|min:0.01',
+        'quantity' => 'required|numeric|min:1|integer',
         'notes' => 'nullable|string|max:1000',
     ];
+
+    public function getSelectedItemStockProperty()
+    {
+        if (!$this->inventory_item_id) {
+            return null;
+        }
+
+        $selectedItem = collect($this->availableItems)->firstWhere('id', $this->inventory_item_id);
+
+        if ($selectedItem) {
+            return [
+                'current_stock' => $selectedItem['current_stock'],
+                'unit' => $selectedItem['unit'],
+                'name' => $selectedItem['name']
+            ];
+        }
+
+        return null;
+    }
 
     public function mount()
     {

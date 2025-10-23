@@ -36,7 +36,7 @@ class ItemRequest extends Model
     ];
 
     protected $casts = [
-        'quantity' => 'decimal:2',
+        'quantity' => 'integer',
         'requested_at' => 'datetime',
         'approved_at' => 'datetime',
         'delivered_at' => 'datetime',

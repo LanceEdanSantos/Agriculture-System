@@ -50,7 +50,7 @@ class ItemRequestController extends Controller
         $validated = $request->validate([
             'farm_id' => 'required|exists:farms,id',
             'inventory_item_id' => 'required|exists:inventory_items,id',
-            'quantity' => 'required|numeric|min:0.01',
+            'quantity' => 'required|numeric|min:1|integer',
             'notes' => 'nullable|string|max:1000',
         ]);
 
@@ -144,7 +144,7 @@ class ItemRequestController extends Controller
         $validated = $request->validate([
             'farm_id' => 'required|exists:farms,id',
             'inventory_item_id' => 'required|exists:inventory_items,id',
-            'quantity' => 'required|numeric|min:0.01',
+            'quantity' => 'required|numeric|min:1|integer',
             'notes' => 'nullable|string|max:1000',
         ]);
 

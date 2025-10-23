@@ -52,14 +52,9 @@ class ItemRequestList extends Component
      */
     public function render(): View
     {
-        // Get user's farm IDs for privacy filtering
-        $farmIds = DB::table('farm_user')
-            ->where('user_id', Auth::id())
-            ->pluck('farm_id');
-
         $query = ItemRequest::query()
             ->with(['farm:id,name', 'inventoryItem:id,name,unit'])
-            ->whereIn('farm_id', $farmIds)
+            ->where('user_id', Auth::id())
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
                     $q->whereHas('inventoryItem', function ($q) {
