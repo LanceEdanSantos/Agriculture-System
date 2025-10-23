@@ -80,16 +80,23 @@
                     </span>
                 </div>
 
-                {{-- Requested By --}}
+                {{-- Current Stock Status --}}
+                @if($itemRequest->inventoryItem)
                 <div class="space-y-2">
                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                         </svg>
-                        Requested By
+                        Current Stock Availability
                     </p>
-                    <p class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">{{ $itemRequest->user->name }}</p>
+                    <input type="text"
+                           value="{{ $itemRequest->inventoryItem->current_stock }} {{ $itemRequest->inventoryItem->unit }}"
+                           class="w-full bg-green-50 dark:bg-green-900/20 border-2 border-green-300 dark:border-green-700 text-green-900 dark:text-green-100 text-sm rounded-lg p-2.5 font-semibold cursor-not-allowed"
+                           disabled
+                           readonly>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Available in {{ $itemRequest->inventoryItem->name }}</p>
                 </div>
+                @endif
 
                 {{-- Requested At --}}
                 <div class="space-y-2">

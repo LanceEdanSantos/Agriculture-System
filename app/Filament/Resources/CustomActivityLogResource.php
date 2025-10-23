@@ -3,9 +3,9 @@
 namespace App\Filament\Resources;
 
 use Filament\Tables\Table;
-use Pages\ListCustomActivityLogs;
 use Rmsramos\Activitylog\Resources\ActivitylogResource;
 use App\Filament\Resources\CustomActivityLogResource\Pages;
+use Rmsramos\Activitylog\Resources\ActivitylogResource\Pages\ViewActivityLog;
 
 class CustomActivityLogResource extends ActivitylogResource
 {
@@ -17,6 +17,7 @@ class CustomActivityLogResource extends ActivitylogResource
     {
         return [
             'index' => Pages\ListCustomActivityLogs::route('/'),
+            'view' => ViewActivityLog::route('/{record}'),
         ];
     }
 
@@ -24,12 +25,17 @@ class CustomActivityLogResource extends ActivitylogResource
     {
         // Start with the parent's table
         $table = parent::table($table);
-        // Filter out the subject_type column
-        $filteredColumns = collect($table->getColumns())
+
+        // Filter out only the 'log_name' column
+        $columns = collect($table->getColumns())
             ->reject(fn($column) => $column->getName() === 'log_name')
-            ->values()
             ->all();
 
-        return $table->columns($filteredColumns);
+        // Re-attach the filtered columns while keeping actions intact
+        return $table
+            ->columns($columns)
+            ->filters($table->getFilters())
+            ->actions($table->getActions())
+            ->bulkActions($table->getBulkActions());
     }
 }

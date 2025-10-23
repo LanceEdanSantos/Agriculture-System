@@ -109,23 +109,19 @@
                     <!-- Available Stock Display -->
                     @if($selectedItemStock)
                     <div class="space-y-2">
-                        <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                        <label for="available_stock" class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                             </svg>
                             Available Stock
                         </label>
-                        <div class="flex items-center gap-3 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-2 border-green-300 dark:border-green-700 rounded-xl p-4">
-                            <div class="flex-shrink-0 w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                                </svg>
-                            </div>
-                            <div class="flex-1">
-                                <p class="font-bold text-lg text-gray-900 dark:text-white">{{ $selectedItemStock['current_stock'] }} {{ $selectedItemStock['unit'] }}</p>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">Available in {{ $selectedItemStock['name'] }}</p>
-                            </div>
-                        </div>
+                        <input type="text"
+                               id="available_stock"
+                               value="{{ $selectedItemStock['current_stock'] }} {{ $selectedItemStock['unit'] }}"
+                               class="w-full bg-green-50 dark:bg-green-900/20 border-2 border-green-300 dark:border-green-700 text-green-900 dark:text-green-100 text-base rounded-xl p-4 font-semibold cursor-not-allowed"
+                               disabled
+                               readonly>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Available in {{ $selectedItemStock['name'] }}</p>
                     </div>
                     @endif
 

@@ -13,9 +13,10 @@ class ItemRequestComponent extends Component
 {
     public $itemRequest;
     public $farm_id;
-    public $inventory_item_id;
-    public $quantity;
-    public $notes;
+    public $selectedItemStock = null;
+    public $inventory_item_id = null;
+    public $quantity = null;
+    public $notes = null;
     public $mode = 'index';
     public $hasFarms = false;
     public $userFarmsCount = 0;
@@ -30,23 +31,41 @@ class ItemRequestComponent extends Component
         'notes' => 'nullable|string|max:1000',
     ];
 
-    public function getSelectedItemStockProperty()
+    public function updatedInventoryItemId()
     {
-        if (!$this->inventory_item_id) {
-            return null;
+        $this->updateSelectedItemStock();
+    }
+
+    public function updateSelectedItemStock()
+    {
+        // In edit mode, use the itemRequest relationship
+        if ($this->mode === 'edit' && $this->itemRequest && $this->itemRequest->inventoryItem) {
+            $this->selectedItemStock = [
+                'current_stock' => $this->itemRequest->inventoryItem->current_stock,
+                'unit' => $this->itemRequest->inventoryItem->unit,
+                'name' => $this->itemRequest->inventoryItem->name
+            ];
+            return;
         }
 
+        // Check if inventory_item_id is set and availableItems exists
+        if (!$this->inventory_item_id || empty($this->availableItems)) {
+            $this->selectedItemStock = null;
+            return;
+        }
+
+        // Find the selected item in availableItems
         $selectedItem = collect($this->availableItems)->firstWhere('id', $this->inventory_item_id);
 
         if ($selectedItem) {
-            return [
+            $this->selectedItemStock = [
                 'current_stock' => $selectedItem['current_stock'],
                 'unit' => $selectedItem['unit'],
                 'name' => $selectedItem['name']
             ];
+        } else {
+            $this->selectedItemStock = null;
         }
-
-        return null;
     }
 
     public function mount()
@@ -59,6 +78,10 @@ class ItemRequestComponent extends Component
             if ($this->mode === 'edit' && $this->itemRequest->status !== 'pending') {
                 session()->flash('error', 'Only pending requests can be edited.');
                 $this->mode = 'show';
+            }
+            // Update stock information for edit/show modes
+            if ($this->mode === 'edit') {
+                $this->updateSelectedItemStock();
             }
         } else {
             $this->authorize('viewAny', ItemRequest::class);
@@ -204,14 +227,14 @@ class ItemRequestComponent extends Component
 
     public function show($id)
     {
-        $this->itemRequest = ItemRequest::findOrFail($id);
+        $this->itemRequest = ItemRequest::with(['inventoryItem', 'user', 'farm'])->findOrFail($id);
         $this->authorize('view', $this->itemRequest);
         $this->mode = 'show';
     }
 
     public function edit($id)
     {
-        $this->itemRequest = ItemRequest::findOrFail($id);
+        $this->itemRequest = ItemRequest::with('inventoryItem')->findOrFail($id);
         $this->authorize('update', $this->itemRequest);
 
         if ($this->itemRequest->status !== 'pending') {
@@ -221,13 +244,18 @@ class ItemRequestComponent extends Component
         }
 
         $this->mode = 'edit';
-        $this->loadData();
 
-        // Populate form with existing data
-        $this->farm_id = $this->itemRequest->farm_id;
+        // Set inventory_item_id first so computed property works
         $this->inventory_item_id = $this->itemRequest->inventory_item_id;
+        $this->farm_id = $this->itemRequest->farm_id;
         $this->quantity = $this->itemRequest->quantity;
         $this->notes = $this->itemRequest->notes;
+
+        // Then load data so availableItems includes the selected item
+        $this->loadData();
+
+        // Update stock information after loading data
+        $this->updateSelectedItemStock();
     }
 
     public function update()
