@@ -233,4 +233,9 @@ class InventoryItem extends Model
     {
         return max(0, $this->current_stock);
     }
+
+    public function stockMovements()
+    {
+        return $this->hasMany(StockMovement::class);
+    }
 }

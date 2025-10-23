@@ -2,7 +2,9 @@
 
 namespace App\Filament\Resources;
 
+use Closure;
 use Filament\Forms;
+use Filament\Forms\Get;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\InventoryItem;
@@ -309,13 +311,90 @@ class InventoryItemResource extends Resource
                     ->label('Restore')
                     ->icon('heroicon-o-arrow-uturn-left')
                     ->color('success'),
-                Action::make('create_stock_movement')
-                    ->label('Log Stock')
-                    ->icon('heroicon-o-arrow-path')
-                    ->url(fn(InventoryItem $record) => StockMovementResource::getUrl('create', [
-                        'inventory_item_id' => $record->id, // preselect this item
-                    ]))
-                    ->openUrlInNewTab(),
+                // Action::make('create_stock_movement')
+                //     ->label('Log Stock')
+                //     ->icon('heroicon-o-arrow-path')
+                //     ->url(fn(InventoryItem $record) => StockMovementResource::getUrl('create', [
+                //         'inventory_item_id' => $record->id, // preselect this item
+                //     ]))
+                //     ->openUrlInNewTab(),
+                Action::make('stock_movement')
+    ->label('Add Stock Movement')
+    ->icon('heroicon-o-arrow-path')
+    ->color('primary')
+    ->modalHeading(fn(InventoryItem $record) => 'Record Stock Movement for ' . $record->name)
+    ->modalButton('Save Movement')
+    ->form([
+        \Filament\Forms\Components\Select::make('type')
+            ->label('Movement Type')
+            ->options([
+                'in' => 'Stock In',
+                'out' => 'Stock Out',
+            ])
+            ->required(),
+        \Filament\Forms\Components\TextInput::make('quantity')
+            ->label('Quantity')
+            ->numeric()
+            ->required()
+            ->minValue(1)
+            ->rules([
+                            fn(Get $get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
+                                $inventoryItemId = $get('inventory_item_id');
+                                $type = $get('type');
+
+                                if (! $inventoryItemId || ! $type) {
+                                    return;
+                                }
+
+                                $inventoryItem = InventoryItem::find($inventoryItemId);
+
+                                if (! $inventoryItem) {
+                                    return;
+                                }
+
+                                if ($type === 'out') {
+                                    $available = $inventoryItem->getAvailableStockForOut();
+
+                                    if ($available <= 0) {
+                                        $fail("{$inventoryItem->name} has no stock available.");
+                                        return;
+                                    }
+
+                                    if ($value > $available) {
+                                        $fail("Insufficient stock for {$inventoryItem->name}. Available: {$available} {$inventoryItem->unit?->name}");
+                                    }
+                                } elseif ($type === 'in' && $value <= 0) {
+                                    $fail('Quantity must be greater than zero for stock-in.');
+                                }
+                            },
+                        ]),
+                    \Filament\Forms\Components\Textarea::make('notes')
+            ->label('Notes')
+            ->rows(3),
+        \Filament\Forms\Components\DatePicker::make('movement_date')
+            ->label('Movement Date')
+            ->default(now())
+            ->required(),
+    ])
+    ->action(function (InventoryItem $record, array $data): void {
+        // Save stock movement
+                $record->stockMovements()->create([
+                    'inventory_item_id' => $record->id,
+                    'user_id' => auth()->id(),
+                    'type' => $data['type'],
+                    'quantity' => $data['quantity'],
+                    'notes' => $data['notes'] ?? null,
+                    'movement_date' => $data['movement_date'],
+                ]);
+                // Update current stock automatically
+                $record->update([
+                    'current_stock' => $data['type'] === 'in'
+                        ? $record->current_stock + $data['quantity']
+                        : $record->current_stock - $data['quantity'],
+                ]);
+            })
+            ->modalWidth('lg')
+            ->successNotificationTitle('Stock logged recorded successfully!'),
                 Action::make('adjust_stock')
                     ->label('Adjust Stock')
                     ->icon('heroicon-o-plus-circle')
