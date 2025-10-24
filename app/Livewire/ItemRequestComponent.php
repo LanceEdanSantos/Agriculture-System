@@ -36,6 +36,19 @@ class ItemRequestComponent extends Component
         $this->updateSelectedItemStock();
     }
 
+    public function updatedFarmId()
+    {
+        // When farm changes, reset inventory item and update available items
+        $this->inventory_item_id = null;
+        $this->selectedItemStock = null;
+        $this->loadData(); // Reload data for the selected farm
+
+        // Update stock if an item was previously selected
+        if ($this->inventory_item_id) {
+            $this->updateSelectedItemStock();
+        }
+    }
+
     public function updateSelectedItemStock()
     {
         // In edit mode, use the itemRequest relationship
@@ -48,24 +61,21 @@ class ItemRequestComponent extends Component
             return;
         }
 
-        // Check if inventory_item_id is set and availableItems exists
-        if (!$this->inventory_item_id || empty($this->availableItems)) {
-            $this->selectedItemStock = null;
-            return;
+        // In create mode, always check database first (most reliable)
+        if ($this->mode === 'create' && $this->inventory_item_id) {
+            $inventoryItem = InventoryItem::find($this->inventory_item_id);
+            if ($inventoryItem) {
+                $this->selectedItemStock = [
+                    'current_stock' => $inventoryItem->current_stock,
+                    'unit' => $inventoryItem->unit,
+                    'name' => $inventoryItem->name
+                ];
+                return;
+            }
         }
 
-        // Find the selected item in availableItems
-        $selectedItem = collect($this->availableItems)->firstWhere('id', $this->inventory_item_id);
-
-        if ($selectedItem) {
-            $this->selectedItemStock = [
-                'current_stock' => $selectedItem['current_stock'],
-                'unit' => $selectedItem['unit'],
-                'name' => $selectedItem['name']
-            ];
-        } else {
-            $this->selectedItemStock = null;
-        }
+        // Default case
+        $this->selectedItemStock = null;
     }
 
     public function mount()
@@ -116,12 +126,18 @@ class ItemRequestComponent extends Component
             return;
         }
 
+        // If a specific farm is selected, only load items for that farm
+        $farmsToLoad = $farms;
+        if ($this->farm_id) {
+            $farmsToLoad = $farms->where('id', $this->farm_id);
+        }
+
         // Build farms array with inventory items
         $this->farms = [];
         $this->farmNames = [];
         $this->availableItems = [];
 
-        foreach ($farms as $farm) {
+        foreach ($farmsToLoad as $farm) {
             $this->farmNames[$farm->id] = $farm->name;
 
             // Get inventory items visible to this farm
@@ -188,6 +204,12 @@ class ItemRequestComponent extends Component
         $this->mode = 'create';
         $this->resetForm();
         $this->loadData();
+
+        // If user has only one farm, auto-select it and reload data for that farm
+        if ($this->userFarmsCount === 1) {
+            $this->farm_id = $this->farms[0]['id'];
+            $this->loadData(); // Reload data with selected farm
+        }
     }
 
     public function store()
