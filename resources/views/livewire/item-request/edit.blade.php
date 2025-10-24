@@ -32,7 +32,7 @@
         </div>
         <div>
             <label for="inventory_item_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Inventory Item</label>
-            <select wire:model="inventory_item_id" id="inventory_item_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+            <select wire:model.live="inventory_item_id" id="inventory_item_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
                 <option value="">Select an item</option>
                 @foreach ($availableItems as $item)
                     <option value="{{ $item['id'] }}" {{ $item['id'] == $inventory_item_id ? 'selected' : '' }}>{{ $item['name'] }} ({{ $item['farm_name'] }})</option>
@@ -42,7 +42,7 @@
         </div>
 
         <!-- Available Stock Display -->
-        @if($selectedItemStock)
+        @if($inventory_item_id && $selectedItemStock)
         <div class="space-y-2">
             <label for="available_stock" class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -52,11 +52,16 @@
             </label>
             <input type="text"
                    id="available_stock"
-                   value="{{ $selectedItemStock['current_stock'] }} {{ $selectedItemStock['unit'] }}"
+                   value="{{ $selectedItemStock['current_stock'] ?? 0 }} {{ $selectedItemStock['unit'] ?? 'units' }}"
                    class="w-full bg-green-50 dark:bg-green-900/20 border-2 border-green-300 dark:border-green-700 text-green-900 dark:text-green-100 text-sm rounded-lg p-2.5 font-semibold cursor-not-allowed"
                    disabled
                    readonly>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Available in {{ $selectedItemStock['name'] }}</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Available in {{ $selectedItemStock['name'] ?? '' }}</p>
+        </div>
+        @elseif($inventory_item_id)
+        <div class="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-300 dark:border-yellow-700 rounded-lg">
+            <p class="text-sm text-yellow-800 dark:text-yellow-300">Loading stock information...</p>
+            <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">Debug: Item ID = {{ $inventory_item_id }}</p>
         </div>
         @endif
 
