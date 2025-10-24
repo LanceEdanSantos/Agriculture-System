@@ -17,7 +17,7 @@ class CustomActivityLogResource extends ActivitylogResource
     {
         return [
             'index' => Pages\ListCustomActivityLogs::route('/'),
-            'view' => ViewActivityLog::route('/{record}'),
+            'view' => Pages\ViewCustomActivityLog::route('/{record}'),
         ];
     }
 

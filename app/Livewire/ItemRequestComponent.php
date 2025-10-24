@@ -120,7 +120,7 @@ class ItemRequestComponent extends Component
         }
 
         // Build farms array with inventory items
-        $this->farms = [];
+    $this->farms = [];
         $this->farmNames = [];
         $this->availableItems = [];
 
