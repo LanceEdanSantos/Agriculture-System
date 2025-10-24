@@ -426,21 +426,21 @@ class InventoryItemResource extends Resource
             })
             ->modalWidth('lg')
             ->successNotificationTitle('Stock logged recorded successfully!'),
-                Action::make('adjust_stock')
-                    ->label('Adjust Stock')
-                    ->icon('heroicon-o-plus-circle')
-                    ->form([
-                        TextInput::make('quantity')
-                            ->label('Quantity to Add/Remove')
-                            ->numeric()
-                            ->required()
-                            ->helperText('Use positive numbers to add stock, negative to remove'),
-                    ])
-                    ->action(function (InventoryItem $record, array $data): void {
-                        $record->update([
-                            'current_stock' => $record->current_stock + $data['quantity'],
-                        ]);
-                    }),
+                // Action::make('adjust_stock')
+                //     ->label('Adjust Stock')
+                //     ->icon('heroicon-o-plus-circle')
+                //     ->form([
+                //         TextInput::make('quantity')
+                //             ->label('Quantity to Add/Remove')
+                //             ->numeric()
+                //             ->required()
+                //             ->helperText('Use positive numbers to add stock, negative to remove'),
+                //     ])
+                //     ->action(function (InventoryItem $record, array $data): void {
+                //         $record->update([
+                //             'current_stock' => $record->current_stock + $data['quantity'],
+                //         ]);
+                //     }),
                 ActivityLogTimelineTableAction::make('Activities')
                     ->timelineIcons([
                         'created' => 'heroicon-m-check-badge',

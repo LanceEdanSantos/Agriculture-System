@@ -15,11 +15,11 @@ class ListInventoryItems extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\Action::make('goToCreate')
-                ->label('Create Stock Movement')
-                ->icon('heroicon-o-plus')
-                ->color('primary')
-                ->url(StockMovementResource::getUrl('create')),
+            // Actions\Action::make('goToCreate')
+            //     ->label('Create Stock Movement')
+            //     ->icon('heroicon-o-plus')
+            //     ->color('primary')
+            //     ->url(StockMovementResource::getUrl('create')),
             Actions\CreateAction::make(),
         ];
     }
