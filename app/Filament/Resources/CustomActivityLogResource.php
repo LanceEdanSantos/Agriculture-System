@@ -5,7 +5,6 @@ namespace App\Filament\Resources;
 use Filament\Tables\Table;
 use Rmsramos\Activitylog\Resources\ActivitylogResource;
 use App\Filament\Resources\CustomActivityLogResource\Pages;
-use Rmsramos\Activitylog\Resources\ActivitylogResource\Pages\ViewActivityLog;
 
 class CustomActivityLogResource extends ActivitylogResource
 {
