@@ -36,16 +36,23 @@ class ItemRequestComponent extends Component
         $this->updateSelectedItemStock();
     }
 
-    public function updatedFarmId()
+    public function mount()
     {
-        // When farm changes, reset inventory item and update available items
-        $this->inventory_item_id = null;
-        $this->selectedItemStock = null;
-        $this->loadData(); // Reload data for the selected farm
-
-        // Update stock if an item was previously selected
-        if ($this->inventory_item_id) {
-            $this->updateSelectedItemStock();
+        $this->loadData();
+        if ($this->mode === 'create') {
+            $this->authorize('create', ItemRequest::class);
+        } elseif ($this->mode === 'edit' || $this->mode === 'show') {
+            $this->authorize($this->mode === 'edit' ? 'update' : 'view', $this->itemRequest);
+            if ($this->mode === 'edit' && $this->itemRequest->status !== 'pending') {
+                session()->flash('error', 'Only pending requests can be edited.');
+                $this->mode = 'show';
+            }
+            // Update stock information for edit/show modes
+            if ($this->mode === 'edit') {
+                $this->updateSelectedItemStock();
+            }
+        } else {
+            $this->authorize('viewAny', ItemRequest::class);
         }
     }
 
@@ -76,26 +83,6 @@ class ItemRequestComponent extends Component
 
         // Default case
         $this->selectedItemStock = null;
-    }
-
-    public function mount()
-    {
-        $this->loadData();
-        if ($this->mode === 'create') {
-            $this->authorize('create', ItemRequest::class);
-        } elseif ($this->mode === 'edit' || $this->mode === 'show') {
-            $this->authorize($this->mode === 'edit' ? 'update' : 'view', $this->itemRequest);
-            if ($this->mode === 'edit' && $this->itemRequest->status !== 'pending') {
-                session()->flash('error', 'Only pending requests can be edited.');
-                $this->mode = 'show';
-            }
-            // Update stock information for edit/show modes
-            if ($this->mode === 'edit') {
-                $this->updateSelectedItemStock();
-            }
-        } else {
-            $this->authorize('viewAny', ItemRequest::class);
-        }
     }
 
     public function loadData()

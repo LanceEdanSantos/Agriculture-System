@@ -42,7 +42,7 @@
         </div>
 
         <!-- Available Stock Display -->
-        @if($selectedItemStock)
+        @if($this->selectedItemStock)
         <div class="space-y-2">
             <label for="available_stock" class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -52,11 +52,11 @@
             </label>
             <input type="text"
                    id="available_stock"
-                   value="{{ $selectedItemStock['current_stock'] }} {{ $selectedItemStock['unit'] }}"
+                   value="{{ $this->selectedItemStock['current_stock'] }} {{ $this->selectedItemStock['unit'] }}"
                    class="w-full bg-green-50 dark:bg-green-900/20 border-2 border-green-300 dark:border-green-700 text-green-900 dark:text-green-100 text-sm rounded-lg p-2.5 font-semibold cursor-not-allowed"
                    disabled
                    readonly>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Available in {{ $selectedItemStock['name'] }}</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Available in {{ $this->selectedItemStock['name'] }}</p>
         </div>
         @endif
 
