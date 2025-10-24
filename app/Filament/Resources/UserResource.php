@@ -75,24 +75,20 @@ class UserResource extends Resource
                             ->schema([
                                 Select::make('role')
                                     ->label('Role')
-                                    ->options([
-                                        'administrator' => 'Administrator',
-                                        'doa_staff' => 'DOA Staff',
-                                        'farmer' => 'Farmer',
-                                    ])
+                                    ->options(Role::all()->pluck('name', 'name')->toArray())
                                     ->required(),
                                 TextInput::make('department')
                                     ->label('Department')
                                     ->maxLength(255),
                             ]),
-                        CheckboxList::make('roles')
-                            ->label('Shield Roles')
-                            ->relationship('roles', 'name')
-                            ->columns(3),
-                        CheckboxList::make('permissions')
-                            ->label('Shield Permissions')
-                            ->relationship('permissions', 'name')
-                            ->columns(3),
+                        // CheckboxList::make('roles')
+                        //     ->label('Shield Roles')
+                        //     ->relationship('roles', 'name')
+                        //     ->columns(3),
+                        // CheckboxList::make('permissions')
+                        //     ->label('Shield Permissions')
+                        //     ->relationship('permissions', 'name')
+                        //     ->columns(3),
                     ]),
 
                 Section::make('Security')
