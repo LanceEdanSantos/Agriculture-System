@@ -118,4 +118,9 @@ class MessagesRelationManager extends RelationManager
             ->emptyStateDescription('Start a conversation by sending a message.')
             ->emptyStateIcon('heroicon-o-chat-bubble-left-right');
     }
+
+    public function isReadOnly(): bool
+    {
+        return false;
+    }
 }
