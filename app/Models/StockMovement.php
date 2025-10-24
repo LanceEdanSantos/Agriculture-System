@@ -7,12 +7,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\Log;
-use Spatie\Activitylog\Traits\LogsActivity;
-use Spatie\Activitylog\LogOptions;
 
 class StockMovement extends Model
 {
-    use HasFactory, LogsActivity, SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'inventory_item_id',
@@ -33,24 +31,24 @@ class StockMovement extends Model
         'deleted_at' => 'datetime',
     ];
 
-    public function getActivitylogOptions(): LogOptions
-    {
-        return LogOptions::defaults()
-            ->logOnly([
-                'inventory_item_id',
-                'user_id',
-                'type',
-                'quantity',
-                'unit_cost',
-                'total_cost',
-                'reason',
-                'notes',
-                'movement_date',
-            ])
-            ->logOnlyDirty()
-            ->dontSubmitEmptyLogs()
-            ->dontLogIfAttributesChangedOnly(['updated_at']);
-    }
+    // public function getActivitylogOptions(): LogOptions
+    // {
+    //     return LogOptions::defaults()
+    //         ->logOnly([
+    //             'inventory_item_id',
+    //             'user_id',
+    //             'type',
+    //             'quantity',
+    //             'unit_cost',
+    //             'total_cost',
+    //             'reason',
+    //             'notes',
+    //             'movement_date',
+    //         ])
+    //         ->logOnlyDirty()
+    //         ->dontSubmitEmptyLogs()
+    //         ->dontLogIfAttributesChangedOnly(['updated_at']);
+    // }
 
     protected static function booted()
     {

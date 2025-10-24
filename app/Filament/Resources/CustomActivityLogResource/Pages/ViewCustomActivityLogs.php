@@ -34,7 +34,7 @@ class ViewCustomActivityLogs extends ViewRecord
                     data_get($this->record->properties, 'old', [])
                 )?->save();
 
-                $this->notify('success', 'Record restored successfully.');
+                // $this->notify('success', 'Record restored successfully.');
             });
 
         return $actions;

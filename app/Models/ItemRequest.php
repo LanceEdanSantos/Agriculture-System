@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\Auth;
 use App\Models\RequestFeedback;
+use App\Models\RequestMessage;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
@@ -195,6 +196,14 @@ class ItemRequest extends Model
     public function feedback(): HasMany
     {
         return $this->hasMany(RequestFeedback::class);
+    }
+
+    /**
+     * Get all messages for the request.
+     */
+    public function messages(): HasMany
+    {
+        return $this->hasMany(RequestMessage::class);
     }
 
     /**

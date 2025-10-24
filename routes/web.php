@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\FarmPrintController;
 use App\Http\Controllers\InventoryPrintController;
 use App\Livewire\Settings\Appearance;
 use App\Livewire\Settings\Password;
@@ -9,6 +10,10 @@ use Illuminate\Support\Facades\Auth;
 
 Route::get('/inventory/print', [InventoryPrintController::class, 'print'])
     ->name('inventory.print')
+    ->middleware(['auth']);
+
+Route::get('/farms/{id}/print', [FarmPrintController::class, 'print'])
+    ->name('farms.print')
     ->middleware(['auth']);
 
 Route::get('/dashboard', function () {
