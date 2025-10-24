@@ -61,7 +61,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->plugins([
                 ActivitylogPlugin::make()
-                ->isRestoreModelActionHidden(false)
+                ->isRestoreModelActionHidden(true)
                 ->navigationGroup('System Logs')
                 ->navigationIcon('heroicon-o-clipboard-document-list')
                 ->resource(CustomActivityLogResource::class),
