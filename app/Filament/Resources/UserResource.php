@@ -8,6 +8,7 @@ use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
+use Spatie\Permission\Models\Role;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
@@ -146,11 +147,7 @@ class UserResource extends Resource
             ->filters([
                 SelectFilter::make('role')
                     ->label('Role')
-                    ->options([
-                        'administrator' => 'Administrator',
-                        'doa_staff' => 'DOA Staff',
-                        'farmer' => 'Farmer',
-                    ]),
+                    ->options(Role::all()->pluck('name', 'id')->toArray()),
                 SelectFilter::make('department')
                     ->label('Department')
                     ->options([
