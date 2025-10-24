@@ -68,7 +68,7 @@ class ItemRequestComponent extends Component
         if ($this->mode === 'edit' && $this->itemRequest && $this->itemRequest->inventoryItem) {
             $this->selectedItemStock = [
                 'current_stock' => $this->itemRequest->inventoryItem->current_stock,
-                'unit' => $this->itemRequest->inventoryItem->unit,
+                'unit' => $this->itemRequest->inventoryItem->unit->name ?? 'units',
                 'name' => $this->itemRequest->inventoryItem->name
             ];
             return;
@@ -76,11 +76,11 @@ class ItemRequestComponent extends Component
 
         // In create mode, always check database first (most reliable)
         if ($this->mode === 'create' && $this->inventory_item_id) {
-            $inventoryItem = InventoryItem::find($this->inventory_item_id);
+            $inventoryItem = InventoryItem::with('unit')->find($this->inventory_item_id);
             if ($inventoryItem) {
                 $this->selectedItemStock = [
                     'current_stock' => $inventoryItem->current_stock,
-                    'unit' => $inventoryItem->unit,
+                    'unit' => $inventoryItem->unit->name ?? 'units',
                     'name' => $inventoryItem->name
                 ];
                 return;
@@ -139,7 +139,7 @@ class ItemRequestComponent extends Component
                 ->where('is_visible', true)
                 ->pluck('inventory_item_id');
 
-            $farmItems = InventoryItem::whereIn('id', $farmItemIds)
+            $farmItems = InventoryItem::with('unit')->whereIn('id', $farmItemIds)
                 ->where('status', 'active')
                 ->get();
 
@@ -164,7 +164,7 @@ class ItemRequestComponent extends Component
                     'name' => $item->name,
                     'farm_id' => $farm->id,
                     'farm_name' => $farm->name,
-                    'unit' => $item->unit,
+                    'unit' => $item->unit->name ?? 'units',
                     'current_stock' => $item->current_stock,
                 ];
             }
