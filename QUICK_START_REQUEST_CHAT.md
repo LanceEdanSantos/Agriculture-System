@@ -15,7 +15,12 @@ php artisan optimize:clear
 
 ## How to Use
 
-### For Admins/Managers:
+### Two Interfaces Available:
+
+1. **Filament Admin Panel** - Full-featured with advanced filtering and management
+2. **Livewire Frontend** - Simple chat interface for farmers and admins
+
+### For Admins/Managers (Filament Admin Panel):
 
 #### Scenario: Farmer requests 50 items, but only 30 available
 
@@ -47,13 +52,16 @@ php artisan optimize:clear
      - Sends your message to farmer
      - Sends approval confirmation message
 
-### For Farmers:
+### For Farmers (Livewire Frontend):
 
 1. **Create a request** as usual
 2. **View your request** to see status
-3. **Check "Request Discussion" tab** for messages from admin
-4. **Reply to admin** by clicking "Send Message"
-5. **Messages update in real-time** (every 5 seconds)
+3. **Scroll down to "Request Discussion" section** - it's now directly on the page!
+4. **Type your message** in the text area
+5. **Click "Send Message"** to send
+6. **Messages update automatically** every 5 seconds
+7. See admin messages with green shield icon 🛡️
+8. Your messages appear with blue user icon 👤
 
 ## Features at a Glance
 

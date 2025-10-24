@@ -23,12 +23,18 @@ class ItemRequestComponent extends Component
     public $availableItems = [];
     public $farmNames = [];
     public $farms = [];
+    public $newMessage = '';
+    public $messages = [];
 
     protected $rules = [
         'farm_id' => 'required|exists:farms,id',
         'inventory_item_id' => 'required|exists:inventory_items,id',
         'quantity' => 'required|numeric|min:1|integer',
         'notes' => 'nullable|string|max:1000',
+    ];
+
+    protected $messageRules = [
+        'newMessage' => 'required|string|max:1000',
     ];
 
     public function updatedInventoryItemId()
@@ -236,9 +242,41 @@ class ItemRequestComponent extends Component
 
     public function show($id)
     {
-        $this->itemRequest = ItemRequest::with(['inventoryItem', 'user', 'farm'])->findOrFail($id);
+        $this->itemRequest = ItemRequest::with(['inventoryItem', 'user', 'farm', 'messages.user'])->findOrFail($id);
         $this->authorize('view', $this->itemRequest);
+        $this->loadMessages();
         $this->mode = 'show';
+    }
+
+    public function loadMessages()
+    {
+        if ($this->itemRequest) {
+            $this->messages = $this->itemRequest->messages()->with('user')->latest()->get()->toArray();
+        }
+    }
+
+    public function sendMessage()
+    {
+        $this->validate($this->messageRules);
+
+        try {
+            \App\Models\RequestMessage::create([
+                'item_request_id' => $this->itemRequest->id,
+                'user_id' => Auth::id(),
+                'message' => $this->newMessage,
+            ]);
+
+            $this->newMessage = '';
+            $this->loadMessages();
+            session()->flash('message-success', 'Message sent successfully.');
+        } catch (\Exception $e) {
+            session()->flash('message-error', 'Failed to send message: ' . $e->getMessage());
+        }
+    }
+
+    public function refreshMessages()
+    {
+        $this->loadMessages();
     }
 
     public function edit($id)
