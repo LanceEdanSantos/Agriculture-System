@@ -99,10 +99,10 @@ class MessagesRelationManager extends RelationManager
                     ->color('success')
                     ->visible(fn($record) => is_null($record->read_at) && $record->user_id !== Auth::id())
                     ->action(fn($record) => $record->markAsRead()),
-                Tables\Actions\ViewAction::make()
-                    ->modalHeading('View Message')
-                    ->modalContent(fn($record) => view('filament.resources.item-request.view-message', ['record' => $record]))
-                    ->modalWidth('md'),
+                // Tables\Actions\ViewAction::make()
+                //     ->modalHeading('View Message')
+                //     ->modalContent(fn($record) => view('filament.resources.item-request.view-message', ['record' => $record]))
+                //     ->modalWidth('md'),
                 Tables\Actions\DeleteAction::make()
                     ->visible(fn($record) => $record->user_id === Auth::id() || Auth::user()->hasRole(['super_admin', 'farm_manager'])),
             ])
