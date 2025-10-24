@@ -46,6 +46,8 @@ class InventoryItemResource extends Resource
 
     protected static ?string $navigationGroup = 'Inventory Management';
 
+    protected static ?string $recordTitleAttribute = 'name';
+
     protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
@@ -481,6 +483,11 @@ class InventoryItemResource extends Resource
             'create' => Pages\CreateInventoryItem::route('/create'),
             'edit' => Pages\EditInventoryItem::route('/{record}/edit'),
         ];
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['name', 'category', 'item_code', 'unit_id'];
     }
 
     protected function getTableWrapperAttributes(): array
