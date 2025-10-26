@@ -99,16 +99,27 @@
                             </div>
                             <input type="text"
                                    wire:model.live="search"
-                                   placeholder="Search items by name, description, or code..."
-                                   class="w-full bg-white dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-base rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pl-10 p-4 transition-all duration-200 shadow-sm hover:border-gray-400 dark:hover:border-gray-500">
+                                   placeholder="Search items by name, farm, or unit..."
+                                   class="w-full bg-white dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-base rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pl-10 p-4 pr-10 transition-all duration-200 shadow-sm hover:border-gray-400 dark:hover:border-gray-500">
+                            @if(!empty($search))
+                                <button type="button"
+                                        wire:click="$set('search', '')"
+                                        class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            @endif
                         </div>
 
                         <select wire:model.live="inventory_item_id" id="inventory_item_id"
                             class="w-full bg-white dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-base rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 p-4 transition-all duration-200 shadow-sm hover:border-gray-400 dark:hover:border-gray-500">
-                            <option value="">📦 {{ empty($search) ? 'Select an item...' : 'Type to search items...' }}</option>
+                            <option value="">
+                                📦 {{ empty($search) ? 'Select an item...' : ($inventoryItems->count() > 0 ? 'Select from ' . $inventoryItems->count() . ' item(s)...' : 'No items found for "' . $search . '"') }}
+                            </option>
                             @if($inventoryItems->count() > 0)
                                 @foreach ($inventoryItems as $item)
-                                    <option value="{{ $item->id }}">{{ $item->name }} ({{ $item->pivot->farm->name ?? 'Farm' }})</option>
+                                    <option value="{{ $item['id'] }}">{{ $item['name'] }} ({{ $item['farm_name'] }})</option>
                                 @endforeach
                             @else
                                 @if(!empty($search))

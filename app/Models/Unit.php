@@ -13,15 +13,16 @@ class Unit extends Model
 
     protected $fillable = [
         'name',
+        'display_name',
         'abbreviation',
-        'category',
+        'category_id',
         'description',
-        'is_custom',
-        'status',
+        'is_active',
+        'sort_order',
     ];
 
     protected $casts = [
-        'is_custom' => 'boolean',
+        'is_active' => 'boolean',
     ];
 
     public function getActivitylogOptions(): LogOptions
@@ -29,22 +30,23 @@ class Unit extends Model
         return LogOptions::defaults()
             ->logOnly([
                 'name',
+                'display_name',
                 'abbreviation',
-                'category',
+                'category_id',
                 'description',
-                'is_custom',
-                'status',
+                'is_active',
+                'sort_order',
             ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }
 
     /**
-     * Get the inventory items using this unit
+     * Get the category this unit belongs to
      */
-    public function inventoryItems()
+    public function category()
     {
-        return $this->hasMany(InventoryItem::class);
+        return $this->belongsTo(Category::class);
     }
 
     /**
@@ -52,15 +54,7 @@ class Unit extends Model
      */
     public function isActive(): bool
     {
-        return $this->status === 'active';
-    }
-
-    /**
-     * Check if unit is custom
-     */
-    public function isCustom(): bool
-    {
-        return $this->is_custom;
+        return $this->is_active;
     }
 
     /**
@@ -79,7 +73,7 @@ class Unit extends Model
      */
     public function scopeActive($query)
     {
-        return $query->where('status', 'active');
+        return $query->where('is_active', true);
     }
 
     /**
@@ -87,7 +81,7 @@ class Unit extends Model
      */
     public function scopeStandard($query)
     {
-        return $query->where('is_custom', false);
+        return $query->where('is_active', true);
     }
 
     /**
@@ -95,6 +89,6 @@ class Unit extends Model
      */
     public function scopeCustom($query)
     {
-        return $query->where('is_custom', true);
+        return $query->where('is_active', false);
     }
 }

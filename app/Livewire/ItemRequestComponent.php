@@ -26,6 +26,28 @@ class ItemRequestComponent extends Component
     public $newMessage = '';
     public $messages = [];
 
+    // Computed property for filtered inventory items
+    public function getInventoryItemsProperty()
+    {
+        if (empty($this->search)) {
+            return collect($this->availableItems);
+        }
+
+        $searchTerm = strtolower($this->search);
+
+        return collect($this->availableItems)->filter(function ($item) use ($searchTerm) {
+            return str_contains(strtolower($item['name']), $searchTerm) ||
+                   str_contains(strtolower($item['farm_name']), $searchTerm) ||
+                   str_contains(strtolower($item['unit']), $searchTerm);
+        });
+    }
+
+    // Computed property for search results count
+    public function getHasSearchResultsProperty()
+    {
+        return $this->inventoryItems->isNotEmpty();
+    }
+
     protected $rules = [
         'farm_id' => 'required|exists:farms,id',
         'inventory_item_id' => 'required|exists:inventory_items,id',
@@ -37,9 +59,10 @@ class ItemRequestComponent extends Component
         'newMessage' => 'required|string|max:1000',
     ];
 
-    public function updatedInventoryItemId()
+    public function updatedSearch()
     {
-        $this->updateSelectedItemStock();
+        // Search is handled by the computed property
+        // This method exists for potential future enhancements
     }
 
     public function mount()
@@ -382,5 +405,6 @@ class ItemRequestComponent extends Component
         $this->inventory_item_id = null;
         $this->quantity = null;
         $this->notes = null;
+        $this->search = ''; // Reset search
     }
 }
