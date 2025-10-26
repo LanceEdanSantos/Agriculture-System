@@ -94,7 +94,7 @@ class CategoryResource extends Resource
                     ->label('Color'),
                 TextColumn::make('description')
                     ->label('Description')
-                    ->limit(50)
+                    ->limit(20)
                     ->searchable(),
                 TextColumn::make('inventory_items_count')
                     ->label('Items')
@@ -107,9 +107,9 @@ class CategoryResource extends Resource
                         'warning' => false,
                     ])
                     ->formatStateUsing(fn (bool $state): string => $state ? 'Active' : 'Inactive'),
-                TextColumn::make('sort_order')
-                    ->label('Order')
-                    ->sortable(),
+                // TextColumn::make('sort_order')
+                //     ->label('Order')
+                //     ->sortable(),
                 TextColumn::make('created_at')
                     ->label('Created')
                     ->dateTime()

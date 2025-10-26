@@ -89,20 +89,42 @@
                             </svg>
                             Inventory Item
                         </label>
+
+                        <!-- Search Input -->
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </div>
+                            <input type="text"
+                                   wire:model.live="search"
+                                   placeholder="Search items by name, description, or code..."
+                                   class="w-full bg-white dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-base rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pl-10 p-4 transition-all duration-200 shadow-sm hover:border-gray-400 dark:hover:border-gray-500">
+                        </div>
+
                         <select wire:model.live="inventory_item_id" id="inventory_item_id"
                             class="w-full bg-white dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-base rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 p-4 transition-all duration-200 shadow-sm hover:border-gray-400 dark:hover:border-gray-500">
-                            <option value="">📦 Select an item...</option>
-                            @foreach ($availableItems as $item)
-                                <option value="{{ $item['id'] }}">{{ $item['name'] }} ({{ $item['farm_name'] }})</option>
-                            @endforeach
+                            <option value="">📦 {{ empty($search) ? 'Select an item...' : 'Type to search items...' }}</option>
+                            @if($inventoryItems->count() > 0)
+                                @foreach ($inventoryItems as $item)
+                                    <option value="{{ $item->id }}">{{ $item->name }} ({{ $item->pivot->farm->name ?? 'Farm' }})</option>
+                                @endforeach
+                            @else
+                                @if(!empty($search))
+                                    <option value="" disabled>No items found matching "{{ $search }}"</option>
+                                @else
+                                    <option value="" disabled>No items available</option>
+                                @endif
+                            @endif
                         </select>
-                        @error('inventory_item_id') 
+                        @error('inventory_item_id')
                             <p class="flex items-center gap-2 text-red-600 dark:text-red-400 text-sm mt-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                                 {{ $message }}
-                            </p> 
+                            </p>
                         @enderror
                     </div>
 

@@ -83,9 +83,9 @@ class ItemRequestResource extends Resource
                 Forms\Components\DateTimePicker::make('approved_at')
                     ->disabled()
                     ->visible($isAdminOrManager),
-                Forms\Components\DateTimePicker::make('delivered_at')
-                    ->disabled()
-                    ->visible($isAdminOrManager),
+                // Forms\Components\DateTimePicker::make('delivered_at')
+                //     ->disabled()
+                //     ->visible($isAdminOrManager),
                 Forms\Components\Select::make('approved_by')
                     ->relationship('user', 'name')
                     ->label('Approved By')
@@ -184,6 +184,7 @@ class ItemRequestResource extends Resource
                         ->visible(fn(ItemRequest $record): bool => Auth::user()->can('update', $record)),
                 Tables\Actions\Action::make('approve')
                     ->icon('heroicon-o-check-circle')
+                    ->hidden(fn(ItemRequest $record): bool => $record->status === ItemRequest::STATUS_APPROVED)
                     ->color('success')
                     ->label('Approve')
                     ->requiresConfirmation()
@@ -226,12 +227,12 @@ class ItemRequestResource extends Resource
                                 ->suffix($unitName)
                                 ->label('Approved Quantity')
                                 ->helperText("Maximum available: {$availableStock} {$unitName}"),
-                            Forms\Components\Textarea::make('message_to_farmer')
-                                ->label('Message to Farmer (Optional)')
-                                ->placeholder('e.g., "Only 30 units are currently available. Do you want to proceed with 30 units or wait for full stock?"')
-                                ->helperText('This message will be sent to the farmer explaining stock availability')
-                                ->rows(3)
-                                ->columnSpanFull(),
+                            // Forms\Components\Textarea::make('message_to_farmer')
+                            //     ->label('Message to Farmer (Optional)')
+                            //     ->placeholder('e.g., "Only 30 units are currently available. Do you want to proceed with 30 units or wait for full stock?"')
+                            //     ->helperText('This message will be sent to the farmer explaining stock availability')
+                            //     ->rows(3)
+                            //     ->columnSpanFull(),
                             Forms\Components\Textarea::make('notes')
                                 ->label('Internal Approval Notes')
                                 ->placeholder('Internal notes for approval (not visible to farmer)')
@@ -317,6 +318,7 @@ class ItemRequestResource extends Resource
                         // ->visible(fn(ItemRequest $record): bool => Auth::user()->can('reject', $record))
                         ->icon('heroicon-o-x-circle')
                         ->color('danger')
+                        ->hidden(fn(ItemRequest $record): bool => $record->status === ItemRequest::STATUS_APPROVED)
                         ->requiresConfirmation()
                         ->modalHeading('Reject Item Request')
                         ->modalDescription('Provide a reason for rejecting this request.')
@@ -337,7 +339,7 @@ class ItemRequestResource extends Resource
                         ->action(function (ItemRequest $record, array $data) {
                             $record->update([
                                 'status' => ItemRequest::STATUS_REJECTED,
-                                'rejection_reason' => $data['rejection_reason'],
+                                'rejection_reason' => $data['rejectiKon_reason'],
                             ]);
 
                             // Log status change

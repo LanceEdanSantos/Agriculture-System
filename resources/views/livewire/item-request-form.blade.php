@@ -6,65 +6,116 @@
     @endif
 
     <h2 class="text-2xl font-semibold text-gray-800 mb-6">Request New Item</h2>
-    
+
     <form wire:submit.prevent="submit">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Farm Selection -->
-            <div class="col-span-1">
-                <label for="farm_id" class="block text-sm font-medium text-gray-700 mb-1">Farm</label>
-                <select 
-                    id="farm_id" 
-                    wire:model="farmId" 
-                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                    required
-                >
-                    <option value="">-- Select Farm --</option>
-                    @foreach($farms as $farm)
-                        <option value="{{ $farm->id }}">{{ $farm->name }}</option>
-                    @endforeach
-                </select>
-                @error('farmId') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+            <!-- FARM SELECTION -->
+            <div class="col-span-1" 
+                 x-data="{
+                    open: false,
+                    search: '',
+                    selected: @entangle('farmId'),
+                    farms: {{ json_encode($farms->map(fn($f)=>['id'=>$f->id,'name'=>$f->name])) }},
+                    get filtered() {
+                        if (this.search === '') return this.farms;
+                        return this.farms.filter(f => f.name.toLowerCase().includes(this.search.toLowerCase()));
+                    },
+                    select(farm) {
+                        this.selected = farm.id;
+                        this.search = farm.name;
+                        this.open = false;
+                        $wire.call('updatedFarmId', farm.id);
+                    }
+                 }"
+                 @click.outside="open = false">
+
+                <label class="block text-sm font-medium text-gray-700 mb-1">Farm</label>
+                <div class="relative">
+                    <input 
+                        type="text"
+                        x-model="search"
+                        @focus="open = true"
+                        placeholder="Type to search..."
+                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                    >
+
+                    <ul x-show="open" x-transition
+                        class="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-md max-h-48 overflow-y-auto">
+                        <template x-for="farm in filtered" :key="farm.id">
+                            <li @click="select(farm)"
+                                class="px-3 py-2 hover:bg-indigo-100 cursor-pointer text-sm">
+                                <span x-text="farm.name"></span>
+                            </li>
+                        </template>
+                    </ul>
+                </div>
+                @error('farmId') 
+                    <span class="text-red-500 text-xs">{{ $message }}</span> 
+                @enderror
             </div>
 
-            <!-- Inventory Item Selection -->
-            <div class="col-span-1">
-                <label for="inventory_item_id" class="block text-sm font-medium text-gray-700 mb-1">Item</label>
-                <select 
-                    id="inventory_item_id" 
-                    wire:model="inventoryItemId"
-                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                    @if(empty($farmId)) disabled @endif
-                    required
-                >
-                    <option value="">-- Select Item --</option>
-                    @foreach($inventoryItems as $item)
-                        <option value="{{ $item->id }}">
-                            {{ $item->name }} ({{ $item->unit }})
-                        </option>
-                    @endforeach
-                </select>
-                @error('inventoryItemId') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+            <!-- ITEM SELECTION -->
+            <div class="col-span-1"
+                 x-data="{
+                    open: false,
+                    search: '',
+                    selected: @entangle('inventoryItemId'),
+                    items: {{ json_encode($inventoryItems->map(fn($i)=>['id'=>$i->id,'name'=>$i->name.' ('.$i->unit.')'])) }},
+                    get filtered() {
+                        if (this.search === '') return this.items;
+                        return this.items.filter(i => i.name.toLowerCase().includes(this.search.toLowerCase()));
+                    },
+                    select(item) {
+                        this.selected = item.id;
+                        this.search = item.name;
+                        this.open = false;
+                    }
+                 }"
+                 @click.outside="open = false">
+
+                <label class="block text-sm font-medium text-gray-700 mb-1">Item</label>
+                <div class="relative">
+                    <input 
+                        type="text"
+                        x-model="search"
+                        @focus="open = true"
+                        placeholder="Type to search..."
+                        :disabled="$wire.farmId == ''"
+                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    >
+
+                    <ul x-show="open" x-transition
+                        class="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-md max-h-48 overflow-y-auto">
+                        <template x-for="item in filtered" :key="item.id">
+                            <li @click="select(item)"
+                                class="px-3 py-2 hover:bg-indigo-100 cursor-pointer text-sm">
+                                <span x-text="item.name"></span>
+                            </li>
+                        </template>
+                    </ul>
+                </div>
+                @error('inventoryItemId') 
+                    <span class="text-red-500 text-xs">{{ $message }}</span> 
+                @enderror
             </div>
 
-            <!-- Quantity -->
+            <!-- QUANTITY -->
             <div class="col-span-1">
                 <label for="quantity" class="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
-                <div class="mt-1 relative rounded-md shadow-sm">
-                    <input 
-                        type="number" 
-                        id="quantity" 
-                        wire:model="quantity" 
-                        step="0.01" 
-                        min="0.01"
-                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                        required
-                    >
-                </div>
+                <input 
+                    type="number" 
+                    id="quantity" 
+                    wire:model="quantity" 
+                    step="0.01" 
+                    min="0.01"
+                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                    required
+                >
                 @error('quantity') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
             </div>
         </div>
 
-        <!-- Notes -->
+        <!-- NOTES -->
         <div class="mt-4">
             <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">Additional Notes</label>
             <textarea 
@@ -72,12 +123,11 @@
                 wire:model="notes" 
                 rows="3" 
                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                placeholder="Any additional information about your request..."
-            ></textarea>
+                placeholder="Any additional information about your request..."></textarea>
             @error('notes') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
         </div>
 
-        <!-- Submit Button -->
+        <!-- SUBMIT -->
         <div class="mt-6 flex justify-end">
             <button 
                 type="submit" 

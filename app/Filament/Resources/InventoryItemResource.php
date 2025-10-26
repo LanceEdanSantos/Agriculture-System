@@ -268,9 +268,9 @@ class InventoryItemResource extends Resource
                 SelectFilter::make('category_id')
                     ->label('Category')
                     ->relationship('category', titleAttribute: 'name'),
-                SelectFilter::make('supplier_id')
-                    ->label('Supplier')
-                    ->relationship('supplier', 'name'),
+                // SelectFilter::make('supplier_id')
+                //     ->label('Supplier')
+                //     ->relationship('supplier', 'name'),
                 SelectFilter::make('unit_id')
                     ->label('Unit')
                     ->relationship('unit', 'name'),

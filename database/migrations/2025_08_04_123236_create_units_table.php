@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name')->unique();
             $table->string('display_name');
             $table->string('abbreviation')->nullable();
+            $table->foreignId('category_id')->constrained()->cascadeOnDelete();
             $table->text('description')->nullable();
             $table->boolean('is_active')->default(true);
             $table->integer('sort_order')->default(0);

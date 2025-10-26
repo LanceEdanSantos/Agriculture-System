@@ -8,7 +8,7 @@ use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
-use Spatie\Permission\Models\Role;
+use App\Models\Role;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
@@ -122,12 +122,10 @@ class UserResource extends Resource
                     ->label('Email')
                     ->searchable()
                     ->sortable(),
-                BadgeColumn::make('role')
-                    ->colors([
-                        'danger' => 'administrator',
-                        'warning' => 'doa_staff',
-                        'success' => 'farmer',
-                    ]),
+                Tables\Columns\TextColumn::make('roles')
+                    ->label('Roles')
+                    ->getStateUsing(fn($record) => $record->roles->pluck('name')->join(', '))
+                    ->sortable(),
                 TextColumn::make('department')
                     ->label('Department')
                     ->searchable()
@@ -143,14 +141,14 @@ class UserResource extends Resource
             ->filters([
                 SelectFilter::make('role')
                     ->label('Role')
-                    ->options(Role::all()->pluck('name', 'id')->toArray()),
-                SelectFilter::make('department')
-                    ->label('Department')
-                    ->options([
-                        'Office of the Provincial Agriculturist' => 'Office of the Provincial Agriculturist',
-                        'Department of Agriculture' => 'Department of Agriculture',
-                        'Other' => 'Other',
-                    ]),
+                    ->options(Role::pluck('name', 'id')->toArray())
+                    ->query(function ($query, $data) {
+                        if ($data['value']) {
+                            $query->whereHas('roles', function ($q) use ($data) {
+                                $q->where('id', $data['value']);
+                            });
+                        }
+                    }),
             ])
             ->actions([
                 ActionGroup::make([
