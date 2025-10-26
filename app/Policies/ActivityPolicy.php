@@ -15,7 +15,7 @@ class ActivityPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_activitylog');
+        return $user->can('view_any_custom::activity::log');
     }
 
     /**
@@ -23,7 +23,7 @@ class ActivityPolicy
      */
     public function view(User $user, Activity $activity): bool
     {
-        return $user->can('view_activitylog');
+        return $user->can('view_custom::activity::log');
     }
 
     /**
@@ -31,7 +31,7 @@ class ActivityPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_activitylog');
+        return $user->can('create_custom::activity::log');
     }
 
     /**
@@ -39,7 +39,7 @@ class ActivityPolicy
      */
     public function update(User $user, Activity $activity): bool
     {
-        return $user->can('update_activitylog');
+        return $user->can('update_custom::activity::log');
     }
 
     /**
@@ -47,7 +47,7 @@ class ActivityPolicy
      */
     public function delete(User $user, Activity $activity): bool
     {
-        return $user->can('delete_activitylog');
+        return $user->can('delete_custom::activity::log');
     }
 
     /**
@@ -55,7 +55,7 @@ class ActivityPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->can('delete_any_activitylog');
+        return $user->can('delete_any_custom::activity::log');
     }
 
     /**
@@ -63,7 +63,7 @@ class ActivityPolicy
      */
     public function forceDelete(User $user, Activity $activity): bool
     {
-        return $user->can('force_delete_activitylog');
+        return $user->can('force_delete_custom::activity::log');
     }
 
     /**
@@ -71,7 +71,7 @@ class ActivityPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_activitylog');
+        return $user->can('force_delete_any_custom::activity::log');
     }
 
     /**
@@ -79,7 +79,7 @@ class ActivityPolicy
      */
     public function restore(User $user, Activity $activity): bool
     {
-        return $user->can('restore_activitylog');
+        return $user->can('restore_custom::activity::log');
     }
 
     /**
@@ -87,7 +87,7 @@ class ActivityPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_activitylog');
+        return $user->can('restore_any_custom::activity::log');
     }
 
     /**
@@ -95,7 +95,7 @@ class ActivityPolicy
      */
     public function replicate(User $user, Activity $activity): bool
     {
-        return $user->can('replicate_activitylog');
+        return $user->can('replicate_custom::activity::log');
     }
 
     /**
@@ -103,6 +103,6 @@ class ActivityPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_activitylog');
+        return $user->can('reorder_custom::activity::log');
     }
 }

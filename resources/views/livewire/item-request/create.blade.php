@@ -81,54 +81,78 @@
                         @enderror
                     </div>
 
-                    <!-- Inventory Item Selection -->
-                    <div class="space-y-2">
-                        <label for="inventory_item_id" class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    <!-- Inventory Item Selection (Searchable) -->
+                    <div class="space-y-2" x-data="{
+                        open: false,
+                        search: '',
+                        selected: @entangle('inventory_item_id').live,
+                        items: {{ json_encode($availableItems) }},
+                        get filteredItems() {
+                            if (this.search === '') return this.items;
+                            return this.items.filter(item => 
+                                item.name.toLowerCase().includes(this.search.toLowerCase()) ||
+                                item.farm_name.toLowerCase().includes(this.search.toLowerCase())
+                            );
+                        },
+                        selectItem(id) {
+                            this.selected = id;
+                            this.open = false;
+                            this.search = '';
+                        },
+                        getSelectedName() {
+                            const item = this.items.find(i => i.id == this.selected);
+                            return item ? `${item.name} (${item.farm_name})` : 'Select an item...';
+                        }
+                    }" @click.away="open = false">
+                        <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                             </svg>
                             Inventory Item
                         </label>
-
-                        <!-- Search Input -->
+                        
                         <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            <!-- Selected Item Display -->
+                            <button type="button" @click="open = !open"
+                                class="w-full bg-white dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-base rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 p-4 transition-all duration-200 shadow-sm hover:border-gray-400 dark:hover:border-gray-500 flex items-center justify-between">
+                                <span x-text="getSelectedName()"></span>
+                                <svg class="w-5 h-5" :class="open && 'rotate-180'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                 </svg>
-                            </div>
-                            <input type="text"
-                                   wire:model.live="search"
-                                   placeholder="Search items by name, farm, or unit..."
-                                   class="w-full bg-white dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-base rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pl-10 p-4 pr-10 transition-all duration-200 shadow-sm hover:border-gray-400 dark:hover:border-gray-500">
-                            @if(!empty($search))
-                                <button type="button"
-                                        wire:click="$set('search', '')"
-                                        class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
-                                </button>
-                            @endif
-                        </div>
+                            </button>
 
-                        <select wire:model.live="inventory_item_id" id="inventory_item_id"
-                            class="w-full bg-white dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-base rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 p-4 transition-all duration-200 shadow-sm hover:border-gray-400 dark:hover:border-gray-500">
-                            <option value="">
-                                📦 {{ empty($search) ? 'Select an item...' : ($inventoryItems->count() > 0 ? 'Select from ' . $inventoryItems->count() . ' item(s)...' : 'No items found for "' . $search . '"') }}
-                            </option>
-                            @if($inventoryItems->count() > 0)
-                                @foreach ($inventoryItems as $item)
-                                    <option value="{{ $item['id'] }}">{{ $item['name'] }} ({{ $item['farm_name'] }})</option>
-                                @endforeach
-                            @else
-                                @if(!empty($search))
-                                    <option value="" disabled>No items found matching "{{ $search }}"</option>
-                                @else
-                                    <option value="" disabled>No items available</option>
-                                @endif
-                            @endif
-                        </select>
+                            <!-- Dropdown -->
+                            <div x-show="open" x-transition
+                                class="absolute z-10 w-full mt-2 bg-white dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 rounded-xl shadow-lg max-h-60 overflow-hidden">
+                                
+                                <!-- Search Input -->
+                                <div class="p-2 border-b border-gray-200 dark:border-gray-600">
+                                    <input type="text" x-model="search" @click.stop
+                                        placeholder="🔍 Search items..."
+                                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-500 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:text-white">
+                                </div>
+
+                                <!-- Items List -->
+                                <div class="overflow-y-auto max-h-48">
+                                    <template x-for="item in filteredItems" :key="item.id">
+                                        <button type="button" @click="selectItem(item.id)"
+                                            class="w-full text-left px-4 py-3 hover:bg-blue-50 dark:hover:bg-gray-600 transition-colors border-b border-gray-100 dark:border-gray-600 last:border-0"
+                                            :class="selected == item.id && 'bg-blue-100 dark:bg-gray-600'">
+                                            <div class="font-semibold text-gray-900 dark:text-white" x-text="item.name"></div>
+                                            <div class="text-sm text-gray-600 dark:text-gray-400">
+                                                <span x-text="item.farm_name"></span> • 
+                                                <span class="text-green-600 dark:text-green-400 font-medium">Stock: <span x-text="item.current_stock"></span> <span x-text="item.unit"></span></span>
+                                            </div>
+                                        </button>
+                                    </template>
+                                    
+                                    <div x-show="filteredItems.length === 0" class="p-4 text-center text-gray-500 dark:text-gray-400">
+                                        No items found
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
                         @error('inventory_item_id')
                             <p class="flex items-center gap-2 text-red-600 dark:text-red-400 text-sm mt-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -140,28 +164,31 @@
                     </div>
 
                     <!-- Available Stock Display -->
-                    @if($inventory_item_id && $selectedItemStock)
-                    <div class="space-y-2">
-                        <label for="available_stock" class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                            </svg>
-                            Available Stock
-                        </label>
-                        <input type="text"
-                               id="available_stock"
-                               value="{{ $selectedItemStock['current_stock'] ?? 0 }} {{ $selectedItemStock['unit'] ?? 'units' }}"
-                               class="w-full bg-green-50 dark:bg-green-900/20 border-2 border-green-300 dark:border-green-700 text-green-900 dark:text-green-100 text-base rounded-xl p-4 font-semibold cursor-not-allowed"
-                               disabled
-                               readonly>
-                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Available in {{ $selectedItemStock['name'] ?? '' }}</p>
+                    <div class="space-y-2" x-data="{
+                        itemId: @entangle('inventory_item_id').live,
+                        items: {{ json_encode($availableItems) }},
+                        get selectedItem() {
+                            return this.items.find(i => i.id == this.itemId);
+                        }
+                    }">
+                        <template x-if="itemId && selectedItem">
+                            <div>
+                                <label for="available_stock" class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                    </svg>
+                                    Available Stock
+                                </label>
+                                <input type="text"
+                                       id="available_stock"
+                                       :value="selectedItem.current_stock + ' ' + selectedItem.unit"
+                                       class="w-full bg-green-50 dark:bg-green-900/20 border-2 border-green-300 dark:border-green-700 text-green-900 dark:text-green-100 text-base rounded-xl p-4 font-semibold cursor-not-allowed"
+                                       disabled
+                                       readonly>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Available in <span x-text="selectedItem.name"></span></p>
+                            </div>
+                        </template>
                     </div>
-                    @elseif($inventory_item_id)
-                    <div class="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-300 dark:border-yellow-700 rounded-xl">
-                        <p class="text-sm text-yellow-800 dark:text-yellow-300">Loading stock information...</p>
-                        <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">Debug: Item ID = {{ $inventory_item_id }}</p>
-                    </div>
-                    @endif
 
                     <!-- Quantity Input -->
                     <div class="space-y-2">

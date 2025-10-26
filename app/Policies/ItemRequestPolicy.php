@@ -23,13 +23,7 @@ class ItemRequestPolicy
      */
     public function view(User $user, ItemRequest $itemRequest): bool
     {
-        // Super admins and farm managers can view any request
-        if ($user->hasRole('super_admin') || $user->hasRole('farm_manager')) {
-            return $user->can('view_item::request');
-        }
-
-        // Regular users can only view their own requests
-        return $itemRequest->user_id === $user->id && $user->can('view_item::request');
+        return $user->can('view_item::request');
     }
 
     /**
@@ -45,13 +39,7 @@ class ItemRequestPolicy
      */
     public function update(User $user, ItemRequest $itemRequest): bool
     {
-        // Super admins and farm managers can update any request
-        if ($user->hasRole('super_admin') || $user->hasRole('farm_manager')) {
-            return $user->can('update_item::request');
-        }
-
-        // Regular users can only update their own requests
-        return $itemRequest->user_id === $user->id && $user->can('update_item::request');
+        return $user->can('update_item::request');
     }
 
     /**
@@ -59,13 +47,7 @@ class ItemRequestPolicy
      */
     public function delete(User $user, ItemRequest $itemRequest): bool
     {
-        // Super admins and farm managers can delete any request
-        if ($user->hasRole('super_admin') || $user->hasRole('farm_manager')) {
-            return $user->can('delete_item::request');
-        }
-
-        // Regular users can only delete their own requests
-        return $itemRequest->user_id === $user->id && $user->can('delete_item::request');
+        return $user->can('delete_item::request');
     }
 
     /**

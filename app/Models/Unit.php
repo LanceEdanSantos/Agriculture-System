@@ -91,4 +91,9 @@ class Unit extends Model
     {
         return $query->where('is_active', false);
     }
+
+    public function inventoryItems()
+    {
+        return $this->hasMany(InventoryItem::class);
+    }
 }

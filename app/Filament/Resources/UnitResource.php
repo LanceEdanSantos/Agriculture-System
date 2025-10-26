@@ -96,7 +96,7 @@ class UnitResource extends Resource
                     ->label('Abbreviation')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('category')
+                TextColumn::make('category.name')
                     ->label('Category')
                     ->badge()
                     ->color('primary'),
