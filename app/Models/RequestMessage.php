@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\FarmerMessageReceived;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
@@ -52,6 +54,19 @@ class RequestMessage extends Model
             if (empty($message->is_admin_message) && Auth::check()) {
                 $user = Auth::user();
                 $message->is_admin_message = $user->hasRole('super_admin') || $user->hasRole('farm_manager');
+            }
+        });
+
+        static::created(function ($message) {
+            // Send email notification if admin sends message to farmer
+            if ($message->is_admin_message) {
+                $itemRequest = $message->itemRequest;
+                $farmer = $itemRequest->user;
+                
+                // Only send email if the recipient is a farmer
+                if ($farmer && $farmer->isFarmer() && $farmer->email) {
+                    Mail::to($farmer->email)->send(new FarmerMessageReceived($message));
+                }
             }
         });
     }
