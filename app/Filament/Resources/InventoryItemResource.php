@@ -223,7 +223,7 @@ class InventoryItemResource extends Resource
                         }
                 
                         // return HTML with bold tag (or span with Tailwind)
-                        return "<span class=\"font-bold\">{$text}</span>";
+                        return "<span class=\"font-extrabold\">{$text}</span>";
                     })
                     ->html() // <-- allow raw HTML to be rendered
                     ->color(function (InventoryItem $record) {
