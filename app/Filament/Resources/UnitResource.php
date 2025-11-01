@@ -128,7 +128,7 @@ class UnitResource extends Resource
                 SelectFilter::make('category_id')
                     ->label('Category')
                     ->options(Category::pluck('name', 'id')),
-                SelectFilter::make('is_actiive')
+                SelectFilter::make('is_active')
                     ->label('Status')
                     ->options([
                         true => 'Active',
