@@ -75,7 +75,10 @@ class RolePermissionSeeder extends Seeder
 
         // Create default administrator user
         $admin = User::create([
-            'name' => 'System Administrator',
+            'fname' => 'System',
+            'mname' => 'Administrator',
+            'lname' => 'System',
+            'suffix' => 'Administrator',
             'email' => 'admin@doa.gov.ph',
             'password' => bcrypt('password'),
             'role' => 'administrator',
@@ -87,7 +90,10 @@ class RolePermissionSeeder extends Seeder
 
         // Create default DOA staff user
         $doaStaff = User::create([
-            'name' => 'DOA Staff',
+            'fname' => 'DOA',
+            'mname' => 'Staff',
+            'lname' => 'Staff',
+            'suffix' => 'Staff',
             'email' => 'staff@doa.gov.ph',
             'password' => bcrypt('password'),
             'role' => 'doa_staff',
@@ -99,7 +105,10 @@ class RolePermissionSeeder extends Seeder
 
         // Create default farmer user
         $farmer = User::create([
-            'name' => 'Sample Farmer',
+            'fname' => 'Sample',
+            'mname' => 'Farmer',
+            'lname' => 'Farmer',
+            'suffix' => 'Farmer',
             'email' => 'farmer@example.com',
             'password' => bcrypt('password'),
             'role' => 'farmer',
