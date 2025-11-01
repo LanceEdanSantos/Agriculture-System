@@ -109,7 +109,7 @@ class ItemRequestResource extends Resource
         if ($user->hasRole('super_admin') || $user->hasRole('farm_manager')) {
             return $query;
         }
-
+        return $query;
         // Regular users can only see their own requests (not all requests from their farms)
         // return $query->where('user_id', $user->id);
     }
