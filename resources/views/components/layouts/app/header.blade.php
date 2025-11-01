@@ -3,17 +3,23 @@
     <head>
         @include('partials.head')
     </head>
-    <body class="min-h-screen bg-white dark:bg-zinc-800">
-        <flux:header container class="border-b border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
-            <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
+    <body class="min-h-screen bg-white dark:bg-gray-950">
+        <flux:header container class="border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 shadow-sm">
+            <flux:sidebar.toggle class="lg:hidden text-gray-700 dark:text-gray-200" icon="bars-2" inset="left" />
 
-            {{-- <a href="{{ route('dashboard') }}" class="ms-2 me-5 flex items-center space-x-2 rtl:space-x-reverse lg:ms-0" wire:navigate>
-                <x-app-logo />
-            </a> --}}
+            <!-- Logo/Brand -->
+            <a href="{{ route('item-requests.index') }}" class="flex items-center gap-2 text-gray-900 dark:text-white font-semibold text-lg" wire:navigate>
+                <img src="{{ asset('images/PAO.png') }}" alt="Logo" class="h-24 w-auto">
+                <span class="max-sm:hidden">{{ config('app.name') }}</span>
+            </a>
 
-            <flux:navbar class="-mb-px max-lg:hidden">
-                <flux:navbar.item icon="layout-grid" :href="route('item-requests.index')" :current="request()->routeIs('item-requests.index')" wire:navigate>
-                    {{ __('Item Requests') }}
+            <flux:navbar class="-mb-px max-lg:hidden ml-6">
+                <flux:navbar.item 
+                    :href="route('item-requests.index')" 
+                    :current="request()->routeIs('item-requests.index')" 
+                    wire:navigate 
+                    class="text-gray-700 hover:text-green-600 dark:text-gray-300 dark:hover:text-green-400 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                    {{ __('My Requests') }}
                 </flux:navbar.item>
             </flux:navbar>
 
@@ -44,9 +50,9 @@
             </flux:navbar> --}}
 
             <!-- Desktop User Menu -->
-            <flux:dropdown position="top" align="end">
+            <flux:dropdown position="bottom" align="end">
                 <flux:profile
-                    class="cursor-pointer"
+                    class="cursor-pointer bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-200 border-2 border-transparent hover:border-green-200 dark:hover:border-green-700 transition-colors"
                     :initials="auth()->user()->initials()"
                 />
 
@@ -89,32 +95,33 @@
         </flux:header>
 
         <!-- Mobile Menu -->
-        <flux:sidebar stashable sticky class="lg:hidden border-e border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
-            <flux:sidebar.toggle class="lg:hidden" icon="x-mark" />
+        <flux:sidebar stashable sticky class="lg:hidden border-r border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
+            <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
+                <a href="{{ route('item-requests.index') }}" class="flex items-center gap-2 text-gray-900 dark:text-white font-semibold text-lg" wire:navigate>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                    <span>Farm Supplies</span>
+                </a>
+                <flux:sidebar.toggle class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200" icon="x-mark" />
+            </div>
 
-            <a href="{{ route('item-requests.index') }}" class="ms-1 flex items-center space-x-2 rtl:space-x-reverse" wire:navigate>
-                <x-app-logo />
-            </a>
-
-            <flux:navlist variant="outline">
-                <flux:navlist.group :heading="__('Platform')">
-                    <flux:navlist.item icon="layout-grid" :href="route('item-requests.index')" :current="request()->routeIs('item-requests.index')" wire:navigate>
-                      {{ __('Item Requests') }}
+            <div class="p-2">
+                <flux:navlist>
+                    <flux:navlist.item 
+                        :href="route('item-requests.index')" 
+                        :current="request()->routeIs('item-requests.index')" 
+                        wire:navigate 
+                        icon="inbox-stack"
+                        class="text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800">
+                        {{ __('My Requests') }}
                     </flux:navlist.item>
-                </flux:navlist.group>
-            </flux:navlist>
+                </flux:navlist>
+            </div>
 
             <flux:spacer />
 
-            <flux:navlist variant="outline">
-                <flux:navlist.item icon="folder-git-2" href="https://github.com/laravel/livewire-starter-kit" target="_blank">
-                    {{ __('Repository') }}
-                </flux:navlist.item>
-
-                <flux:navlist.item icon="book-open-text" href="https://laravel.com/docs/starter-kits#livewire" target="_blank">
-                    {{ __('Documentation') }}
-                </flux:navlist.item>
-            </flux:navlist>
+            <!-- Removed external links for farmer-focused UI -->
         </flux:sidebar>
 
         {{ $slot }}

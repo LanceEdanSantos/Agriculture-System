@@ -74,10 +74,11 @@ class AdminPanelProvider extends PanelProvider
                 'warning' => Color::Amber,
                 'info' => Color::Blue,
             ])
-            ->brandName('Provincial Agriculture')
-            ->brandLogo(asset('images/logo.png'))
+            ->brandLogo(asset('images/PAO.png'))
+            ->brandLogoHeight('3.4rem')
             ->favicon(asset('favicon.ico'))
             ->font('Inter')
+            ->brandName('Agrostock')
             ->sidebarCollapsibleOnDesktop()
             ->maxContentWidth('full')
             ->authMiddleware([
