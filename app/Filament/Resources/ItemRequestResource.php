@@ -111,7 +111,7 @@ class ItemRequestResource extends Resource
         }
 
         // Regular users can only see their own requests (not all requests from their farms)
-        return $query->where('user_id', $user->id);
+        // return $query->where('user_id', $user->id);
     }
 
     public static function table(Table $table): Table
