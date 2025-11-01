@@ -165,7 +165,10 @@ class ComprehensiveSeeder extends Seeder
         if (User::count() === 0) {
             $users = [
                 [
-                    'name' => 'System Administrator',
+                    'fname' => 'System',
+                    'mname' => 'Administrator',
+                    'lname' => 'System',
+                    'suffix' => 'Administrator',
                     'email' => 'admin@doa.gov.ph',
                     'password' => Hash::make('password'),
                     'role' => 'administrator',
@@ -175,7 +178,10 @@ class ComprehensiveSeeder extends Seeder
                     'address' => 'Department of Agriculture, Quezon City',
                 ],
                 [
-                    'name' => 'Juan Dela Cruz',
+                    'fname' => 'Juan',
+                    'mname' => 'Dela',
+                    'lname' => 'Cruz',
+                    'suffix' => '',
                     'email' => 'juan.delacruz@doa.gov.ph',
                     'password' => Hash::make('password'),
                     'role' => 'doa_staff',
@@ -185,7 +191,10 @@ class ComprehensiveSeeder extends Seeder
                     'address' => 'Department of Agriculture, Quezon City',
                 ],
                 [
-                    'name' => 'Maria Santos',
+                    'fname' => 'Maria',
+                    'mname' => 'Santos',
+                    'lname' => 'Santos',
+                    'suffix' => '',
                     'email' => 'maria.santos@doa.gov.ph',
                     'password' => Hash::make('password'),
                     'role' => 'doa_staff',
