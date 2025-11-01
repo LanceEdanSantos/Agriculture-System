@@ -20,7 +20,7 @@ class UsersRelationManager extends RelationManager
                 // this form is only used by EditAction (on pivot)
                 Forms\Components\Select::make('id')
                     ->label('User')
-                    ->options(User::pluck('name', 'id'))
+                    ->options(User::pluck('fname', 'id'))
                     ->searchable()
                     ->required()
                     ->preload(),
@@ -64,7 +64,7 @@ class UsersRelationManager extends RelationManager
                     ->form([
                 Forms\Components\Select::make('recordId')
                     ->label('User')
-                    ->options(User::pluck('name', 'id'))
+                    ->options(User::pluck('fname', 'id'))
                     ->searchable()
                     ->required()
                     ->preload(),

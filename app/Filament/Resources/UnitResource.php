@@ -107,11 +107,13 @@ class UnitResource extends Resource
                         'warning' => false,
                     ])
                     ->formatStateUsing(fn(bool $state): string => $state ? 'Custom' : 'Standard'),
-                BadgeColumn::make('status')
+                BadgeColumn::make('is_active')
+                    ->label('Status')
                     ->colors([
-                        'success' => 'active',
-                        'warning' => 'inactive',
-                    ]),
+                        'success' => true,
+                        'warning' => false,
+                    ])
+                    ->formatStateUsing(fn(bool $state): string => $state ? 'Active' : 'Inactive'),
                 TextColumn::make('inventory_items_count')
                     ->label('Items Using')
                     ->counts('inventoryItems')
@@ -123,28 +125,21 @@ class UnitResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                SelectFilter::make('category')
+                SelectFilter::make('category_id')
                     ->label('Category')
-                    ->options([
-                        'count' => 'Count',
-                        'weight' => 'Weight',
-                        'volume' => 'Volume',
-                        'area' => 'Area',
-                        'length' => 'Length',
-                        'custom' => 'Custom',
-                    ]),
-                SelectFilter::make('status')
+                    ->options(Category::pluck('name', 'id')),
+                SelectFilter::make('is_actiive')
                     ->label('Status')
                     ->options([
-                        'active' => 'Active',
-                        'inactive' => 'Inactive',
+                        true => 'Active',
+                        false => 'Inactive',
                     ]),
-                Filter::make('custom_units')
-                    ->label('Custom Units Only')
-                    ->query(fn(Builder $query): Builder => $query->where('is_custom', true)),
-                Filter::make('standard_units')
-                    ->label('Standard Units Only')
-                    ->query(fn(Builder $query): Builder => $query->where('is_custom', false)),
+                // Filter::make('custom_units')
+                //     ->label('Custom Units Only')
+                //     ->query(fn(Builder $query): Builder => $query->where('is_custom', true)),
+                // Filter::make('standard_units')
+                //     ->label('Standard Units Only')
+                //     ->query(fn(Builder $query): Builder => $query->where('is_custom', false)),
             ])
             ->actions([
                 ActionGroup::make([

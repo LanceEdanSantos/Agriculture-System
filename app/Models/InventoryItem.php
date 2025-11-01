@@ -57,7 +57,10 @@ class InventoryItem extends Model
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }
-
+    public function getDescriptionForEvent(string $eventName): string
+    {
+        return "Item \"{$this->name}\" was {$eventName}";
+    }
     /**
      * Get the purchase request items for this inventory item
      */
