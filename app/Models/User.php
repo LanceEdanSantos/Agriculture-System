@@ -22,10 +22,12 @@ class User extends Authenticatable implements FilamentUser
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
+        'fname',
+        'lname',
+        'mname',
+        'suffix',
         'email',
         'password',
-        'role',
         'department',
         'position',
         'phone',
@@ -65,7 +67,10 @@ class User extends Authenticatable implements FilamentUser
     {
         return LogOptions::defaults()
             ->logOnly([
-                'name',
+                'fname',
+                'lname',
+                'mname',
+                'suffix',
                 'email',
                 'role',
                 'department',

@@ -167,7 +167,7 @@
                         </label>
                         <input type="number" wire:model="quantity" id="quantity" step="1" min="1"
                             class="w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm sm:text-base rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 p-3"
-                            placeholder="Enter quantity (e.g., 10)">
+                            placeholder="Enter quantity (e.g., 10) ">
                         @error('quantity') 
                             <p class="text-red-600 dark:text-red-400 text-xs sm:text-sm mt-1">
                                 {{ $message }}

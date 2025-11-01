@@ -2,8 +2,8 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Forms;
 use App\Models\User;
+use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
@@ -41,12 +41,22 @@ class UserResource extends Resource
             ->schema([
                 Section::make('Basic Information')
                     ->schema([
-                        Grid::make(2)
+                        Grid::make(4)
                             ->schema([
-                                TextInput::make('name')
-                                    ->label('Full Name')
+                                TextInput::make('fname')
+                                    ->label('First Name')
                                     ->required()
                                     ->maxLength(255),
+                                TextInput::make('mname')
+                                    ->label('Middle Name')
+                                    ->maxLength(255),
+                                TextInput::make('lname')
+                                    ->label('Last Name')
+                                    ->required()
+                                    ->maxLength(255),
+                                TextInput::make('suffix')
+                                    ->label('Suffix')
+                                    ->maxLength(10),
                                 TextInput::make('email')
                                     ->label('Email')
                                     ->email()
@@ -114,10 +124,27 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('name')
+                TextColumn::make('full_name')
                     ->label('Name')
-                    ->searchable()
-                    ->sortable(),
+                    ->getStateUsing(fn ($record) => 
+                        trim(collect([
+                            $record->fname,
+                            $record->mname,
+                            $record->lname,
+                            $record->suffix,
+                        ])->filter()->implode(' '))
+                    )
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query
+                            ->where('fname', 'like', "%{$search}%")
+                            ->orWhere('mname', 'like', "%{$search}%")
+                            ->orWhere('lname', 'like', "%{$search}%")
+                            ->orWhere('suffix', 'like', "%{$search}%");
+                    })
+                    ->sortable(query: function (Builder $query, string $direction): Builder {
+                        return $query->orderBy('lname', $direction)
+                                   ->orderBy('fname', $direction);
+                    }),
                 TextColumn::make('email')
                     ->label('Email')
                     ->searchable()
@@ -149,6 +176,14 @@ class UserResource extends Resource
                             });
                         }
                     }),
+                SelectFilter::make('department')
+                    ->label('Department')
+                    ->options(fn () => User::select('department')
+                        ->distinct()
+                        ->whereNotNull('department')
+                        ->orderBy('department')
+                        ->pluck('department', 'department'))
+                    ->searchable()
             ])
             ->actions([
                 ActionGroup::make([

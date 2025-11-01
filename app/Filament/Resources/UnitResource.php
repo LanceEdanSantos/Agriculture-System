@@ -21,6 +21,7 @@ use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\UnitResource\Pages;
+use App\Models\Category;
 use Rmsramos\Activitylog\Actions\ActivityLogTimelineTableAction;
 
 class UnitResource extends Resource
@@ -50,17 +51,20 @@ class UnitResource extends Resource
                                 ->maxLength(50),
                         ]),
                         Grid::make(2)->schema([
-                            Select::make('category')
+                            Select::make('category_id')
                                 ->label('Category')
-                                ->options([
-                                    'count' => 'Count',
-                                    'weight' => 'Weight',
-                                    'volume' => 'Volume',
-                                    'area' => 'Area',
-                                    'length' => 'Length',
-                                    'custom' => 'Custom',
-                                ])
-                                ->required(),
+                                ->relationship('category', 'name')
+                                ->preload()
+                                ->searchable()
+                                ->required()
+                                ->createOptionForm([
+                                    TextInput::make('name')
+                                        ->required()
+                                        ->maxLength(255)
+                                        ->unique('categories', 'name'),
+                                    TextInput::make('description')
+                                        ->maxLength(65535),
+                                ]),
                             Toggle::make('is_custom')
                                 ->label('Custom Unit')
                                 ->default(false),
@@ -72,13 +76,9 @@ class UnitResource extends Resource
 
                 Section::make('Status')
                     ->schema([
-                        Select::make('status')
-                            ->label('Status')
-                            ->options([
-                                'active' => 'Active',
-                                'inactive' => 'Inactive',
-                            ])
-                            ->default('active')
+                        Toggle::make('is_active')
+                            ->label('Active')
+                            ->default(true)
                             ->required(),
                     ]),
             ]);

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('units', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
-            $table->string('display_name');
+            $table->string('display_name')->nullable();
             $table->string('abbreviation')->nullable();
             $table->foreignId('category_id')->constrained()->cascadeOnDelete();
             $table->text('description')->nullable();

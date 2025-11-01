@@ -144,7 +144,7 @@ class ProcessPurchaseRequestAction extends Action
                                     ->required(),
                                 Select::make('unit_id')
                                     ->label('Select Unit')
-                                    ->options(Unit::active()->pluck('display_name', 'id'))
+                                    ->options(Unit::active()->pluck('name', 'id'))
                                     ->searchable()
                                     ->visible(fn($get) => $get('unit_selection') === 'existing'),
                                 Grid::make(2)

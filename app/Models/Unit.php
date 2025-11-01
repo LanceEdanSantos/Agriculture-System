@@ -13,7 +13,6 @@ class Unit extends Model
 
     protected $fillable = [
         'name',
-        'display_name',
         'abbreviation',
         'category_id',
         'description',

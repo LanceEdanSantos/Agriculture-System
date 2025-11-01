@@ -66,6 +66,20 @@ class AdminPanelProvider extends PanelProvider
                 ->navigationIcon('heroicon-o-clipboard-document-list'),
                 FilamentShieldPlugin::make(),
             ])
+            ->colors([
+                'primary' => Color::Green,
+                'gray' => Color::Slate,
+                'success' => Color::Emerald,
+                'danger' => Color::Red,
+                'warning' => Color::Amber,
+                'info' => Color::Blue,
+            ])
+            ->brandName('Provincial Agriculture')
+            ->brandLogo(asset('images/logo.png'))
+            ->favicon(asset('favicon.ico'))
+            ->font('Inter')
+            ->sidebarCollapsibleOnDesktop()
+            ->maxContentWidth('full')
             ->authMiddleware([
                 Authenticate::class,
             ]);

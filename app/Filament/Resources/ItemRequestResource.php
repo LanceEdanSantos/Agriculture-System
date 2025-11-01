@@ -131,15 +131,8 @@ class ItemRequestResource extends Resource
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\SelectColumn::make('status')
-                    ->options(
-                        collect(ItemRequest::getStatuses())
-                            ->except(['approved', 'rejected'])
-                            ->toArray()
-                    )
-                    ->disabled(fn(ItemRequest $record) => in_array(
-                        $record->status,
-                        [ItemRequest::STATUS_APPROVED, ItemRequest::STATUS_REJECTED]
-                    )),
+                    ->options(ItemRequest::getStatuses())
+                    ->disableOptionWhen(fn (string $value): bool => in_array($value, ['approved', 'rejected'])),
                 Tables\Columns\TextColumn::make('requested_at')
                     ->dateTime()
                     ->sortable(),
