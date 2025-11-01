@@ -6,13 +6,14 @@ use Filament\Panel;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Notifications\Notifiable;
 use Filament\Models\Contracts\FilamentUser;
+use Filament\Models\Contracts\HasName;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
-class User extends Authenticatable implements FilamentUser
+class User extends Authenticatable implements FilamentUser, HasName
 {
     use HasFactory, Notifiable, HasRoles, LogsActivity;
 
@@ -48,7 +49,10 @@ class User extends Authenticatable implements FilamentUser
     {
         return true;
     }
-
+    public function getFilamentName(): string
+    {
+        return trim("{$this->fname} {$this->lname}");
+    }
 
     /**
      * Get the attributes that should be cast.
@@ -88,9 +92,10 @@ class User extends Authenticatable implements FilamentUser
      */
     public function initials(): string
     {
-        return implode('', array_map(function ($word) {
-            return strtoupper($word[0]);
-        }, explode(' ', $this->name)));
+        $name = trim("{$this->fname} {$this->lname}");
+        return collect(explode(' ', $name))
+            ->map(fn($part) => strtoupper(substr($part, 0, 1)))
+            ->join('');
     }
 
     /**
