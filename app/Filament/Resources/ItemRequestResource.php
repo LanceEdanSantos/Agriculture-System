@@ -42,7 +42,7 @@ class ItemRequestResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Select::make('user_id')
-                    ->relationship('user', 'name')
+                    ->relationship('user', 'fname') 
                     ->required()
                     ->searchable()
                     ->default(fn() => Auth::id())
@@ -87,7 +87,7 @@ class ItemRequestResource extends Resource
                 //     ->disabled()
                 //     ->visible($isAdminOrManager),
                 Forms\Components\Select::make('approved_by')
-                    ->relationship('user', 'name')
+                    ->relationship('user', 'fname')
                     ->label('Approved By')
                     ->searchable()
                     ->disabled()
@@ -118,9 +118,31 @@ class ItemRequestResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('user.name')
-                    ->sortable()
-                    ->searchable(),
+                Tables\Columns\TextColumn::make('user.full_name')
+                    ->label('Name')
+                    ->formatStateUsing(
+                        fn($record) =>
+                        trim(implode(' ', [
+                            $record->user->fname,
+                            $record->user->mname,
+                            $record->user->lname,
+                            $record->user->suffix
+                        ]))
+                    )
+                    ->sortable(query: function (Builder $query, string $direction) {
+                        $query->orderBy('fname', $direction)
+                            ->orderBy('mname', $direction)
+                            ->orderBy('lname', $direction)
+                            ->orderBy('suffix', $direction);
+                    })
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->whereHas('user', function ($q) use ($search) {
+                            $q->where('fname', 'like', "%{$search}%")
+                                ->orWhere('mname', 'like', "%{$search}%")
+                                ->orWhere('lname', 'like', "%{$search}%")
+                                ->orWhere('suffix', 'like', "%{$search}%");
+                        });
+                    }),
                 Tables\Columns\TextColumn::make('farm.name')
                     ->sortable()
                     ->searchable(),
@@ -132,7 +154,7 @@ class ItemRequestResource extends Resource
                     ->sortable(),
                 Tables\Columns\SelectColumn::make('status')
                     ->options(ItemRequest::getStatuses())
-                    ->disableOptionWhen(fn (string $value): bool => in_array($value, ['approved', 'rejected'])),
+                    ->disableOptionWhen(fn(string $value): bool => in_array($value, ['approved', 'rejected'])),
                 Tables\Columns\TextColumn::make('requested_at')
                     ->dateTime()
                     ->sortable(),
@@ -175,139 +197,139 @@ class ItemRequestResource extends Resource
                         ->visible(fn(ItemRequest $record): bool => Auth::user()->can('view', $record)),
                     Tables\Actions\EditAction::make()
                         ->visible(fn(ItemRequest $record): bool => Auth::user()->can('update', $record)),
-                Tables\Actions\Action::make('approve')
-                    ->icon('heroicon-o-check-circle')
-                    ->hidden(fn(ItemRequest $record): bool => $record->status === ItemRequest::STATUS_APPROVED)
-                    ->color('success')
-                    ->label('Approve')
-                    ->requiresConfirmation()
-                    ->modalHeading('Approve Item Request')
-                    ->modalDescription('Confirm stock adjustment before approving this request.')
-                    ->form(function (ItemRequest $record) {
-                        $item = $record->inventoryItem;
-                        $availableStock = $item ? $item->getAvailableStockForOut() : 0;
-                        $requestedQty = $record->quantity;
-                        $unitName = $item && $item->unit ? $item->unit->name : 'units';
-                        
-                        return [
-                            Forms\Components\Placeholder::make('stock_info')
-                                ->label('Stock Availability')
-                                ->content(function () use ($requestedQty, $availableStock, $unitName) {
-                                    $sufficient = $availableStock >= $requestedQty;
-                                    $color = $sufficient ? 'success' : 'danger';
-                                    $icon = $sufficient ? '✓' : '⚠';
-                                    
-                                    return new \Illuminate\Support\HtmlString(
-                                        "<div class='rounded-lg p-4 bg-{$color}-50 dark:bg-{$color}-900/20 border border-{$color}-200 dark:border-{$color}-800'>" .
-                                        "<div class='flex items-center gap-2 font-semibold text-{$color}-700 dark:text-{$color}-300'>" .
-                                        "<span class='text-xl'>{$icon}</span> " .
-                                        "<span>Requested: {$requestedQty} {$unitName}</span>" .
-                                        "</div>" .
-                                        "<div class='mt-2 text-sm text-{$color}-600 dark:text-{$color}-400'>" .
-                                        "Available Stock: <strong>{$availableStock} {$unitName}</strong>" .
-                                        ($sufficient ? '' : " <br><span class='text-red-600 font-bold'>Insufficient stock!</span>") .
-                                        "</div>" .
-                                        "</div>"
-                                    );
-                                }),
-                            Forms\Components\TextInput::make('approved_quantity')
-                                ->numeric()
-                                ->required()
-                                ->minValue(1)
-                                ->default(min($requestedQty, $availableStock))
-                                ->maxValue($availableStock)
-                                ->step(1)
-                                ->suffix($unitName)
-                                ->label('Approved Quantity')
-                                ->helperText("Maximum available: {$availableStock} {$unitName}"),
-                            // Forms\Components\Textarea::make('message_to_farmer')
-                            //     ->label('Message to Farmer (Optional)')
-                            //     ->placeholder('e.g., "Only 30 units are currently available. Do you want to proceed with 30 units or wait for full stock?"')
-                            //     ->helperText('This message will be sent to the farmer explaining stock availability')
-                            //     ->rows(3)
-                            //     ->columnSpanFull(),
-                            Forms\Components\Textarea::make('notes')
-                                ->label('Internal Approval Notes')
-                                ->placeholder('Internal notes for approval (not visible to farmer)')
-                                ->rows(2)
-                                ->columnSpanFull(),
-                        ];
-                    })
-                    ->action(function (ItemRequest $record, array $data) {
-                        $item = $record->inventoryItem;
+                    Tables\Actions\Action::make('approve')
+                        ->icon('heroicon-o-check-circle')
+                        ->hidden(fn(ItemRequest $record): bool => $record->status === ItemRequest::STATUS_APPROVED)
+                        ->color('success')
+                        ->label('Approve')
+                        ->requiresConfirmation()
+                        ->modalHeading('Approve Item Request')
+                        ->modalDescription('Confirm stock adjustment before approving this request.')
+                        ->form(function (ItemRequest $record) {
+                            $item = $record->inventoryItem;
+                            $availableStock = $item ? $item->getAvailableStockForOut() : 0;
+                            $requestedQty = $record->quantity;
+                            $unitName = $item && $item->unit ? $item->unit->name : 'units';
 
-                        if (!$item) {
-                            return Notification::make()
-                                ->title('No linked inventory item.')
-                                ->danger()
-                                ->send();
-                        }
+                            return [
+                                Forms\Components\Placeholder::make('stock_info')
+                                    ->label('Stock Availability')
+                                    ->content(function () use ($requestedQty, $availableStock, $unitName) {
+                                        $sufficient = $availableStock >= $requestedQty;
+                                        $color = $sufficient ? 'success' : 'danger';
+                                        $icon = $sufficient ? '✓' : '⚠';
 
-                        $availableStock = $item->getAvailableStockForOut();
+                                        return new \Illuminate\Support\HtmlString(
+                                            "<div class='rounded-lg p-4 bg-{$color}-50 dark:bg-{$color}-900/20 border border-{$color}-200 dark:border-{$color}-800'>" .
+                                                "<div class='flex items-center gap-2 font-semibold text-{$color}-700 dark:text-{$color}-300'>" .
+                                                "<span class='text-xl'>{$icon}</span> " .
+                                                "<span>Requested: {$requestedQty} {$unitName}</span>" .
+                                                "</div>" .
+                                                "<div class='mt-2 text-sm text-{$color}-600 dark:text-{$color}-400'>" .
+                                                "Available Stock: <strong>{$availableStock} {$unitName}</strong>" .
+                                                ($sufficient ? '' : " <br><span class='text-red-600 font-bold'>Insufficient stock!</span>") .
+                                                "</div>" .
+                                                "</div>"
+                                        );
+                                    }),
+                                Forms\Components\TextInput::make('approved_quantity')
+                                    ->numeric()
+                                    ->required()
+                                    ->minValue(1)
+                                    ->default(min($requestedQty, $availableStock))
+                                    ->maxValue($availableStock)
+                                    ->step(1)
+                                    ->suffix($unitName)
+                                    ->label('Approved Quantity')
+                                    ->helperText("Maximum available: {$availableStock} {$unitName}"),
+                                // Forms\Components\Textarea::make('message_to_farmer')
+                                //     ->label('Message to Farmer (Optional)')
+                                //     ->placeholder('e.g., "Only 30 units are currently available. Do you want to proceed with 30 units or wait for full stock?"')
+                                //     ->helperText('This message will be sent to the farmer explaining stock availability')
+                                //     ->rows(3)
+                                //     ->columnSpanFull(),
+                                Forms\Components\Textarea::make('notes')
+                                    ->label('Internal Approval Notes')
+                                    ->placeholder('Internal notes for approval (not visible to farmer)')
+                                    ->rows(2)
+                                    ->columnSpanFull(),
+                            ];
+                        })
+                        ->action(function (ItemRequest $record, array $data) {
+                            $item = $record->inventoryItem;
 
-                        $approvedQuantity = min($data['approved_quantity'], $availableStock);
-                        $adjusted = $approvedQuantity < $data['approved_quantity'];
+                            if (!$item) {
+                                return Notification::make()
+                                    ->title('No linked inventory item.')
+                                    ->danger()
+                                    ->send();
+                            }
 
-                        // Create a stock movement
-                        \App\Models\StockMovement::create([
-                            'inventory_item_id' => $item->id,
-                            'user_id' => Auth::id(),
-                            'type' => 'out',
-                            'quantity' => $approvedQuantity,
-                            'unit_cost' => $item->average_unit_cost ?? 0,
-                            'total_cost' => ($item->average_unit_cost ?? 0) * $approvedQuantity,
-                            'reason' => 'Item Request Approval',
-                            'notes' => $data['notes'] ?? null,
-                            'movement_date' => now(),
-                        ]);
+                            $availableStock = $item->getAvailableStockForOut();
 
-                        // Update item request
-                        $record->update([
-                            'status' => ItemRequest::STATUS_APPROVED,
-                            'approved_at' => now(),
-                            'approved_by' => Auth::id(),
-                        ]);
+                            $approvedQuantity = min($data['approved_quantity'], $availableStock);
+                            $adjusted = $approvedQuantity < $data['approved_quantity'];
 
-                        // Log status change
-                        $record->statuses()->create([
-                            'status' => ItemRequest::STATUS_APPROVED,
-                            'changed_by' => Auth::id(),
-                            'notes' => $data['notes'] ?? 'Approved item request',
-                        ]);
+                            // Create a stock movement
+                            \App\Models\StockMovement::create([
+                                'inventory_item_id' => $item->id,
+                                'user_id' => Auth::id(),
+                                'type' => 'out',
+                                'quantity' => $approvedQuantity,
+                                'unit_cost' => $item->average_unit_cost ?? 0,
+                                'total_cost' => ($item->average_unit_cost ?? 0) * $approvedQuantity,
+                                'reason' => 'Item Request Approval',
+                                'notes' => $data['notes'] ?? null,
+                                'movement_date' => now(),
+                            ]);
 
-                        // Send message to farmer if provided
-                        if (!empty($data['message_to_farmer'])) {
+                            // Update item request
+                            $record->update([
+                                'status' => ItemRequest::STATUS_APPROVED,
+                                'approved_at' => now(),
+                                'approved_by' => Auth::id(),
+                            ]);
+
+                            // Log status change
+                            $record->statuses()->create([
+                                'status' => ItemRequest::STATUS_APPROVED,
+                                'changed_by' => Auth::id(),
+                                'notes' => $data['notes'] ?? 'Approved item request',
+                            ]);
+
+                            // Send message to farmer if provided
+                            if (!empty($data['message_to_farmer'])) {
+                                \App\Models\RequestMessage::create([
+                                    'item_request_id' => $record->id,
+                                    'user_id' => Auth::id(),
+                                    'message' => $data['message_to_farmer'],
+                                    'is_admin_message' => true,
+                                ]);
+                            }
+
+                            // Also send an automatic approval message
+                            $autoMessage = $adjusted
+                                ? "Your request has been approved for {$approvedQuantity} units (adjusted from {$data['approved_quantity']} due to available stock). The items will be prepared for delivery."
+                                : "Your request has been approved for {$approvedQuantity} units. The items will be prepared for delivery.";
+
                             \App\Models\RequestMessage::create([
                                 'item_request_id' => $record->id,
                                 'user_id' => Auth::id(),
-                                'message' => $data['message_to_farmer'],
+                                'message' => $autoMessage,
                                 'is_admin_message' => true,
                             ]);
-                        }
 
-                        // Also send an automatic approval message
-                        $autoMessage = $adjusted
-                            ? "Your request has been approved for {$approvedQuantity} units (adjusted from {$data['approved_quantity']} due to available stock). The items will be prepared for delivery."
-                            : "Your request has been approved for {$approvedQuantity} units. The items will be prepared for delivery.";
-                        
-                        \App\Models\RequestMessage::create([
-                            'item_request_id' => $record->id,
-                            'user_id' => Auth::id(),
-                            'message' => $autoMessage,
-                            'is_admin_message' => true,
-                        ]);
+                            $msg = $adjusted
+                                ? "Approved but adjusted to available stock: {$approvedQuantity} (was {$data['approved_quantity']})"
+                                : "Request approved successfully for {$approvedQuantity} units.";
 
-                        $msg = $adjusted
-                            ? "Approved but adjusted to available stock: {$approvedQuantity} (was {$data['approved_quantity']})"
-                            : "Request approved successfully for {$approvedQuantity} units.";
-
-                        Notification::make()
-                            ->title('Item Request Approved')
-                            ->body($msg)
-                            ->success()
-                            ->send();
-                    }),
-                Tables\Actions\Action::make('reject')
+                            Notification::make()
+                                ->title('Item Request Approved')
+                                ->body($msg)
+                                ->success()
+                                ->send();
+                        }),
+                    Tables\Actions\Action::make('reject')
                         // ->visible(fn(ItemRequest $record): bool => Auth::user()->can('reject', $record))
                         ->icon('heroicon-o-x-circle')
                         ->color('danger')
@@ -344,7 +366,7 @@ class ItemRequestResource extends Resource
 
                             // Send rejection message to farmer
                             $rejectionMessage = "Your request has been rejected. Reason: " . $data['rejection_reason'];
-                            
+
                             \App\Models\RequestMessage::create([
                                 'item_request_id' => $record->id,
                                 'user_id' => Auth::id(),

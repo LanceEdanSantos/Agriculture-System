@@ -48,10 +48,27 @@ class UsersRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('name')
             ->columns([
-                Tables\Columns\TextColumn::make('name')
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('email')
+            Tables\Columns\TextColumn::make('name')
+                ->label('Name')
+                ->getStateUsing(fn($record) => trim(collect([
+                    $record->fname,
+                    $record->mname,
+                    $record->lname,
+                    $record->suffix,
+                ])->filter()->implode(' ')))
+                ->searchable(query: function ($query, string $search): \Illuminate\Database\Eloquent\Builder {
+                    return $query
+                        ->where('fname', 'like', "%{$search}%")
+                        ->orWhere('mname', 'like', "%{$search}%")
+                        ->orWhere('lname', 'like', "%{$search}%")
+                        ->orWhere('suffix', 'like', "%{$search}%");
+                })
+                ->sortable(query: function ($query, string $direction): \Illuminate\Database\Eloquent\Builder {
+                    return $query->orderBy('lname', $direction)
+                        ->orderBy('fname', $direction);
+                }),
+
+            Tables\Columns\TextColumn::make('email')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('pivot.role')

@@ -54,9 +54,10 @@ class StockMovementResource extends Resource
                                     ->relationship('inventoryItem', 'name')
                                     ->searchable()
                                     ->default(fn() => request()->query('inventory_item_id'))
+                                    ->preload()
                                     ->required(),
                                 Select::make('type')
-                                    ->label('Action')
+                                    ->label('Actions')
                                     ->options([
                                         'in' => 'Stock In',
                                         'out' => 'Stock Out',
@@ -122,12 +123,13 @@ class StockMovementResource extends Resource
                     ->label('Item')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('user.name')
+                TextColumn::make('user')
                     ->label('User')
-                    ->searchable()
-                    ->sortable(),
+                    ->formatStateUsing(fn($record) => trim("{$record->user?->fname} {$record->user?->mname} {$record->user?->lname} {$record->user?->suffix}"))
+                    ->searchable(['user.fname', 'user.mname', 'user.lname', 'user.suffix'])
+                    ->sortable(['user.lname', 'user.fname']),
                 BadgeColumn::make('type')
-                    ->label('Type')
+                    ->label('Action')
                     ->colors([
                         'success' => 'in',
                         'danger' => 'out',
@@ -148,7 +150,7 @@ class StockMovementResource extends Resource
             ])
             ->filters([
                 SelectFilter::make('type')
-                    ->label('Movement Type')
+                    ->label('Action')
                     ->options([
                         'in' => 'Stock In',
                         'out' => 'Stock Out',

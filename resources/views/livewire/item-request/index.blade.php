@@ -157,7 +157,7 @@
                                     </svg>
                                     Edit
                                 </button> 
-                                <button 
+                                {{-- <button 
                                     onclick="confirm('Are you sure you want to delete this request?') || event.stopImmediatePropagation()"
                                     wire:click="delete({{ $request->id }})"
                                     class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-800/30"
@@ -166,7 +166,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                     </svg>
                                     Delete
-                                </button>
+                                </button> --}}
                             </div>
                         </div>
                     </div>

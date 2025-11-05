@@ -20,11 +20,11 @@ class EditFarm extends EditRecord
                 ->color('gray')
                 ->url(fn () => route('farms.print', ['id' => $this->record->id]))
                 ->openUrlInNewTab(),
-            Actions\ExportAction::make()
-                ->exporter(FarmExporter::class)
-                ->label('Export to Excel')
-                ->icon('heroicon-o-arrow-down-tray')
-                ->color('success'),
+            // Actions\ExportAction::make()
+            //     ->exporter(FarmExporter::class)
+            //     ->label('Export to Excel')
+            //     ->icon('heroicon-o-arrow-down-tray')
+            //     ->color('success'),
             Actions\DeleteAction::make(),
         ];
     }

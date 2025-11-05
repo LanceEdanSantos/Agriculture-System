@@ -100,13 +100,13 @@ class UnitResource extends Resource
                     ->label('Category')
                     ->badge()
                     ->color('primary'),
-                BadgeColumn::make('is_custom')
-                    ->label('Type')
-                    ->colors([
-                        'success' => true,
-                        'warning' => false,
-                    ])
-                    ->formatStateUsing(fn(bool $state): string => $state ? 'Custom' : 'Standard'),
+                // BadgeColumn::make('is_custom')
+                //     ->label('Type')
+                //     ->colors([
+                //         'success' => true,
+                //         'warning' => false,
+                //     ])
+                //     ->formatStateUsing(fn(bool $state): string => $state ? 'Custom' : 'Standard'),
                 BadgeColumn::make('is_active')
                     ->label('Status')
                     ->colors([

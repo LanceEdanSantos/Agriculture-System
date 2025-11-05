@@ -81,11 +81,14 @@ class UserResource extends Resource
 
                 Section::make('Role & Department')
                     ->schema([
-                        Grid::make(2)
+                        Grid::make(2)   
                             ->schema([
-                                Select::make('role')
-                                    ->label('Role')
-                                    ->options(Role::all()->pluck('name', 'name')->toArray())
+                                Select::make('roles')
+                                    ->label('Roles')
+                                    ->multiple()
+                                    ->relationship('roles', 'name') // ← this is how Shield expects it
+                                    ->preload()
+                                    ->searchable()
                                     ->required(),
                                 TextInput::make('department')
                                     ->label('Department')
