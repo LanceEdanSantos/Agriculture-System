@@ -118,27 +118,29 @@ class ItemRequestResource extends Resource
     {
         return $table
             ->columns([
-            Tables\Columns\TextColumn::make('full_name')
+            Tables\Columns\TextColumn::make('user.full_name')
                 ->label('Name')
                 ->getStateUsing(
                     fn($record) =>
                     trim(collect([
-                        $record->fname,
-                        $record->mname,
-                        $record->lname,
-                        $record->suffix,
+                        $record->user->fname,
+                        $record->user->mname,
+                        $record->user->lname,
+                        $record->user->suffix,
                     ])->filter()->implode(' '))
                 )
                 ->searchable(query: function (Builder $query, string $search): Builder {
                     return $query
-                        ->where('fname', 'like', "%{$search}%")
-                        ->orWhere('mname', 'like', "%{$search}%")
-                        ->orWhere('lname', 'like', "%{$search}%")
-                        ->orWhere('suffix', 'like', "%{$search}%");
+                        ->whereHas('user', function ($query) use ($search) {
+                            $query->where('fname', 'like', "%{$search}%")
+                                ->orWhere('mname', 'like', "%{$search}%")
+                                ->orWhere('lname', 'like', "%{$search}%")
+                                ->orWhere('suffix', 'like', "%{$search}%");
+                        });
                 })
                 ->sortable(query: function (Builder $query, string $direction): Builder {
-                    return $query->orderBy('lname', $direction)
-                        ->orderBy('fname', $direction);
+                    return $query->orderBy('user.lname', $direction)
+                        ->orderBy('user.fname', $direction);
                 }),
                 Tables\Columns\TextColumn::make('farm.name')
                     ->sortable()
