@@ -118,31 +118,28 @@ class ItemRequestResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('user.full_name')
-                    ->label('Name')
-                    ->formatStateUsing(
-                        fn($record) =>
-                        trim(implode(' ', [
-                            $record->user->fname,
-                            $record->user->mname,
-                            $record->user->lname,
-                            $record->user->suffix
-                        ]))
-                    )
-                    ->sortable(query: function (Builder $query, string $direction) {
-                        $query->orderBy('fname', $direction)
-                            ->orderBy('mname', $direction)
-                            ->orderBy('lname', $direction)
-                            ->orderBy('suffix', $direction);
-                    })
-                    ->searchable(query: function (Builder $query, string $search): Builder {
-                        return $query->whereHas('user', function ($q) use ($search) {
-                            $q->where('fname', 'like', "%{$search}%")
-                                ->orWhere('mname', 'like', "%{$search}%")
-                                ->orWhere('lname', 'like', "%{$search}%")
-                                ->orWhere('suffix', 'like', "%{$search}%");
-                        });
-                    }),
+            Tables\Columns\TextColumn::make('full_name')
+                ->label('Name')
+                ->getStateUsing(
+                    fn($record) =>
+                    trim(collect([
+                        $record->fname,
+                        $record->mname,
+                        $record->lname,
+                        $record->suffix,
+                    ])->filter()->implode(' '))
+                )
+                ->searchable(query: function (Builder $query, string $search): Builder {
+                    return $query
+                        ->where('fname', 'like', "%{$search}%")
+                        ->orWhere('mname', 'like', "%{$search}%")
+                        ->orWhere('lname', 'like', "%{$search}%")
+                        ->orWhere('suffix', 'like', "%{$search}%");
+                })
+                ->sortable(query: function (Builder $query, string $direction): Builder {
+                    return $query->orderBy('lname', $direction)
+                        ->orderBy('fname', $direction);
+                }),
                 Tables\Columns\TextColumn::make('farm.name')
                     ->sortable()
                     ->searchable(),
@@ -354,7 +351,7 @@ class ItemRequestResource extends Resource
                         ->action(function (ItemRequest $record, array $data) {
                             $record->update([
                                 'status' => ItemRequest::STATUS_REJECTED,
-                                'rejection_reason' => $data['rejectiKon_reason'],
+                                'rejection_reason' => $data['rejection_reason'],
                             ]);
 
                             // Log status change
