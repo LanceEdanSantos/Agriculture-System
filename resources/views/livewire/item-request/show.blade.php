@@ -230,7 +230,7 @@
                                             <div class="flex max-w-xs lg:max-w-md">
                                                 @if(!$message['is_admin_message'])
                                                     <div class="flex-shrink-0 h-8 w-8 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center text-gray-600 dark:text-gray-300 text-sm font-medium mr-2">
-                                                        {{ substr($message['user']['name'], 0, 1) }}
+                                                        {{ substr($message['user']['fname'], 0, 1) }}
                                                     </div>
                                                 @endif
                                                 <div>
