@@ -64,9 +64,9 @@ class RequestMessage extends Model
                 $farmer = $itemRequest->user;
                 
                 // Only send email if the recipient is a farmer
-                if ($farmer && $farmer->isFarmer() && $farmer->email) {
-                    Mail::to($farmer->email)->send(new FarmerMessageReceived($message));
-                }
+                // if ($farmer && $farmer->isFarmer() && $farmer->email) {
+                //     Mail::to($farmer->email)->send(new FarmerMessageReceived($message));
+                // }
             }
         });
     }
