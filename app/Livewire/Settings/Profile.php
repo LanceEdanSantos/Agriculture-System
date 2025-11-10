@@ -19,7 +19,7 @@ class Profile extends Component
      */
     public function mount(): void
     {
-        $this->name = Auth::user()->name;
+        $this->name = Auth::user()->getFullName();
         $this->email = Auth::user()->email;
     }
 
@@ -51,7 +51,7 @@ class Profile extends Component
 
         $user->save();
 
-        $this->dispatch('profile-updated', name: $user->name);
+        $this->dispatch('profile-updated', name: $user->getFullName());
     }
 
     /**

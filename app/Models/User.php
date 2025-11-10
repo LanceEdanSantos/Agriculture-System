@@ -67,6 +67,11 @@ class User extends Authenticatable implements FilamentUser, HasName
         ];
     }
 
+    public function getFullName(): string
+    {
+        return trim("{$this->fname} {$this->lname}");
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

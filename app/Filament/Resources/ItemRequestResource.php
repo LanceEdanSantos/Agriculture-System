@@ -151,10 +151,25 @@ class ItemRequestResource extends Resource
                 Tables\Columns\TextColumn::make('quantity')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\SelectColumn::make('status')
-                    ->options(ItemRequest::getStatuses())
-                    ->disableOptionWhen(fn(string $value): bool => in_array($value, ['approved', 'rejected'])),
-                Tables\Columns\TextColumn::make('requested_at')
+            Tables\Columns\SelectColumn::make('status')
+                ->options(ItemRequest::getStatuses())
+                ->disableOptionWhen(function (string $value, $record): bool {
+                    $current = $record->status;
+
+                    // If still pending → disable everything except "cancelled"
+                    if ($current === 'pending' && $value !== 'cancelled') {
+                        return true;
+                    }
+
+                    // If rejected → disable everything except "cancelled"
+                    if ($current === 'rejected' && $value !== 'cancelled') {
+                        return true;
+                    }
+
+                    // Otherwise, allow normal behavior
+                    return false;
+                }),
+            Tables\Columns\TextColumn::make('requested_at')
                     ->dateTime()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('approved_at')

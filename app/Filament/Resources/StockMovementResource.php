@@ -118,16 +118,29 @@ class StockMovementResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultSort('movement_date', 'desc')
             ->columns([
                 TextColumn::make('inventoryItem.name')
                     ->label('Item')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('user')
+                TextColumn::make('user.full_name')
                     ->label('User')
-                    ->formatStateUsing(fn($record) => trim("{$record->user?->fname} {$record->user?->mname} {$record->user?->lname} {$record->user?->suffix}"))
-                    ->searchable(['user.fname', 'user.mname', 'user.lname', 'user.suffix'])
-                    ->sortable(['user.lname', 'user.fname']),
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query
+                            ->whereHas('user', function ($q) use ($search) {
+                                $q->where('fname', 'like', "%{$search}%")
+                                  ->orWhere('mname', 'like', "%{$search}%")
+                                  ->orWhere('lname', 'like', "%{$search}%")
+                                  ->orWhere('suffix', 'like', "%{$search}%");
+                            });
+                    })
+                    ->sortable(query: function (Builder $query, string $direction): Builder {
+                        return $query
+                            ->join('users', 'stock_movements.user_id', '=', 'users.id')
+                            ->orderBy('users.lname', $direction)
+                            ->orderBy('users.fname', $direction);
+                    }),
                 BadgeColumn::make('type')
                     ->label('Action')
                     ->colors([
