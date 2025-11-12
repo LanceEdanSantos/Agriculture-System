@@ -203,7 +203,7 @@ class InventoryItemResource extends Resource
                 ->limit(30),
                 TextColumn::make('created_at')
                     ->label('Date Added')
-                    ->dateTime()
+                    ->dateTime('M d, Y h:i A', 'Asia/Manila')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->alignCenter(),
@@ -259,7 +259,7 @@ class InventoryItemResource extends Resource
                 //     ->alignCenter(),
                 TextColumn::make('created_at')
                     ->label('Date Added')
-                    ->dateTime()
+                    ->dateTime('M d, Y h:i A', 'Asia/Manila')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->alignCenter(),

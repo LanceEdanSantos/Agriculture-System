@@ -153,11 +153,11 @@ class StockMovementResource extends Resource
                     ->alignCenter(),
                 TextColumn::make('movement_date')
                     ->label('Date')
-                    ->dateTime()
+                    ->dateTime('M d, Y h:i A', 'Asia/Manila')
                     ->sortable(),
                 TextColumn::make('deleted_at')
                     ->label('Deleted At')
-                    ->dateTime()
+                    ->dateTime('M d, Y h:i A', 'Asia/Manila')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])

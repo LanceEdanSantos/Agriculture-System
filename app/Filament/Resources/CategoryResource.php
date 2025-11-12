@@ -112,7 +112,7 @@ class CategoryResource extends Resource
                 //     ->sortable(),
                 TextColumn::make('created_at')
                     ->label('Created')
-                    ->dateTime()
+                    ->dateTime('M d, Y h:i A', 'Asia/Manila')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])

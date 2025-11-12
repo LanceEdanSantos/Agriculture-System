@@ -60,11 +60,11 @@ class FarmResource extends Resource
                     ->boolean()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
+                ->dateTime('M d, Y h:i A', 'Asia/Manila')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->dateTime('M d, Y h:i A', 'Asia/Manila')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])

@@ -2,12 +2,13 @@
 
 namespace App\Filament\Resources\FarmResource\RelationManagers;
 
-use App\Models\User;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\RelationManagers\RelationManager;
+use App\Models\User;
 use Filament\Tables;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Filament\Tables\Actions\ActionGroup;
+use Filament\Resources\RelationManagers\RelationManager;
 
 class UsersRelationManager extends RelationManager
 {
@@ -96,17 +97,19 @@ class UsersRelationManager extends RelationManager
                     ->preloadRecordSelect(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make()
-                    ->form([
-                        Forms\Components\Select::make('role')
-                            ->options([
-                                'admin' => 'Admin',
-                                'manager' => 'Manager',
-                                'viewer' => 'Viewer',
-                            ])
-                            ->required(),
-                    ]),
-                Tables\Actions\DetachAction::make(),
+                ActionGroup::make([
+                    Tables\Actions\EditAction::make()
+                        ->form([
+                            Forms\Components\Select::make('role')
+                                ->options([
+                                    'admin' => 'Admin',
+                                    'manager' => 'Manager',
+                                    'viewer' => 'Viewer',
+                                ])
+                                ->required(),
+                        ]),
+                    Tables\Actions\DetachAction::make(),
+                ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

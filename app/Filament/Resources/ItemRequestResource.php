@@ -170,14 +170,14 @@ class ItemRequestResource extends Resource
                     return false;
                 }),
             Tables\Columns\TextColumn::make('requested_at')
-                    ->dateTime()
+                    ->dateTime('M d, Y h:i A', 'Asia/Manila')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('approved_at')
-                    ->dateTime()
+                    ->dateTime('M d, Y h:i A', 'Asia/Manila')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('delivered_at')
-                    ->dateTime()
+                    ->dateTime('M d, Y h:i A', 'Asia/Manila')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])

@@ -85,16 +85,16 @@ class ViewItemRequest extends ViewRecord
                             ->schema([
                                 TextEntry::make('requested_at')
                                     ->label('Requested At')
-                                    ->dateTime('M j, Y g:i A')
+                                    ->dateTime('M j, Y g:i A', 'Asia/Manila')
                                     ->icon('heroicon-o-clock'),
                                 TextEntry::make('approved_at')
                                     ->label('Approved At')
-                                    ->dateTime('M j, Y g:i A')
+                                    ->dateTime('M j, Y g:i A', 'Asia/Manila')
                                     ->icon('heroicon-o-check-circle')
                                     ->placeholder('Not yet approved'),
                                 TextEntry::make('delivered_at')
                                     ->label('Delivered At')
-                                    ->dateTime('M j, Y g:i A')
+                                    ->dateTime('M j, Y g:i A', 'Asia/Manila')
                                     ->icon('heroicon-o-truck')
                                     ->placeholder('Not yet delivered'),
                             ]),

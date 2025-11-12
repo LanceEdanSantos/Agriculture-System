@@ -63,7 +63,7 @@ class MessagesRelationManager extends RelationManager
                     ->getStateUsing(fn($record) => !is_null($record->read_at)),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Sent At')
-                    ->dateTime('M j, Y g:i A')
+                    ->dateTime('M j, Y g:i A', 'Asia/Manila')
                     ->sortable()
                     ->since()
                     ->tooltip(fn($record) => $record->created_at->format('M j, Y g:i A')),
