@@ -3,75 +3,49 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Spatie\Activitylog\Traits\LogsActivity;
-use Spatie\Activitylog\LogOptions;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
+use App\Models\User;
+use App\Models\Item;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Farm extends Model
 {
-    use LogsActivity;
+    use HasSlug,SoftDeletes,HasFactory;
     protected $fillable = [
+        'slug',
         'name',
-        'description',
-        'is_active',
-    ];
+        'description',   
+        'active'
+    ];  
 
-    protected $casts = [
-        'is_active' => 'boolean',
-    ];
-
-    public function getActivitylogOptions(): LogOptions
+    protected function casts()
     {
-        return LogOptions::defaults()
-            ->logOnly([
-                'name',
-                'description',
-                'is_active',
-            ])
-            ->logOnlyDirty()
-            ->dontSubmitEmptyLogs();
+        return [
+            'active' => 'boolean',
+        ];
     }
 
-    public function users(): BelongsToMany
+    public function getSlugOptions(): SlugOptions
     {
-        return $this->belongsToMany(User::class)
-            ->withPivot(['role', 'is_visible'])
-            ->withTimestamps();
+        return SlugOptions::create()
+            ->generateSlugsFrom('name')
+            ->saveSlugsTo('slug');
     }
 
-    /**
-     * Get only visible users (for UI purposes)
-     */
-    public function visibleUsers(): BelongsToMany
+    public function getRouteKeyName()
     {
-        return $this->belongsToMany(User::class)
-            ->withPivot(['role', 'is_visible'])
-            ->withTimestamps()
-            ->wherePivot('is_visible', true);
+        return 'slug';
     }
 
-    public function categories(): BelongsToMany
+    public function users()
     {
-        return $this->belongsToMany(Category::class, 'farm_category_visibility')
-            ->withPivot('is_visible')
-            ->withTimestamps();
+        return $this->belongsToMany(User::class);
     }
 
-    public function inventoryItems(): BelongsToMany
+    public function items()
     {
-        return $this->belongsToMany(InventoryItem::class, 'farm_inventory_visibility')
-            ->withPivot('is_visible')
-            ->withTimestamps();
-    }
-
-    /**
-     * Get only visible inventory items (for admin UI purposes)
-     */
-    public function visibleInventoryItems(): BelongsToMany
-    {
-        return $this->belongsToMany(InventoryItem::class, 'farm_inventory_visibility')
-            ->withPivot('is_visible')
-            ->withTimestamps()
-            ->wherePivot('is_visible', true);
+        return $this->belongsToMany(Item::class);
     }
 }

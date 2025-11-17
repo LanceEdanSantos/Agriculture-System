@@ -2,19 +2,17 @@
 
 namespace App\Providers\Filament;
 
-use Filament\Pages;
 use Filament\Panel;
-use Filament\Widgets;
 use Filament\PanelProvider;
+use Filament\Pages\Dashboard;
 use Filament\Support\Colors\Color;
+use Spatie\Permission\Models\Role;
+use Filament\Widgets\AccountWidget;
+use Filament\Widgets\FilamentInfoWidget;
 use Filament\Http\Middleware\Authenticate;
-use App\Filament\Widgets\InventoryOverview;
-use Rmsramos\Activitylog\ActivitylogPlugin;
-use App\Filament\Widgets\InventoryTrendsChart;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Filament\Http\Middleware\AuthenticateSession;
-use App\Filament\Resources\CustomActivityLogResource;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
@@ -31,22 +29,48 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->databaseNotifications()
             ->login()
+            ->authMiddleware([
+                \App\Http\Middleware\EnsureUserIsNotFarmer::class . ':Farmer',
+            ], isPersistent: true)
             ->colors([
                 'primary' => Color::Amber,
             ])
-            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
-            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
+            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
+            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([
-                Pages\Dashboard::class,
+                Dashboard::class,
             ])
-            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
+            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
-                // Widgets\AccountWidget::class,
-                // Widgets\FilamentInfoWidget::class,
-                InventoryOverview::class,
-                InventoryTrendsChart::class,
+                AccountWidget::class,
+                FilamentInfoWidget::class,
+            ])
+            ->plugins([
+                FilamentShieldPlugin::make()
+                ->navigationLabel('Roles and Permissions')
+                ->navigationIcon('heroicon-o-home')
+                ->activeNavigationIcon('heroicon-s-home')
+                ->navigationGroup('User Management')
+                ->navigationSort(10)
+                ->navigationBadge(Role::count())
+                ->navigationBadgeColor('success')
+               
+                ->gridColumns([
+                        'default' => 1,
+                        'sm' => 2,
+                        'lg' => 3
+                    ])  
+                ->sectionColumnSpan(1)
+                ->checkboxListColumns([
+                        'default' => 1,
+                        'sm' => 2,
+                        'lg' => 4,
+                    ])
+                ->resourceCheckboxListColumns([
+                        'default' => 1,
+                        'sm' => 2,
+                    ]),
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -59,29 +83,6 @@ class AdminPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])
-            ->plugins([
-                ActivitylogPlugin::make()
-                    ->resource(CustomActivityLogResource::class)
-                    ->isRestoreModelActionHidden(true)
-                    ->navigationGroup('System Logs')
-                    ->navigationIcon('heroicon-o-clipboard-document-list'),
-                FilamentShieldPlugin::make(),
-            ])
-            ->colors([
-                'primary' => Color::Green,
-                'gray' => Color::Slate,
-                'success' => Color::Emerald,
-                'danger' => Color::Red,
-                'warning' => Color::Amber,
-                'info' => Color::Blue,
-            ])
-            ->brandLogo(asset('images/PAO.png'))
-            ->brandLogoHeight('3.4rem')
-            ->favicon(asset('favicon.ico'))
-            ->font('Inter')
-            ->brandName('Agrostock')
-            ->sidebarCollapsibleOnDesktop()
-            ->maxContentWidth('full')
             ->authMiddleware([
                 Authenticate::class,
             ]);

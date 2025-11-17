@@ -1,108 +1,70 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Policies;
 
-use App\Models\User;
+use Illuminate\Foundation\Auth\User as AuthUser;
 use App\Models\ItemRequest;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class ItemRequestPolicy
 {
     use HandlesAuthorization;
-
-    /**
-     * Determine whether the user can view any models.
-     */
-    public function viewAny(User $user): bool
+    
+    public function viewAny(AuthUser $authUser): bool
     {
-        return $user->can('view_any_item::request');
+        return $authUser->can('ViewAny:ItemRequest');
     }
 
-    /**
-     * Determine whether the user can view the model.
-     */
-    public function view(User $user, ItemRequest $itemRequest): bool
+    public function view(AuthUser $authUser, ItemRequest $itemRequest): bool
     {
-        return $user->can('view_item::request');
+        return $authUser->can('View:ItemRequest');
     }
 
-    /**
-     * Determine whether the user can create models.
-     */
-    public function create(User $user): bool
+    public function create(AuthUser $authUser): bool
     {
-        return $user->can('create_item::request');
+        return $authUser->can('Create:ItemRequest');
     }
 
-    /**
-     * Determine whether the user can update the model.
-     */
-    public function update(User $user, ItemRequest $itemRequest): bool
+    public function update(AuthUser $authUser, ItemRequest $itemRequest): bool
     {
-        return $user->can('update_item::request');
+        return $authUser->can('Update:ItemRequest');
     }
 
-    /**
-     * Determine whether the user can delete the model.
-     */
-    public function delete(User $user, ItemRequest $itemRequest): bool
+    public function delete(AuthUser $authUser, ItemRequest $itemRequest): bool
     {
-        return $user->can('delete_item::request');
+        return $authUser->can('Delete:ItemRequest');
     }
 
-    /**
-     * Determine whether the user can bulk delete.
-     */
-    public function deleteAny(User $user): bool
+    public function restore(AuthUser $authUser, ItemRequest $itemRequest): bool
     {
-        return $user->can('delete_any_item::request');
+        return $authUser->can('Restore:ItemRequest');
     }
 
-    /**
-     * Determine whether the user can permanently delete.
-     */
-    public function forceDelete(User $user, ItemRequest $itemRequest): bool
+    public function forceDelete(AuthUser $authUser, ItemRequest $itemRequest): bool
     {
-        return $user->can('force_delete_item::request');
+        return $authUser->can('ForceDelete:ItemRequest');
     }
 
-    /**
-     * Determine whether the user can permanently bulk delete.
-     */
-    public function forceDeleteAny(User $user): bool
+    public function forceDeleteAny(AuthUser $authUser): bool
     {
-        return $user->can('force_delete_any_item::request');
+        return $authUser->can('ForceDeleteAny:ItemRequest');
     }
 
-    /**
-     * Determine whether the user can restore.
-     */
-    public function restore(User $user, ItemRequest $itemRequest): bool
+    public function restoreAny(AuthUser $authUser): bool
     {
-        return $user->can('restore_item::request');
+        return $authUser->can('RestoreAny:ItemRequest');
     }
 
-    /**
-     * Determine whether the user can bulk restore.
-     */
-    public function restoreAny(User $user): bool
+    public function replicate(AuthUser $authUser, ItemRequest $itemRequest): bool
     {
-        return $user->can('restore_any_item::request');
+        return $authUser->can('Replicate:ItemRequest');
     }
 
-    /**
-     * Determine whether the user can replicate.
-     */
-    public function replicate(User $user, ItemRequest $itemRequest): bool
+    public function reorder(AuthUser $authUser): bool
     {
-        return $user->can('replicate_item::request');
+        return $authUser->can('Reorder:ItemRequest');
     }
 
-    /**
-     * Determine whether the user can reorder.
-     */
-    public function reorder(User $user): bool
-    {
-        return $user->can('reorder_item::request');
-    }
 }

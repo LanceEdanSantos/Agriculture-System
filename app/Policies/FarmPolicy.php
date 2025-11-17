@@ -1,108 +1,70 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Policies;
 
-use App\Models\User;
+use Illuminate\Foundation\Auth\User as AuthUser;
 use App\Models\Farm;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class FarmPolicy
 {
     use HandlesAuthorization;
-
-    /**
-     * Determine whether the user can view any models.
-     */
-    public function viewAny(User $user): bool
+    
+    public function viewAny(AuthUser $authUser): bool
     {
-        return $user->can('view_any_farm');
+        return $authUser->can('ViewAny:Farm');
     }
 
-    /**
-     * Determine whether the user can view the model.
-     */
-    public function view(User $user, Farm $farm): bool
+    public function view(AuthUser $authUser, Farm $farm): bool
     {
-        return $user->can('view_farm');
+        return $authUser->can('View:Farm');
     }
 
-    /**
-     * Determine whether the user can create models.
-     */
-    public function create(User $user): bool
+    public function create(AuthUser $authUser): bool
     {
-        return $user->can('create_farm');
+        return $authUser->can('Create:Farm');
     }
 
-    /**
-     * Determine whether the user can update the model.
-     */
-    public function update(User $user, Farm $farm): bool
+    public function update(AuthUser $authUser, Farm $farm): bool
     {
-        return $user->can('update_farm');
+        return $authUser->can('Update:Farm');
     }
 
-    /**
-     * Determine whether the user can delete the model.
-     */
-    public function delete(User $user, Farm $farm): bool
+    public function delete(AuthUser $authUser, Farm $farm): bool
     {
-        return $user->can('delete_farm');
+        return $authUser->can('Delete:Farm');
     }
 
-    /**
-     * Determine whether the user can bulk delete.
-     */
-    public function deleteAny(User $user): bool
+    public function restore(AuthUser $authUser, Farm $farm): bool
     {
-        return $user->can('delete_any_farm');
+        return $authUser->can('Restore:Farm');
     }
 
-    /**
-     * Determine whether the user can permanently delete.
-     */
-    public function forceDelete(User $user, Farm $farm): bool
+    public function forceDelete(AuthUser $authUser, Farm $farm): bool
     {
-        return $user->can('force_delete_farm');
+        return $authUser->can('ForceDelete:Farm');
     }
 
-    /**
-     * Determine whether the user can permanently bulk delete.
-     */
-    public function forceDeleteAny(User $user): bool
+    public function forceDeleteAny(AuthUser $authUser): bool
     {
-        return $user->can('force_delete_any_farm');
+        return $authUser->can('ForceDeleteAny:Farm');
     }
 
-    /**
-     * Determine whether the user can restore.
-     */
-    public function restore(User $user, Farm $farm): bool
+    public function restoreAny(AuthUser $authUser): bool
     {
-        return $user->can('restore_farm');
+        return $authUser->can('RestoreAny:Farm');
     }
 
-    /**
-     * Determine whether the user can bulk restore.
-     */
-    public function restoreAny(User $user): bool
+    public function replicate(AuthUser $authUser, Farm $farm): bool
     {
-        return $user->can('restore_any_farm');
+        return $authUser->can('Replicate:Farm');
     }
 
-    /**
-     * Determine whether the user can replicate.
-     */
-    public function replicate(User $user, Farm $farm): bool
+    public function reorder(AuthUser $authUser): bool
     {
-        return $user->can('replicate_farm');
+        return $authUser->can('Reorder:Farm');
     }
 
-    /**
-     * Determine whether the user can reorder.
-     */
-    public function reorder(User $user): bool
-    {
-        return $user->can('reorder_farm');
-    }
 }

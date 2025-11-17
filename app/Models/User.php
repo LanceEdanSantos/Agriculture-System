@@ -2,57 +2,37 @@
 
 namespace App\Models;
 
-use Filament\Panel;
-use Spatie\Permission\Traits\HasRoles;
-use Illuminate\Notifications\Notifiable;
-use Filament\Models\Contracts\FilamentUser;
-use Filament\Models\Contracts\HasName;
+// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Spatie\Activitylog\Traits\LogsActivity;
-use Spatie\Activitylog\LogOptions;
+use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable implements FilamentUser, HasName
+class User extends Authenticatable
 {
-    use HasFactory, Notifiable, HasRoles, LogsActivity;
+    /** @use HasFactory<\Database\Factories\UserFactory> */
+    use HasFactory, Notifiable, HasRoles;
 
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $fillable = [
-        'fname',
-        'lname',
-        'mname',
-        'suffix',
+        'name',
         'email',
         'password',
-        'department',
-        'position',
-        'phone',
-        'address',
     ];
 
     /**
      * The attributes that should be hidden for serialization.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $hidden = [
         'password',
         'remember_token',
     ];
-
-    public function canAccessPanel(Panel $panel): bool
-    {
-        return true;
-    }
-    public function getFilamentName(): string
-    {
-        return trim("{$this->fname} {$this->lname}");
-    }
 
     /**
      * Get the attributes that should be cast.
@@ -67,79 +47,13 @@ class User extends Authenticatable implements FilamentUser, HasName
         ];
     }
 
-    public function getFullName(): string
+    public function itemRequests()
     {
-        return trim("{$this->fname} {$this->lname}");
+        return $this->hasMany(\App\Models\ItemRequest::class);
     }
 
-    public function getActivitylogOptions(): LogOptions
+    public function farms()
     {
-        return LogOptions::defaults()
-            ->logOnly([
-                'fname',
-                'lname',
-                'mname',
-                'suffix',
-                'email',
-                'department',
-                'position',
-                'phone',
-                'address',
-            ])
-            ->logOnlyDirty()
-            ->dontSubmitEmptyLogs()
-            ->dontLogIfAttributesChangedOnly(['updated_at']);
-    }
-
-    /**
-     * Get user's initials
-     */
-    public function initials(): string
-    {
-        $name = trim("{$this->fname} {$this->lname}");
-        return collect(explode(' ', $name))
-            ->map(fn($part) => strtoupper(substr($part, 0, 1)))
-            ->join('');
-    }
-
-    /**
-     * Check if user is an administrator
-     */
-    public function isAdministrator(): bool
-    {
-        return $this->role === 'administrator';
-    }
-
-    /**
-     * Check if user is DOA staff
-     */
-    public function isDoaStaff(): bool
-    {
-        return $this->role === 'doa_staff';
-    }
-
-    /**
-     * Check if user is a farmer
-     */
-    public function isFarmer(): bool
-    {
-        return $this->role === 'farmer';
-    }
-    public function farms(): BelongsToMany
-    {
-        return $this->belongsToMany(Farm::class, 'farm_user', 'user_id', 'farm_id')
-            ->withPivot(['role', 'is_visible'])
-            ->withTimestamps();
-    }
-
-    /**
-     * Get only visible farms (for admin UI purposes)
-     */
-    public function visibleFarms(): BelongsToMany
-    {
-        return $this->belongsToMany(Farm::class)
-            ->withPivot(['role', 'is_visible'])
-            ->withTimestamps()
-            ->wherePivot('is_visible', true);
+        return $this->belongsToMany(Farm::class);
     }
 }
