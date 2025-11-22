@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ItemRequests\Tables;
 
+use App\Models\User;
 use Filament\Tables\Table;
 use App\Models\ItemRequest;
 use Filament\Actions\Action;
@@ -14,6 +15,7 @@ use Filament\Actions\RestoreAction;
 use Filament\Tables\Filters\Filter;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\ExportBulkAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Tables\Columns\IconColumn;
@@ -25,7 +27,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Actions\ForceDeleteBulkAction;
-use App\Models\User;
+use App\Filament\Exports\ItemRequestExporter;
 
 class ItemRequestsTable
 {
@@ -147,6 +149,9 @@ class ItemRequestsTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
+                    ExportBulkAction::make()
+                        ->label('Export')
+                        ->exporter(ItemRequestExporter::class),
                     DeleteBulkAction::make(),
                     RestoreBulkAction::make(),
                     ForceDeleteBulkAction::make(),

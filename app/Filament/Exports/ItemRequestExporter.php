@@ -2,15 +2,15 @@
 
 namespace App\Filament\Exports;
 
-use App\Models\StockLog;
+use App\Models\ItemRequest;
 use Illuminate\Support\Number;
 use Filament\Actions\Exports\Exporter;
 use Filament\Actions\Exports\ExportColumn;
 use Filament\Actions\Exports\Models\Export;
 
-class StockLogExporter extends Exporter
+class ItemRequestExporter extends Exporter
 {
-    protected static ?string $model = StockLog::class;
+    protected static ?string $model = ItemRequest::class;
 
     public static function getColumns(): array
     {
@@ -34,7 +34,7 @@ class StockLogExporter extends Exporter
 
     public static function getCompletedNotificationBody(Export $export): string
     {
-        $body = 'Your stock log export has completed and ' . Number::format($export->successful_rows) . ' ' . str('row')->plural($export->successful_rows) . ' exported.';
+        $body = 'Your item request export has completed and ' . Number::format($export->successful_rows) . ' ' . str('row')->plural($export->successful_rows) . ' exported.';
 
         if ($failedRowsCount = $export->getFailedRowsCount()) {
             $body .= ' ' . Number::format($failedRowsCount) . ' ' . str('row')->plural($failedRowsCount) . ' failed to export.';

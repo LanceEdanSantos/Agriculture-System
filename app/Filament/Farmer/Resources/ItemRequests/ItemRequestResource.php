@@ -64,6 +64,7 @@ class ItemRequestResource extends Resource
     public static function getRecordRouteBindingEloquentQuery(): Builder
     {
         return parent::getRecordRouteBindingEloquentQuery()
+            ->where('user_id', auth()->id())
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]);
