@@ -29,7 +29,24 @@ class StockLogObserver
      */
     public function updated(StockLog $stockLog): void
     {
-        //
+        $item = $stockLog->item;
+
+        // Get original values
+        $originalType = $stockLog->getOriginal('type');
+        $originalQuantity = $stockLog->getOriginal('quantity');
+
+        // Reverse the original change
+        $reverseChange = $originalType === 'in'
+            ? -$originalQuantity
+            : $originalQuantity;
+
+        // Apply new change
+        $newChange = $stockLog->type === 'in'
+            ? $stockLog->quantity
+            : -$stockLog->quantity;
+
+        $item->stock = $item->stock + $reverseChange + $newChange;
+        $item->save();
     }
 
     /**
@@ -37,7 +54,15 @@ class StockLogObserver
      */
     public function deleted(StockLog $stockLog): void
     {
-        //
+        $item = $stockLog->item;
+
+        // Reverse the change when deleted
+        $change = $stockLog->type === 'in'
+            ? -$stockLog->quantity
+            : $stockLog->quantity;
+
+        $item->stock = $item->stock + $change;
+        $item->save();
     }
 
     /**
