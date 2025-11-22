@@ -18,7 +18,7 @@ use App\Filament\Farmer\Resources\ItemRequests\Pages\CreateItemRequest;
 use App\Filament\Farmer\Resources\ItemRequests\Schemas\ItemRequestForm;
 use App\Filament\Farmer\Resources\ItemRequests\Tables\ItemRequestsTable;
 use App\Filament\Farmer\Resources\ItemRequests\Schemas\ItemRequestInfolist;
-use App\Filament\Resources\Farmer\ItemRequests\RelationManagers\MessagesRelationManager;
+use App\Filament\Farmer\Resources\ItemRequests\RelationManagers\MessagesRelationManager;
 
 class ItemRequestResource extends Resource
 {

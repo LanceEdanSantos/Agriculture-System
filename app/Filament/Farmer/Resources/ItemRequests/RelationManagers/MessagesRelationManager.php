@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\Farmer\ItemRequests\RelationManagers;
+namespace App\Filament\Farmer\Resources\ItemRequests\RelationManagers;
 
 use Filament\Tables\Table;
 use Filament\Schemas\Schema;
