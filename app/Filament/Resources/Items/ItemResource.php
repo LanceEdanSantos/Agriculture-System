@@ -29,6 +29,12 @@ class ItemResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Inventory';
 
+    protected static ?int $navigationSort = 1;
+
+    protected static ?string $navigationLabel = 'Inventory Item';
+
+    protected static ?string $modelLabel = 'Inventory Item';
+
     public static function form(Schema $schema): Schema
     {
         return ItemForm::configure($schema);
