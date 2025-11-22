@@ -17,6 +17,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Spatie\Activitylog\Models\Activity;
+use UnitEnum;
 
 class ActivityLogResource extends Resource
 {
@@ -25,6 +26,12 @@ class ActivityLogResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'log_name';
+
+    protected static string|UnitEnum|null $navigationGroup = 'User Management';
+
+    protected static ?string $navigationLabel = 'Activity Logs';
+
+    protected static ?string $modelLabel = 'Activity Log';
 
     public static function form(Schema $schema): Schema
     {
