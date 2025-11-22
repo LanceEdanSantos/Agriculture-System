@@ -24,7 +24,7 @@ class ItemRequestResource extends Resource
 {
     protected static ?string $model = ItemRequest::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedArchiveBoxArrowDown;
 
     protected static ?string $recordTitleAttribute = 'id';
 

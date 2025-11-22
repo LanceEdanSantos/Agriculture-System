@@ -23,7 +23,8 @@ class StockLogResource extends Resource
 {
     protected static ?string $model = StockLog::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocument;
+
 
     protected static ?string $recordTitleAttribute = 'id';
 

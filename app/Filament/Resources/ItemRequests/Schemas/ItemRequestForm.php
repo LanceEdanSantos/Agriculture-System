@@ -5,8 +5,10 @@ namespace App\Filament\Resources\ItemRequests\Schemas;
 use Closure;
 use App\Models\Farm;
 use App\Models\Item;
+use App\Models\User;
 use Illuminate\Support\Str;
 use Filament\Schemas\Schema;
+use App\Enums\ItemRequestStatus;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Textarea;
@@ -14,6 +16,7 @@ use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 
 class ItemRequestForm
 {
@@ -36,6 +39,12 @@ class ItemRequestForm
                         Select::make('item_id')
                             ->searchable()
                             ->preload() 
+                            ->afterStateUpdated(function (Get $get, Set $set) {
+                                $item = Item::find($get('item_id'));
+                                $farm = User::find($get('user_id'))->farms()->first();
+                                $set('quantity', $item->stock ?? null);
+                                $set('farm_id', $farm->id ?? null);
+                            })
                             ->relationship('item', 'name')
                             ->getSearchResultsUsing(fn (string $search): array => Item::query()
                                 ->where(    'name', 'like', "%{$search}%")
@@ -47,8 +56,12 @@ class ItemRequestForm
                                 fn (Model $record) => "{$record->name} | Only {$record->stock} left"
                             )
                             ->required(),       
-                        Toggle::make('status')
-                            ->default(true),            
+                        Select::make('status')
+                            ->options(ItemRequestStatus::class)
+                            ->default(ItemRequestStatus::PENDING)
+                            ->disabled()
+                            ->dehydrated(true)
+                            ->required(),    
                     ]),
                 Section::make()
                     ->schema([

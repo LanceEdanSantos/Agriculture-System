@@ -7,12 +7,13 @@ use App\Observers\StockLogObserver;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 
 #[ObservedBy([StockLogObserver::class])]
 class StockLog extends Model
 {
-    use HasUuids;
+    use HasUuids, SoftDeletes;
     protected $fillable = [
         'item_id',
         'user_id',
@@ -23,11 +24,13 @@ class StockLog extends Model
         'notes',
     ];
 
-    protected function casts(): array {
+    protected function casts(): array
+    {
         return [
             'quantity' => 'integer',
             'type' => 'string',
             'notes' => 'string',
+            'deleted_at' => 'datetime',
         ];
     }
 

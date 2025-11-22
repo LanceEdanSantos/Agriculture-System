@@ -22,7 +22,7 @@ class ItemRequest extends Model
     {
         return [
             'quantity' => 'integer',
-            'status' => 'string',
+            'status' => ItemRequestStatus::class,
             'farm_id' => 'integer',
             'notes' => 'string',
         ];
