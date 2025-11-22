@@ -7,11 +7,13 @@ use Spatie\Sluggable\SlugOptions;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 use App\Models\ItemRequestMessage;
 
 class Item extends Model
 {
-    use HasSlug, SoftDeletes, HasFactory;
+    use HasSlug, SoftDeletes, HasFactory,LogsActivity;
     protected $fillable = [
         'slug',
         'name',
@@ -58,4 +60,10 @@ class Item extends Model
     {
         return $this->belongsToMany(Farm::class);
     }
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logAll()
+            ->useLogName('item');
+    }   
 }

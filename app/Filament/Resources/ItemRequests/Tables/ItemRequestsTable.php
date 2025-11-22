@@ -3,10 +3,12 @@
 namespace App\Filament\Resources\ItemRequests\Tables;
 
 use App\Models\User;
+use App\Models\StockLog;
 use Filament\Tables\Table;
 use App\Models\ItemRequest;
 use Filament\Actions\Action;
 use App\Enums\ItemRequestStatus;
+use App\Enums\TransferType;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Actions\ActionGroup;
@@ -35,10 +37,10 @@ class ItemRequestsTable
     {
         return $table
             ->columns([
-                TextColumn::make('id')
-                    ->label('Request ID')
-                    ->searchable()
-                    ->sortable(),
+                // TextColumn::make('id')
+                //     ->label('Request ID')
+                //     ->searchable()
+                //     ->sortable(),
                 TextColumn::make('user.name')
                     ->label('Requested By')
                     ->searchable()
@@ -68,6 +70,14 @@ class ItemRequestsTable
                             )
                     ->afterStateUpdated(function ($record, $state) {
                         $recipients = User::role(['Administrator'])->get();
+                        if($state == ItemRequestStatus::APPROVED){
+                            StockLog::create([
+                                'item_id' => $record->item_id,
+                                'quantity' => $record->quantity,
+                                'type' => TransferType::OUT,
+                                'item_request_id' => $record->id,
+                            ]);
+                        }
                         Notification::make()
                             ->title('Item Request Updated')
                             ->body('An item request has been updated. Click below to view it.')

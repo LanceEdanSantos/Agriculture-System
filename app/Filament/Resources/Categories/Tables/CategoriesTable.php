@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Categories\Tables;
 
 use Filament\Tables\Table;
+use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Actions\ActionGroup;
@@ -21,6 +22,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Actions\ForceDeleteBulkAction;
+use App\Filament\Resources\Categories\CategoryResource;
 
 class CategoriesTable
 {
@@ -89,6 +91,7 @@ class CategoriesTable
             ->recordActions([
                 ActionGroup::make([
                     ViewAction::make(),
+                    Action::make('Activity Log')->url(fn($record) => CategoryResource::getUrl('activity', ['record' => $record])),
                     EditAction::make(),
                     DeleteAction::make(),
                     RestoreAction::make(),

@@ -3,13 +3,15 @@
 namespace App\Models;
 
 use App\Enums\ItemRequestStatus;
+use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class ItemRequest extends Model
 {
-    use SoftDeletes, HasUuids;
+    use SoftDeletes, HasUuids,LogsActivity;
     protected $fillable = [
         'user_id',
         'item_id',
@@ -49,5 +51,11 @@ class ItemRequest extends Model
     public function messages()
     {
         return $this->hasMany(ItemRequestMessage::class)->latest();
+    }
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logAll()
+            ->useLogName('item_request');
     }
 }

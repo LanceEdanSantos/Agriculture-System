@@ -19,6 +19,7 @@ use App\Filament\Resources\Categories\Pages\ListCategories;
 use App\Filament\Resources\Categories\Schemas\CategoryForm;
 use App\Filament\Resources\Categories\Tables\CategoriesTable;
 use App\Filament\Resources\Categories\Schemas\CategoryInfolist;
+use App\Filament\Resources\Categories\Pages\ListCategoryActivities;
 
 class CategoryResource extends Resource
 {
@@ -57,6 +58,7 @@ class CategoryResource extends Resource
         return [
             'index' => ListCategories::route('/'),
             'create' => CreateCategory::route('/create'),
+            'activity' => ListCategoryActivities::route('{record}/activity'),
             'view' => ViewCategory::route('/{record}'),
             'edit' => EditCategory::route('/{record}/edit'),
         ];

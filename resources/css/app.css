@@ -1,3 +1,4 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import '../../vendor/pxlrbt/filament-activity-log/resources/css/styles.css';

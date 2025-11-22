@@ -2,17 +2,19 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Models\Item;
+use App\Models\User;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
-use App\Models\User;
-use App\Models\Item;
+use Spatie\Activitylog\LogOptions;
+use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Farm extends Model
 {
-    use HasSlug,SoftDeletes,HasFactory;
+    use HasSlug,SoftDeletes,HasFactory,LogsActivity;
     protected $fillable = [
         'slug',
         'name',
@@ -47,5 +49,12 @@ class Farm extends Model
     public function items()
     {
         return $this->belongsToMany(Item::class);
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logAll()
+            ->useLogName('farm');
     }
 }

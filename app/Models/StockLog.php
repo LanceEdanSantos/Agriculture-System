@@ -9,11 +9,12 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
-
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 #[ObservedBy([StockLogObserver::class])]
 class StockLog extends Model
 {
-    use HasUuids, SoftDeletes;
+    use HasUuids, SoftDeletes,LogsActivity;
     protected $fillable = [
         'item_id',
         'user_id',
@@ -42,5 +43,11 @@ class StockLog extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logAll()
+            ->useLogName('stock_log');
     }
 }
