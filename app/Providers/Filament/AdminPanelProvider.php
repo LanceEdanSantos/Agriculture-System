@@ -31,9 +31,9 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
-            ->authMiddleware([
-                \App\Http\Middleware\EnsureUserIsNotFarmer::class . ':Farmer',
-            ], isPersistent: true)
+            // ->authMiddleware([
+            //     \App\Http\Middleware\EnsureUserIsNotFarmer::class . ':Farmer',
+            // ], isPersistent: true)
             ->colors([
                 'primary' => Color::Amber,
             ])
