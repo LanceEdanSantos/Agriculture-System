@@ -33,7 +33,13 @@ class ItemForm
                                     ->rules([
                                         'string',
                                         'max:255',
-                                    ]),
+                                ]),
+                                Select::make('unit_id')
+                                    ->required()
+                                    ->label('Unit')
+                                    ->relationship('unit', 'name')
+                                    ->searchable()
+                                    ->preload(),
                                 Select::make('category_id')
                                     ->relationship('category', 'name')
                                     ->searchable()

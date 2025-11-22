@@ -60,6 +60,11 @@ class Item extends Model
     {
         return $this->belongsToMany(Farm::class)->withTimestamps();
     }
+
+    public function unit()
+    {
+        return $this->belongsTo(Unit::class, 'unit_id');
+    }
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

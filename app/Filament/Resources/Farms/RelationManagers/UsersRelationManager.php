@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Farms\RelationManagers;
 
+use Filament\Actions\ActionGroup;
 use Filament\Actions\AttachAction;
 use Filament\Actions\DetachAction;
 use Filament\Actions\DetachBulkAction;
@@ -31,9 +32,11 @@ class UsersRelationManager extends RelationManager
                     ->multiple(),           // Attach multiple users at once
             ])
             ->recordActions([
-                ViewAction::make(),
-                DetachAction::make()
-                    ->label('Remove User'),       // Remove user from pivot
+                ActionGroup::make([
+                    ViewAction::make(),
+                    DetachAction::make()
+                        ->label('Remove User'),
+                ]),
             ])
             ->toolbarActions([
                 DetachBulkAction::make(),   // Detach multiple users at once

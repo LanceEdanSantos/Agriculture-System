@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\StockLogs\Schemas;
 
 use Closure;
+use App\Models\Item;
 use App\Enums\TransferType;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Auth;
@@ -36,6 +37,11 @@ class StockLogForm
                                     ->getOptionLabelFromRecordUsing(
                                         fn (Model $record) => "{$record->name} ({$record->stock})"
                                     )
+                                    ->default(
+                                        fn() => request()->query('item') && Item::find(request()->query('item'))
+                                            ? request()->query('item')
+                                            : null
+                                    )
                                     ->reactive()
                                     ->searchable()
                                     ->preload()
@@ -45,7 +51,9 @@ class StockLogForm
                                     ->required(),
                                 TextInput::make('quantity')
                                     ->required()
+                                    ->default(0)
                                     ->rules([
+                                        'min:1',
                                         'required',
                                         'integer',
                                         fn(Get $get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {

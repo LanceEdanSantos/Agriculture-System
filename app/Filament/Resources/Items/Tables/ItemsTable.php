@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Items\Tables;
 
 use Filament\Tables\Table;
+use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Actions\ActionGroup;
@@ -10,6 +11,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Tables\Filters\Filter;
 use Filament\Actions\BulkActionGroup;
+use Illuminate\Support\Facades\Route;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreBulkAction;
@@ -96,6 +98,12 @@ class ItemsTable
             ])
             ->recordActions([
                 ActionGroup::make([
+                    // Action::make('Log Stock')
+                    //     ->url(fn ($record) => route('filament.admin.resources.stock-logs.create', ['item' => $record->id]))
+                    //     ->openUrlInNewTab()
+                    //     ->label('Add Stock Log')
+                    //     ->icon('heroicon-o-plus-circle'),
+
                     ViewAction::make(),
                     EditAction::make(),
                     DeleteAction::make(),

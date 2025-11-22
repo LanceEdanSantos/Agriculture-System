@@ -15,7 +15,6 @@ class ItemInfolist
     {
         return $schema
             ->components([
-                ItemMessagesRelationManager::make(),
                 Grid::make()
                     ->columns([
                         'sm' => 1,
@@ -28,6 +27,8 @@ class ItemInfolist
                                 TextEntry::make('name'),
                                 TextEntry::make('category.name')
                                     ->label('Category'),
+                                TextEntry::make('unit.name')
+                                    ->label('Unit'),
                                 Grid::make()
                                     ->columns(2)
                                     ->schema([

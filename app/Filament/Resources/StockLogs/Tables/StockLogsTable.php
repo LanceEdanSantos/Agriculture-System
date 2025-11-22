@@ -88,6 +88,7 @@ class StockLogsTable
             ])
             ->recordActions([
                 ActionGroup::make([
+                    
                     ViewAction::make(),
                     EditAction::make(),
                     DeleteAction::make(),
