@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Items\Schemas;
 
+use App\Models\Item;
 use Filament\Schemas\Schema;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
@@ -30,10 +31,11 @@ class ItemForm
                             ->schema([
                                 TextInput::make('name')
                                     ->required()
+                                    ->unique(table: Item::class, column: 'name',ignoreRecord:true)
                                     ->rules([
                                         'string',
                                         'max:255',
-                                ]),
+                                    ]),
                                 Select::make('unit_id')
                                     ->required()
                                     ->label('Unit')
