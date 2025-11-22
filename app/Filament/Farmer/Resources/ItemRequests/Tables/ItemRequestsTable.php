@@ -67,6 +67,11 @@ class ItemRequestsTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
+                SelectFilter::make('item_id')
+                    ->label('Item')
+                    ->preload()
+                    ->searchable()
+                    ->relationship('item', 'name'),
                 SelectFilter::make('status')
                     ->options(ItemRequestStatus::class)
                     ->multiple(),
@@ -91,17 +96,17 @@ class ItemRequestsTable
             ->recordActions([
                 ActionGroup::make([
                     ViewAction::make(),
-                    EditAction::make(),
-                    DeleteAction::make(),
-                    RestoreAction::make(),
-                    ForceDeleteAction::make()
+                    // EditAction::make(),
+                    // DeleteAction::make(),
+                    // RestoreAction::make(),
+                    // ForceDeleteAction::make()
                 ])
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
-                    RestoreBulkAction::make(),
+                    // DeleteBulkAction::make(),
+                    // ForceDeleteBulkAction::make(),
+                    // RestoreBulkAction::make(),
                 ]),
             ]);
     }

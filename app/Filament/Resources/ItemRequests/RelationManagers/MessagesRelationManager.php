@@ -11,6 +11,7 @@ use Filament\Actions\DeleteAction;
 use Illuminate\Support\Facades\Auth;
 use Filament\Actions\AssociateAction;
 use Filament\Actions\BulkActionGroup;
+use Filament\Forms\Components\Hidden;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\DissociateAction;
 use Filament\Forms\Components\Textarea;
@@ -28,9 +29,9 @@ class MessagesRelationManager extends RelationManager
     {
         return $schema
             ->components([
-                TextInput::make('user_id')
+                Hidden::make('user_id')
                     ->default(fn() => Auth::id())
-                    ->required(),
+                    ->dehydrated(true),
                 Textarea::make('message')
                     ->required()
                     ->columnSpanFull(),
@@ -59,24 +60,18 @@ class MessagesRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('user_id')
             ->columns([
-                TextColumn::make('user_id')
-                    ->sortable(),
+                TextColumn::make('user.name')
+                    ->searchable(),
                 TextColumn::make('message')
                     ->searchable(),
-                TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->poll(1)
             ->filters([
                 //
             ])
             ->headerActions([
-                CreateAction::make(),
+                CreateAction::make()
+                    ->label('Send message')
                 // AssociateAction::make(),
             ])
             ->recordActions([

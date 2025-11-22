@@ -54,7 +54,7 @@ class AdminPanelProvider extends PanelProvider
                 ->activeNavigationIcon('heroicon-s-home')
                 ->navigationGroup('User Management')
                 ->navigationSort(10)
-                ->navigationBadge(Role::count())
+                ->navigationBadge()
                 ->navigationBadgeColor('success')
                
                 ->gridColumns([
@@ -84,6 +84,22 @@ class AdminPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])
+            ->colors([
+                'primary' => Color::Green,
+                'gray' => Color::Slate,
+                'success' => Color::Emerald,
+                'danger' => Color::Red,
+                'warning' => Color::Amber,
+                'info' => Color::Blue,
+            ])
+            ->brandLogo(asset('images/PAO.png'))
+            ->brandLogoHeight('6rem')
+            ->favicon(asset('favicon.ico'))
+            ->font('Inter')
+            ->brandName('Agrostock')
+            ->sidebarCollapsibleOnDesktop()
+            ->maxContentWidth('full')
+            ->spa()
             ->authMiddleware([
                 Authenticate::class,
             ]);

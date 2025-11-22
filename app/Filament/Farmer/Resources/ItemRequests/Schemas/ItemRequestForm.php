@@ -7,6 +7,7 @@ use App\Models\Farm;
 use App\Models\Item;
 use Illuminate\Support\Str;
 use Filament\Schemas\Schema;
+use App\Enums\ItemRequestStatus;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Textarea;
@@ -38,19 +39,45 @@ class ItemRequestForm
                         Select::make('item_id')
                             ->searchable()
                             ->preload()
-                            ->relationship('item', 'name')
-                            ->getSearchResultsUsing(fn(string $search): array => Item::query()
-                                ->where('name', 'like', "%{$search}%")
-                                ->where('is_active', true)
-                                ->limit(50)
-                                ->pluck('name', 'id')
-                                ->all())
+                            ->getSearchResultsUsing(function (string $search, callable $get) {
+                                $farmId = $get('farm_id'); // get selected farm
+                                if (!$farmId) {
+                                    return []; // no farm selected → no items
+                                }
+
+                                return Item::query()
+                                    ->where('name', 'like', "%{$search}%")
+                                    // ->where('is_active', true)
+                                    ->whereHas('farms', fn ($q) => $q->where('farm_id', $farmId)) // only items linked to farm
+                                    ->limit(50)
+                                    ->pluck('name', 'id')
+                                    ->all();
+                            })
+
+                            ->options(function (callable $get) {
+                                $farmId = $get('farm_id');
+                                if (!$farmId) {
+                                    return [];
+                                }
+                                return Item::query()
+                                    ->whereHas('farms', fn ($q) => $q->where('farm_id', $farmId))
+                                    // ->where('is_active', true)
+                                    ->pluck('name', 'id')
+                                    ->toArray();
+                            })
+
                             ->getOptionLabelFromRecordUsing(
-                                fn(Model $record) => "{$record->name} | Only {$record->stock} left"
+                                fn (Model $record) =>
+                                    "{$record->name} | Only {$record->stock} left"
                             )
+
                             ->required(),
-                        Toggle::make('status')
-                            ->default(true),
+                        Select::make('status')
+                            ->options(ItemRequestStatus::class)
+                            ->default(ItemRequestStatus::PENDING)
+                            ->disabled()
+                            ->dehydrated(true)
+                            ->required(),    
                     ]),
                 Section::make()
                     ->schema([
@@ -67,19 +94,45 @@ class ItemRequestForm
                             ])
                             ->default(0)
                             ->numeric(),
-                        Select::make('farm_id')
+                       Select::make('farm_id')
+                            ->label('Farm')
                             ->searchable()
                             ->preload()
-                            ->getSearchResultsUsing(fn(string $search): array => Farm::query()
-                                ->where('name', 'like', "%{$search}%")
-                                ->where('is_active', true)
-                                ->limit(50)
-                                ->pluck('name', 'id')
-                                ->all())
+                            // options based on the current user's assigned farms (qualified columns)
+                            ->options(function () {
+                                $user = auth()->user();
+                                if (! $user) {
+                                    return [];
+                                }
+
+                                // Ensure we select farms table columns explicitly to avoid ambiguity
+                                return $user
+                                    ->farms()
+                                    ->where('farms.is_active', true)
+                                    ->select('farms.id', 'farms.name')
+                                    ->pluck('farms.name', 'farms.id')
+                                    ->toArray();
+                            })
+                            // relationship assumes the model you're editing has `public function farm() { return $this->belongsTo(Farm::class); }`
                             ->relationship('farm', 'name')
-                            ->getOptionLabelFromRecordUsing(
-                                fn(Model $record) => "{$record->name} "
-                            )
+                            // default to the single farm if user has exactly one
+                            ->default(function () {
+                                $user = auth()->user();
+                                if (! $user) {
+                                    return null;
+                                }
+                                $farms = $user->farms()->select('farms.id')->get();
+                                return $farms->count() === 1 ? $farms->first()->id : null;
+                            })
+                            // disable when exactly one farm assigned; but still send the value on submit
+                            ->disabled(function () {
+                                $user = auth()->user();
+                                if (! $user) {
+                                    return false;
+                                }
+                                return $user->farms()->count() === 1;
+                            })
+                            ->dehydrated() // make sure disabled field is saved
                             ->required(),
                         Textarea::make('notes')
                             ->required(),

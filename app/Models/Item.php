@@ -58,7 +58,7 @@ class Item extends Model
 
     public function farms()
     {
-        return $this->belongsToMany(Farm::class);
+        return $this->belongsToMany(Farm::class)->withTimestamps();
     }
     public function getActivitylogOptions(): LogOptions
     {

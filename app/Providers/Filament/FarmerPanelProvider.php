@@ -41,7 +41,7 @@ class FarmerPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Farmer/Widgets'), for: 'App\Filament\Farmer\Widgets')
             ->widgets([
                 AccountWidget::class,
-                FilamentInfoWidget::class,
+                // FilamentInfoWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -54,6 +54,22 @@ class FarmerPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])
+            ->colors([
+                'primary' => Color::Green,
+                'gray' => Color::Slate,
+                'success' => Color::Emerald,
+                'danger' => Color::Red,
+                'warning' => Color::Amber,
+                'info' => Color::Blue,
+            ])
+            ->brandLogo(asset('images/PAO.png'))
+            ->brandLogoHeight('6rem')
+            ->favicon(asset('favicon.ico'))
+            ->font('Inter')
+            ->brandName('Agrostock')
+            ->sidebarCollapsibleOnDesktop()
+            ->maxContentWidth('full')
+            ->spa()
             ->authMiddleware([
                 Authenticate::class,
             ]);
