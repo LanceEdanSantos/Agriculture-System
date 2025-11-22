@@ -46,4 +46,8 @@ class ItemRequest extends Model
     {
         return $this->belongsTo(Farm::class);
     }
+    public function messages()
+    {
+        return $this->hasMany(ItemRequestMessage::class)->latest();
+    }
 }

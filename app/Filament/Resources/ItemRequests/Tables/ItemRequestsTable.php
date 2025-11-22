@@ -47,8 +47,8 @@ class ItemRequestsTable
                     ->alignRight(),
                 TextColumn::make('status')
                     ->badge()
-                    ->color(fn(ItemRequestStatus $state): string => $state->getColor())
-                    ->formatStateUsing(fn(ItemRequestStatus $state): string => $state->getLabel())
+                    ->color(fn($state): string => ItemRequestStatus::tryFrom($state)?->getColor() ?? 'gray')
+                    ->formatStateUsing(fn($state): string => ItemRequestStatus::tryFrom($state)?->getLabel() ?? 'Unknown')
                     ->sortable()
                     ->searchable()
                     ->label('Status'),

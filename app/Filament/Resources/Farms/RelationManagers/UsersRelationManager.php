@@ -26,15 +26,22 @@ class UsersRelationManager extends RelationManager
             ])
             ->headerActions([
                 AttachAction::make()
+                    ->label('Add User')
                     ->preloadRecordSelect() // Preload user list
                     ->multiple(),           // Attach multiple users at once
             ])
             ->recordActions([
                 ViewAction::make(),
-                DetachAction::make(),       // Remove user from pivot
+                DetachAction::make()
+                    ->label('Remove User'),       // Remove user from pivot
             ])
             ->toolbarActions([
                 DetachBulkAction::make(),   // Detach multiple users at once
             ]);
+    }
+
+    public function isReadOnly(): bool
+    {
+        return false;
     }
 }

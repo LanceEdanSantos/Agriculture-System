@@ -7,6 +7,7 @@ use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\TextEntry;
+use App\Filament\Resources\Items\RelationManagers\ItemMessagesRelationManager;
 
 class ItemInfolist
 {
@@ -14,6 +15,7 @@ class ItemInfolist
     {
         return $schema
             ->components([
+                ItemMessagesRelationManager::make(),
                 Grid::make()
                     ->columns([
                         'sm' => 1,
@@ -56,7 +58,8 @@ class ItemInfolist
                                 IconEntry::make('active')
                                     ->boolean()
                                     ->label('Is Active'),
-                            ])
+                            ]),
+
                     ])
                     ->columnSpanFull(),
             ]);

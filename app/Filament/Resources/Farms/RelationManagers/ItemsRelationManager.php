@@ -25,15 +25,21 @@ class ItemsRelationManager extends RelationManager
             ])
             ->headerActions([
                 AttachAction::make()
+                    ->label('Add Item')
                     ->preloadRecordSelect() // Preload item list
                     ->multiple(),           // Attach multiple items
             ])
             ->recordActions([
                 ViewAction::make(),        // View item
-                DetachAction::make(),      // Remove from pivot
+                DetachAction::make()
+                    ->label('Remove Item'),      // Remove from pivot
             ])
             ->toolbarActions([
                 DetachBulkAction::make(),  // Bulk detach
             ]);
+    }
+    public function isReadOnly(): bool
+    {
+        return false;
     }
 }

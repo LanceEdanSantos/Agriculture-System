@@ -2,13 +2,15 @@
 
 namespace App\Filament\Resources\ItemRequests\Schemas;
 
-use App\Enums\ItemRequestStatus;
 use App\Models\ItemRequest;
 use Filament\Schemas\Schema;
+use App\Enums\ItemRequestStatus;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Livewire;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Components\ViewEntry;
 
 class ItemRequestInfolist
 {
@@ -33,11 +35,11 @@ class ItemRequestInfolist
                                     ->label('Item'),
                                 TextEntry::make('quantity')
                                     ->numeric(),
-                                TextEntry::make('status')
-                                        ->badge()
-                                        ->color(fn(ItemRequestStatus $state): string => $state->getColor())
-                                        ->formatStateUsing(fn(ItemRequestStatus $state): string => $state->getLabel())
-                                        ->label('Status'),
+                                // TextEntry::make('status')
+                                //         ->badge()
+                                //         ->color(fn(ItemRequestStatus $state): string => $state->getColor())
+                                //         ->formatStateUsing(fn(ItemRequestStatus $state): string => $state->getLabel())
+                                //         ->label('Status'),
                                 TextEntry::make('farm.name')
                                     ->label('Farm'),
                                 TextEntry::make('deleted_at')
@@ -58,7 +60,19 @@ class ItemRequestInfolist
                                     ->dateTime('M j, Y g:i A')
                                     ->placeholder('Not updated yet'),
                             ]),
-
+                        // Section::make('Messages')
+                        //     ->schema([
+                        //         \Filament\Infolists\Components\HtmlEntry::make('livewire_messages')
+                        //             ->content(
+                        //                 fn($record) =>
+                        //                 \Livewire\Livewire::mount(
+                        //                     \App\Livewire\ItemRequest\RequestMessages::class,
+                        //                     ['request' => $record]
+                        //                 )->html()
+                        //             )
+                        //             ->columnSpanFull(),
+                        //     ])
+                        //     ->columnSpanFull(),
                         Section::make('Notes')
                             ->description('Additional information about the request')
                             ->schema([

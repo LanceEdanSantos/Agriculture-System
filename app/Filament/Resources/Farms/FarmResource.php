@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\Farms\Schemas\FarmInfolist;
 use App\Filament\Resources\Farms\RelationManagers\ItemsRelationManager;
 use App\Filament\Resources\Farms\RelationManagers\UsersRelationManager;
+use UnitEnum;
 
 class FarmResource extends Resource
 {
@@ -27,6 +28,11 @@ class FarmResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'name';
+
+    // protected static string|UnitEnum|null $navigationGroup = 'Farms';
+
+    protected static ?string $navigationLabel = 'Farmers';
+
 
     public static function form(Schema $schema): Schema
     {

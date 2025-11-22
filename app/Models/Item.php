@@ -7,6 +7,7 @@ use Spatie\Sluggable\SlugOptions;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\ItemRequestMessage;
 
 class Item extends Model
 {
@@ -46,6 +47,11 @@ class Item extends Model
     public function getRouteKeyName()
     {
         return 'slug';
+    }
+
+    public function itemRequestMessages()
+    {
+        return $this->hasMany(ItemRequestMessage::class, 'item_id');
     }
 
     public function farms()

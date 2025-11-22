@@ -15,6 +15,7 @@ use App\Filament\Resources\ItemRequests\Pages\EditItemRequest;
 use App\Filament\Resources\ItemRequests\Pages\ViewItemRequest;
 use App\Filament\Resources\ItemRequests\Pages\ListItemRequests;
 use App\Filament\Resources\ItemRequests\Pages\CreateItemRequest;
+use App\Filament\Resources\ItemRequests\RelationManagers\MessagesRelationManager;
 use App\Filament\Resources\ItemRequests\Schemas\ItemRequestForm;
 use App\Filament\Resources\ItemRequests\Tables\ItemRequestsTable;
 use App\Filament\Resources\ItemRequests\Schemas\ItemRequestInfolist;
@@ -47,7 +48,7 @@ class ItemRequestResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            MessagesRelationManager::class,
         ];
     }
 
