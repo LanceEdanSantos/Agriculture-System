@@ -33,7 +33,7 @@ class ItemRequestForm
                             ->default(auth()->user()->id)
                             ->relationship('user', 'name')
                             ->getOptionLabelFromRecordUsing(
-                                fn(Model $record) => "{$record->name}"
+                                fn(Model $record) => "{$record->first_name} {$record->last_name}"
                             )
                             ->required(),
                         Select::make('item_id')

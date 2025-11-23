@@ -31,9 +31,9 @@ class ItemRequestForm
                             ->searchable()
                             ->preload()
                             ->default(auth()->user()->id)
-                            ->relationship('user', 'name')
+                            ->relationship('user', 'first_name')
                             ->getOptionLabelFromRecordUsing(
-                                fn (Model $record) => "{$record->name}"
+                                fn (Model $record) => "{$record->first_name} {$record->last_name}"
                             )
                             ->required(),
                         Select::make('item_id')

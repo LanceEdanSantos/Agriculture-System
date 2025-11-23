@@ -65,6 +65,10 @@ class Item extends Model
     {
         return $this->belongsTo(Unit::class, 'unit_id');
     }
+    public function stockLogs()
+    {
+        return $this->hasMany(StockLog::class);
+    }
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

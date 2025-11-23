@@ -12,6 +12,7 @@ use Filament\Schemas\Components\Grid;
 use Filament\Forms\Components\Textarea;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\RichEditor;
 use Filament\Schemas\Components\Utilities\Get;
@@ -71,7 +72,10 @@ class StockLogForm
                             ->description('Extra details about this transaction')
                             ->schema([
                                 Select::make('user_id')
-                                    ->relationship('user', 'name')
+                                    ->relationship('user', 'first_name')
+                                    ->getOptionLabelFromRecordUsing(
+                                        fn(Model $record) => "{$record->first_name} {$record->last_name}"
+                                    )
                                     ->searchable()
                                     ->preload()
                                     ->default(Auth::id())
