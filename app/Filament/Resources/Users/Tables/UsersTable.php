@@ -2,10 +2,12 @@
 
 namespace App\Filament\Resources\Users\Tables;
 
-use Filament\Actions\ActionGroup;
+use App\Models\User;
 use Filament\Tables\Table;
+use Illuminate\Support\Str;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Tables\Filters\Filter;
 use Filament\Actions\BulkActionGroup;
@@ -23,8 +25,12 @@ class UsersTable
     {
         return $table
             ->columns([
-                TextColumn::make('fullName')
-                    ->formatStateUsing(fn($r) => $r->full_name)
+                TextColumn::make('first_name')
+                    ->state(function (User $record): string {
+                        $name = Str::headline($record['first_name'] . ' ' . $record['middle_name'] . ' ' . $record['last_name'] . ' ' . $record['suffix']);
+                
+                        return "{$name}";
+                    })
                     ->searchable(['first_name','middle_name','last_name','suffix'])
                     ->sortable(['last_name','first_name']),
                 TextColumn::make('email')
