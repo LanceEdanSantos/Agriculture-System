@@ -31,7 +31,6 @@ class UserForm
                                     ->required()
                                     ->maxLength(255),
                                 TextInput::make('middle_name')
-                                    ->required()
                                     ->maxLength(255),
                                 TextInput::make('last_name')
                                     ->required()
@@ -44,8 +43,7 @@ class UserForm
                                         'III' => 'III',
                                         'IV' => 'IV',
                                         'V' => 'V',
-                                    ])
-                                    ->required(),
+                                    ]),
                                 TextInput::make('email')
                                     ->email()
                                     ->required()
