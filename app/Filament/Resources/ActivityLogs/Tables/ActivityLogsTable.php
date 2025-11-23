@@ -35,6 +35,10 @@ class ActivityLogsTable
                 //     ->label('Causer Type')
                 //     ->searchable()
                 //     ->sortable(),
+                TextColumn::make('causer.name')
+                    ->label('Responsible')
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('properties')
                     ->badge(true)
                     ->words(3, end: ' (Hidden for security reasons)')

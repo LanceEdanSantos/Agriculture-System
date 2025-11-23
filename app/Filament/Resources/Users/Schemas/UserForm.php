@@ -27,7 +27,24 @@ class UserForm
                         Section::make('Account Information')
                             ->description('Basic user account details')
                             ->schema([
-                                TextInput::make('name')
+                                TextInput::make('first_name')
+                                    ->required()
+                                    ->maxLength(255),
+                                TextInput::make('middle_name')
+                                    ->required()
+                                    ->maxLength(255),
+                                TextInput::make('last_name')
+                                    ->required()
+                                    ->maxLength(255),
+                                Select::make('suffix')
+                                    ->options([
+                                        'Jr' => 'Jr',
+                                        'Sr' => 'Sr',
+                                        'II' => 'II',
+                                        'III' => 'III',
+                                        'IV' => 'IV',
+                                        'V' => 'V',
+                                    ])
                                     ->required()
                                     ->maxLength(255),
                                 TextInput::make('email')
@@ -35,6 +52,9 @@ class UserForm
                                     ->required()
                                     ->maxLength(255)
                                     ->unique(ignoreRecord: true),
+                                TextInput::make('number')
+                                    ->maxLength(255)
+                                    ->numeric(),
                             ]),
 
                         Section::make('Security')
@@ -69,6 +89,7 @@ class UserForm
                                     ->dehydrateStateUsing(fn($state) => $state ? now() : null)
                                     ->dehydrated(fn($state) => filled($state))
                                     ->hiddenOn('create'),
+                                
                             ])
                             ->columnSpanFull()
                     ])

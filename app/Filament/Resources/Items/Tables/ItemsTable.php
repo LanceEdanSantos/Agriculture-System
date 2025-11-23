@@ -98,11 +98,11 @@ class ItemsTable
             ])
             ->recordActions([
                 ActionGroup::make([
-                    // Action::make('Log Stock')
-                    //     ->url(fn ($record) => route('filament.admin.resources.stock-logs.create', ['item' => $record->id]))
-                    //     ->openUrlInNewTab()
-                    //     ->label('Add Stock Log')
-                    //     ->icon('heroicon-o-plus-circle'),
+                    Action::make('Log Stock')
+                        ->url(fn ($record) => route('filament.admin.resources.stock-logs.create', ['item' => $record->id]))
+                        ->openUrlInNewTab()
+                        ->label('Add Stock Log')
+                        ->icon('heroicon-o-plus-circle'),
 
                     ViewAction::make(),
                     EditAction::make(),

@@ -11,6 +11,7 @@ use App\Filament\Resources\Units\Schemas\UnitInfolist;
 use App\Filament\Resources\Units\Tables\UnitsTable;
 use App\Models\Unit;
 use BackedEnum;
+use UnitEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -23,6 +24,8 @@ class UnitResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'name';
+
+    protected static string|UnitEnum|null $navigationGroup = 'Inventory';
 
     public static function form(Schema $schema): Schema
     {

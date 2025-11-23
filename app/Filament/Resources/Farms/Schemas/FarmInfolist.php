@@ -25,12 +25,12 @@ class FarmInfolist
                             ->schema([
                                 TextEntry::make('name')
                                     ->label('Farm Name'),
-                                TextEntry::make('slug')
-                                    ->label('URL Slug')
-                                    ->copyable()
-                                    ->copyMessage('Copied to clipboard')
-                                    ->copyMessageDuration(1500)
-                                    ->placeholder('No slug set'),
+                                // TextEntry::make('slug')
+                                //     ->label('URL Slug')
+                                //     ->copyable()
+                                //     ->copyMessage('Copied to clipboard')
+                                //     ->copyMessageDuration(1500)
+                                //     ->placeholder('No slug set'),
                                 IconEntry::make('active')
                                     ->label('Active Status')
                                     ->boolean()
