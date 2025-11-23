@@ -26,6 +26,7 @@ class UsersTable
         return $table
             ->columns([
                 TextColumn::make('first_name')
+                    ->label('Name')
                     ->state(function (User $record): string {
                         $name = Str::headline($record['first_name'] . ' ' . $record['middle_name'] . ' ' . $record['last_name'] . ' ' . $record['suffix']);
                 
@@ -34,14 +35,19 @@ class UsersTable
                     ->searchable(['first_name','middle_name','last_name','suffix'])
                     ->sortable(['last_name','first_name']),
                 TextColumn::make('email')
+                    ->label('Email')
                     ->searchable()
                     ->sortable(),
-                IconColumn::make('email_verified_at')
-                    ->label('Verified')
-                    ->boolean()
-                    ->sortable()
-                    ->trueIcon('heroicon-o-check-circle')
-                    ->falseIcon('heroicon-o-x-circle'),
+                TextColumn::make('number')
+                    ->label('Contact Number')
+                    ->searchable()
+                    ->sortable(),
+                // IconColumn::make('email_verified_at')
+                //     ->label('Verified')
+                //     ->boolean()
+                //     ->sortable()
+                //     ->trueIcon('heroicon-o-check-circle')
+                //     ->falseIcon('heroicon-o-x-circle'),
                 TextColumn::make('created_at')
                     ->label('Member Since')
                     ->dateTime('M j, Y')

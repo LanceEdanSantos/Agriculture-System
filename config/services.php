@@ -34,5 +34,11 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
+    'textbee' => [
+        'base_url' => env('TEXTBEE_BASE_URL'),
+        'device_id' => env('TEXTBEE_DEVICE_ID'),
+        'api_key' => env('TEXTBEE_API_KEY'),
+    ],
+
 
 ];

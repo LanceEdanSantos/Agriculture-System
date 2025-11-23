@@ -23,7 +23,8 @@ class UserInfolist
                     ->schema([
                         Section::make('Account Information')
                             ->schema([
-                                TextEntry::make('name'),
+                                TextEntry::make('first_name')
+                                    ->formatStateUsing(fn($state, $record) => $record->first_name . ' ' . $record->middle_name . ' ' . $record->last_name . ' ' . $record->suffix),
                                 TextEntry::make('email')
                                     ->label('Email Address'),
                                 IconEntry::make('email_verified_at')
@@ -31,6 +32,9 @@ class UserInfolist
                                     ->boolean()
                                     ->trueIcon('heroicon-o-check-circle')
                                     ->falseIcon('heroicon-o-x-circle'),
+                                TextEntry::make('number')
+                                    ->placeholder("No number set")
+                                    ->badge(true),
                             ]),
 
                         Section::make('Timestamps')

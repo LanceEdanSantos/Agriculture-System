@@ -50,8 +50,7 @@ class UserForm
                                     ->maxLength(255)
                                     ->unique(ignoreRecord: true),
                                 TextInput::make('number')
-                                    ->maxLength(255)
-                                    ->numeric(),
+                                    ->maxLength(255),
                             ]),
 
                         Section::make('Security')

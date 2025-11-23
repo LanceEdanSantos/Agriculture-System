@@ -5,16 +5,19 @@ namespace App\Filament\Resources\ItemRequests\Tables;
 use App\Models\User;
 use App\Models\StockLog;
 use Filament\Tables\Table;
+use App\Enums\TransferType;
 use App\Models\ItemRequest;
+use Illuminate\Support\Str;
+use App\Actions\SendMessage;
 use Filament\Actions\Action;
 use App\Enums\ItemRequestStatus;
-use App\Enums\TransferType;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Tables\Filters\Filter;
+use Illuminate\Support\Facades\Log;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\ExportBulkAction;
@@ -43,6 +46,11 @@ class ItemRequestsTable
                 //     ->sortable(),
                 TextColumn::make('user.name')
                     ->label('Requested By')
+                    ->state(function (ItemRequest $record): string {
+                        $name = Str::headline($record['user']['first_name'] . ' ' . $record['user']['middle_name'] . ' ' . $record['user']['last_name'] . ' ' . $record['user']['suffix']);
+
+                        return "{$name}";
+                    })
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('item.name')
@@ -70,13 +78,46 @@ class ItemRequestsTable
                             )
                     ->afterStateUpdated(function ($record, $state) {
                         $recipients = User::role(['Administrator'])->get();
-                        if($state == ItemRequestStatus::APPROVED){
+                        if($state == ItemRequestStatus::APPROVED->value){
                             StockLog::create([
+                                'user_id' => $record->user_id,
                                 'item_id' => $record->item_id,
                                 'quantity' => $record->quantity,
-                                'type' => TransferType::OUT,
+                                'type' => TransferType::OUT->value,
                                 'item_request_id' => $record->id,
                             ]);
+                            if ($record->user->number) {
+                                Log::info('Sending SMS to ' . $record->user->number);
+                                (new SendMessage())->execute($record->user->number, 'The item you requested has been approved. See details below.
+                                                    
+                                                    Item: ' . $record->item->name . '
+                                                    Quantity: ' . $record->quantity . '
+                                                    Farm: ' . $record->farm->name . '
+                                                    Requested On: ' . $record->created_at->format('M j, Y g:i A') . '
+                                                    
+                                                    This is an automated message. Please do not reply to this message.');
+                            }
+                            // (new SendMessage())->execute($recipients, 'An item request has been updated. Click below to view it.');
+                        }
+                        if($state == ItemRequestStatus::REJECTED->value){
+                            // StockLog::create([
+                            //     'user_id' => $record->user_id,
+                            //     'item_id' => $record->item_id,
+                            //     'quantity' => $record->quantity,
+                            //     'type' => TransferType::IN->value,
+                            //     'item_request_id' => $record->id,
+                            // ]);
+                            if ($record->user->number) {
+                                Log::info('Sending SMS to ' . $record->user->number);
+                                (new SendMessage())->execute($record->user->number, 'The item you requested has been rejected. See details below.
+                                                    
+                                                    Item: ' . $record->item->name . '
+                                                    Quantity: ' . $record->quantity . '
+                                                    Farm: ' . $record->farm->name . '
+                                                    Requested On: ' . $record->created_at->format('M j, Y g:i A') . '
+                                                    
+                                                    This is an automated message. Please do not reply to this message.');
+                            }
                         }
                         Notification::make()
                             ->title('Item Request Updated')
