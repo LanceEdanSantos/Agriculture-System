@@ -45,8 +45,7 @@ class UserForm
                                         'IV' => 'IV',
                                         'V' => 'V',
                                     ])
-                                    ->required()
-                                    ->maxLength(255),
+                                    ->required(),
                                 TextInput::make('email')
                                     ->email()
                                     ->required()

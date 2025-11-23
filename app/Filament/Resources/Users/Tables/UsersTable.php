@@ -23,9 +23,18 @@ class UsersTable
     {
         return $table
             ->columns([
-                TextColumn::make('name')
+                TextColumn::make('full_name')
+                    ->label('Name')
+                    ->sortable()
                     ->searchable()
-                    ->sortable(),
+                    ->formatStateUsing(function ($record) {
+                        return trim(
+                            $record->first_name . ' ' .
+                            ($record->middle_name ? $record->middle_name . ' ' : '') .
+                            $record->last_name .
+                            ($record->suffix ? ', ' . $record->suffix : '')
+                        );
+                    }),
                 TextColumn::make('email')
                     ->searchable()
                     ->sortable(),
