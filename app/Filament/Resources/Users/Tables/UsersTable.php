@@ -23,10 +23,10 @@ class UsersTable
     {
         return $table
             ->columns([
-                TextColumn::make('getFilamentName')
-                    ->label('Name')
-                    ->searchable()
-                    ->sortable(),
+                TextColumn::make('full_name')
+                    ->formatStateUsing(fn($r) => $r->full_name)
+                    ->searchable(['first_name','middle_name','last_name','suffix'])
+                    ->sortable(['last_name','first_name']),
                 TextColumn::make('email')
                     ->searchable()
                     ->sortable(),
