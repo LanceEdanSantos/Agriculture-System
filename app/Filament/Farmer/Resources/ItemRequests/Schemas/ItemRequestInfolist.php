@@ -25,8 +25,8 @@ class ItemRequestInfolist
                     ->schema([
                         Section::make('Request Details')
                             ->schema([
-                                TextEntry::make('id')
-                                    ->label('Request ID'),
+                                // TextEntry::make('id')
+                                //     ->label('Request ID'),
                                 TextEntry::make('item.name')
                                     ->label('Item'),
                                 TextEntry::make('quantity')

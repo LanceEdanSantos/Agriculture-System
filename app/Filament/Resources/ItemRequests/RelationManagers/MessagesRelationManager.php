@@ -2,7 +2,9 @@
 
 namespace App\Filament\Resources\ItemRequests\RelationManagers;
 
+use App\Models\User;
 use Filament\Tables\Table;
+use Illuminate\Support\Str;
 use Filament\Schemas\Schema;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
@@ -60,7 +62,12 @@ class MessagesRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('user_id')
             ->columns([
-                TextColumn::make('user.name')
+                TextColumn::make('user.full_name')
+                    ->label('Name')
+                    ->getStateUsing(fn ($record) => Str::of($record->user->first_name)
+                        ->append(' ', $record->user->middle_name, ' ', $record->user->last_name, ' ', $record->user->suffix)
+                        ->trim()
+                        ->title())
                     ->searchable(),
                 TextColumn::make('message')
                     ->searchable(),

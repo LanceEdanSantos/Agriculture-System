@@ -2,7 +2,9 @@
 
 namespace App\Filament\Farmer\Resources\ItemRequests\RelationManagers;
 
+use App\Models\User;
 use Filament\Tables\Table;
+use Illuminate\Support\Str;
 use Filament\Schemas\Schema;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
@@ -11,13 +13,13 @@ use Filament\Actions\DeleteAction;
 use Illuminate\Support\Facades\Auth;
 use Filament\Actions\AssociateAction;
 use Filament\Actions\BulkActionGroup;
+use Filament\Forms\Components\Hidden;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\DissociateAction;
 use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Actions\DissociateBulkAction;
-use Filament\Forms\Components\Hidden;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\RelationManagers\RelationManager;
 
@@ -60,8 +62,13 @@ class MessagesRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('user_id')
             ->columns([
-                TextColumn::make('user.name')
-                    ->searchable(),
+            TextColumn::make('user.full_name')
+                ->label('Name')
+                ->getStateUsing(fn($record) => Str::of($record->user->first_name)
+                    ->append(' ', $record->user->middle_name, ' ', $record->user->last_name, ' ', $record->user->suffix)
+                    ->trim()
+                    ->title())
+                ->searchable(), 
                 TextColumn::make('message')
                     ->searchable(),
             ])

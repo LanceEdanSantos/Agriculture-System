@@ -27,8 +27,8 @@ class ItemRequestInfolist
                     ->schema([
                         Section::make('Request Details')
                             ->schema([
-                                TextEntry::make('id')
-                                    ->label('Request ID'),
+                                // TextEntry::make('id')
+                                //     ->label('Request ID'),
                                 TextEntry::make('user.first_name')
                                     ->label('Requested By')
                                     ->formatStateUsing(fn($state, $record) => $record->user->first_name . ' ' . $record->user->middle_name . ' ' . $record->user->last_name . ' ' . $record->user->suffix),

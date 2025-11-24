@@ -11,6 +11,8 @@ use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Tables\Filters\Filter;
+use Filament\Support\Enums\TextSize;
+use Filament\Support\Icons\Heroicon;
 use Filament\Actions\BulkActionGroup;
 use Filament\Support\Enums\Alignment;
 use Filament\Actions\DeleteBulkAction;
@@ -19,6 +21,7 @@ use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\Layout\Grid;
 use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Columns\Layout\Panel;
 use Filament\Tables\Columns\Layout\Split;
@@ -27,6 +30,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Support\Colors\Color;
 
 class ItemRequestsTable
 {
@@ -34,46 +38,66 @@ class ItemRequestsTable
     {
         return $table
             ->columns([
-               Split::make([
-    // Primary info: Item, Status, Quantity
+                Split::make([
+                    // Primary info: Item, Status, Quantity
                     Stack::make([
-                        TextColumn::make('item.name')
-                            ->label('Item')
-                            ->weight(FontWeight::Bold)
-                            ->searchable()
-                            ->sortable(),
-                        TextColumn::make('status')
-                            ->badge()
-                            ->color(fn(ItemRequestStatus $state): string => $state->getColor())
-                            ->formatStateUsing(fn(ItemRequestStatus $state): string => $state->getLabel())
-                            ->sortable()
-                            ->searchable()
-                            ->label('Status'),
-                        TextColumn::make('quantity')
-                            ->label('Qty')
-                            ->numeric()
-                            ->sortable()
-                            ->alignRight(),
-                    ])->grow(),
-
-                    // Secondary info in a collapsible panel: Farm + timestamps
-                    Panel::make([
-                        Stack::make([
-                            TextColumn::make('farm.name')
-                                ->label('Farm')
+                        Split::make([
+                            TextColumn::make('item.name')
+                                ->label('Item')
+                                ->weight(FontWeight::Bold)
+                                ->size(TextSize::Large)
                                 ->searchable()
                                 ->sortable(),
                             TextColumn::make('created_at')
                                 ->label('Requested On')
-                                ->dateTime('M j, Y g:i A')
-                                ->sortable(),
-                            TextColumn::make('updated_at')
-                                ->label('Last Updated')
-                                ->dateTime('M   j, Y g:i A')
+                                ->since()
+                                ->color(Color::Neutral)
+                                ->icon(Heroicon::Clock)
                                 ->sortable()
-                                ->toggleable(isToggledHiddenByDefault: true),
-                        ])->space(1)
-                    ])->collapsible()->collapsed(true), // Collapsed by default for mobile
+                                ->alignRight(),
+                        ]),
+                    Split::make([
+                            TextColumn::make('status')
+                                ->badge()
+                                ->color(fn(ItemRequestStatus $state): string => $state->getColor())
+                                ->formatStateUsing(fn(ItemRequestStatus $state): string => $state->getLabel())
+                                ->sortable()
+                                ->searchable()
+                                ->label('Status'),
+
+                            TextColumn::make('quantity')
+                                ->label('Qty')
+                                ->numeric()
+                                ->badge()
+                                ->color(Color::Amber)
+                                ->icon(Heroicon::OutlinedArchiveBox)
+                                ->sortable()
+                                ->alignRight(),
+                        ]),
+                    ])->grow(),
+
+                    // Secondary info in a collapsible panel: Farm + timestamps
+                    // Panel::make([
+                    //     Stack::make([
+                    //         Split::make([
+                    //             TextColumn::make('farm.name')
+                    //                 ->label('Farm')
+                    //                 ->searchable()
+                    //                 ->sortable(),
+                    //             TextColumn::make('created_at')
+                    //                 ->label('Requested On')
+                    //                 ->since()
+                    //                 ->icon(Heroicon::Clock)
+                    //                 ->sortable()
+                    //                 ->alignRight(),
+                    //         ])
+                    //         // TextColumn::make('updated_at')
+                    //         //     ->label('Last Updated')
+                    //         //     ->dateTime('M   j, Y g:i A')
+                    //         //     ->sortable()
+                    //         //     ->toggleable(isToggledHiddenByDefault: false),
+                    //     ])->space(1)
+                    // ])->collapsible()->collapsed(true), // Collapsed by default for mobile
                 ])->from('sm')
             ])
             ->filters([
@@ -87,8 +111,8 @@ class ItemRequestsTable
                     ->multiple(),
                 Filter::make('created_at')
                     ->form([
-                            DatePicker::make('created_from'),
-                            DatePicker::make('created_until'),
+                        DatePicker::make('created_from'),
+                        DatePicker::make('created_until'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query

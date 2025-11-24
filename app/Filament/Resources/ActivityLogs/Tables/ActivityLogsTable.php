@@ -23,7 +23,7 @@ class ActivityLogsTable
         return $table
             ->columns([
                 TextColumn::make('log_name')
-                    ->label('Record')
+                    ->label('Category')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('description')
