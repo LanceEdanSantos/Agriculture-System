@@ -2,8 +2,10 @@
 
 namespace App\Filament\Resources\StockLogs\Tables;
 
+use App\Models\StockLog;
 use Filament\Tables\Table;
 use App\Enums\TransferType;
+use Illuminate\Support\Str;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Actions\ActionGroup;
@@ -49,8 +51,13 @@ class StockLogsTable
                     ->sortable()
                     ->color(fn (string $state, $record) => $record->type === TransferType::IN->value ? 'success' : 'danger')
                     ->formatStateUsing(fn (string $state, $record) => ($record->type === TransferType::IN->value ? '+' : '-') . $state),
-                TextColumn::make('full_name')
+                TextColumn::make('first_name')
                     ->label('Responsible')
+                    ->state(function (StockLog $record): string {
+                        $name = Str::headline($record['user']['first_name'] . ' ' . $record['user']['middle_name'] . ' ' . $record['user']['last_name'] . ' ' . $record['user']['suffix']);
+
+                        return "{$name}";
+                    })
                     ->searchable(),
                 TextColumn::make('created_at')
                     ->label('Date')
