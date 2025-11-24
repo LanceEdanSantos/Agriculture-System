@@ -68,8 +68,8 @@ class AgricultureOverview extends BaseWidget
                 ->descriptionIcon('heroicon-m-tag')
                 ->color('info'),
 
-            Stat::make('Farms', $farmCount)
-                ->description('Total registered farms')
+            Stat::make('Farmers', $farmCount)
+                ->description('Total registered farmers')
                 ->descriptionIcon('heroicon-m-home')
                 ->color('primary'),
 
