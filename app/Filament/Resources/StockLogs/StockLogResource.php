@@ -32,6 +32,8 @@ class StockLogResource extends Resource
 
     protected static ?string $navigationLabel = 'History Log';
 
+    protected static ?int $navigationSort = 3;
+
     public static function form(Schema $schema): Schema
     {
         return StockLogForm::configure($schema);

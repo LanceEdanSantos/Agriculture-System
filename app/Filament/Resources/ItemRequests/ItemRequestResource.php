@@ -30,6 +30,8 @@ class ItemRequestResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Inventory';
 
+    protected static ?int $navigationSort = 2;
+
     public static function form(Schema $schema): Schema
     {
         return ItemRequestForm::configure($schema);
