@@ -18,6 +18,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Tables\Filters\Filter;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\ExportBulkAction;
@@ -80,7 +81,7 @@ class ItemRequestsTable
                         $recipients = User::role(['Administrator'])->get();
                         if($state == ItemRequestStatus::APPROVED->value){
                             StockLog::create([
-                                'user_id' => $record->user_id,
+                                'user_id' => Auth::user()->id,
                                 'item_id' => $record->item_id,
                                 'quantity' => $record->quantity,
                                 'type' => TransferType::OUT->value,

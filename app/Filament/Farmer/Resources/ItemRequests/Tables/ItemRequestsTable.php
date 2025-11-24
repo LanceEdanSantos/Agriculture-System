@@ -33,10 +33,10 @@ class ItemRequestsTable
                     ->label('Request ID')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('user.name')
-                    ->label('Requested By')
-                    ->searchable()
-                    ->sortable(),
+                // TextColumn::make('user.name')
+                //     ->label('Requested By')
+                //     ->searchable()
+                //     ->sortable(),
                 TextColumn::make('item.name')
                     ->label('Item')
                     ->searchable()

@@ -14,11 +14,11 @@ class ListItems extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Action::make('Log Stock')
-                ->url(route('filament.admin.resources.stock-logs.create'))
-                ->openUrlInNewTab()
-                ->label('Log new stock')
-                ->icon('heroicon-o-plus-circle'),
+            // Action::make('Log Stock')
+            //     ->url(route('filament.admin.resources.stock-logs.create'))
+            //     ->openUrlInNewTab()
+            //     ->label('Log new stock')
+            //     ->icon('heroicon-o-plus-circle'),
             CreateAction::make(),
         ];
     }

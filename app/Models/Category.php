@@ -49,4 +49,5 @@ class Category extends Model
             ->logAll()
             ->useLogName('category');
     }
+
 }

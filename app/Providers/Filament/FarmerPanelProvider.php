@@ -27,6 +27,7 @@ class FarmerPanelProvider extends PanelProvider
             ->id('farmer')
             ->path('/')
             ->login()
+            ->topNavigation()
             ->colors([
                 'primary' => Color::Amber,
             ])

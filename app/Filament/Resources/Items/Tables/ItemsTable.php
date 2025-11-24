@@ -58,6 +58,7 @@ class ItemsTable
                     ->sortable(),
                 TextColumn::make('description')
                     ->limit(50)
+                    ->markdown(true)
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 IconColumn::make('active')
@@ -154,7 +155,7 @@ class ItemsTable
                                                     'integer',
                                                     fn(Get $get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
                                                         $item = \App\Models\Item::find($get('item_id'));
-                                                        if ($value > $item->stock) {
+                                                        if ($value > $item->stock && $get('type') === TransferType::OUT->value) {
                                                             $fail('The :attribute is invalid. The stock is not enough.');
                                                         }
                                                     },

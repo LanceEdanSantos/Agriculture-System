@@ -2,14 +2,21 @@
 
 namespace App\Filament\Resources\Farms\RelationManagers;
 
+use App\Models\User;
+use Filament\Tables\Table;
+use Illuminate\Support\Str;
+use Filament\Actions\Action;
+use Filament\Actions\ViewAction;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\AttachAction;
 use Filament\Actions\DetachAction;
+use Filament\Schemas\Components\Grid;
 use Filament\Actions\DetachBulkAction;
-use Filament\Actions\ViewAction;
-use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Table;
+use Filament\Schemas\Components\Section;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Components\RepeatableEntry;
+use Filament\Resources\RelationManagers\RelationManager;
 
 class UsersRelationManager extends RelationManager
 {
@@ -18,11 +25,17 @@ class UsersRelationManager extends RelationManager
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    public function table(Table $table): Table
+    public function table(Table $table): Table  
     {
         return $table
             ->columns([
-                TextColumn::make('name')->searchable(),
+                TextColumn::make('name')->searchable()
+                ->state(function (User $record): string {
+                    $name = Str::headline($record['first_name'] . ' ' . $record['middle_name'] . ' ' . $record['last_name'] . ' ' . $record['suffix']);
+
+                    return "{$name}";
+                }),
+                TextColumn::make('number')->searchable(),
                 TextColumn::make('email')->searchable(),
             ])
             ->headerActions([
@@ -33,9 +46,47 @@ class UsersRelationManager extends RelationManager
             ])
             ->recordActions([
                 ActionGroup::make([
-                    ViewAction::make(),
+                    ViewAction::make()
+                        ->schema([  
+                           Grid::make()
+                            ->columns(2)
+                            ->schema([
+                                Section::make('User Details')
+                                    ->schema([
+                                        TextEntry::make('name')
+                                            ->label('Name')
+                                            ->state(function (User $record): string {
+                                                $name = Str::headline($record['first_name'] . ' ' . $record['middle_name'] . ' ' . $record['last_name'] . ' ' . $record['suffix']);
+
+                                                return "{$name}";
+                                            }),
+                                        TextEntry::make('number')
+                                            ->label('Contact Number'),
+                                        TextEntry::make('email')
+                                            ->label('Email'),
+                                        ]),
+                                Section::make('Item Requests')
+                                        ->schema([
+                                            RepeatableEntry::make('itemRequests')
+                                                ->schema([
+                                                    Grid::make()
+                                                    ->columns(3)
+                                                    ->schema([
+                                                        TextEntry::make('item.name')
+                                                            ->label('Item'),
+                                                        TextEntry::make('quantity')
+                                                            ->label('Quantity'),
+                                                        TextEntry::make('status')
+                                                            ->badge()
+                                                            ->label('Status'),
+                                                    ])
+                                                ]   )
+                                        ])
+                            ])
+                        ]),
                     DetachAction::make()
                         ->label('Remove User'),
+                    
                 ]),
             ])
             ->toolbarActions([

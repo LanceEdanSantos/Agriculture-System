@@ -27,8 +27,6 @@ class ItemRequestInfolist
                             ->schema([
                                 TextEntry::make('id')
                                     ->label('Request ID'),
-                                TextEntry::make('user.name')
-                                    ->label('Requested By'),
                                 TextEntry::make('item.name')
                                     ->label('Item'),
                                 TextEntry::make('quantity')

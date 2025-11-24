@@ -46,11 +46,11 @@ class ViewActivityLog extends ViewRecord
                     $model->save();
 
                     // Optional: create a new activity log entry
-                    activity()
-                        ->performedOn($model)
-                        ->logName($record->log_name)
-                        ->withProperties(['reverted_from_activity' => $record->id])
-                        ->log('reverted');
+                    // activity()
+                    //     ->performedOn($model)
+                    //     ->logName($record->log_name)
+                    //     ->withProperties(['reverted_from_activity' => $record->id])
+                    //     ->log('reverted');
                 })
         ];
     }

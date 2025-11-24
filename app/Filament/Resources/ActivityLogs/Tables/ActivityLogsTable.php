@@ -59,25 +59,25 @@ class ActivityLogsTable
                     })
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('properties')
-                    ->badge(true)
-                    ->words(3, end: ' (Hidden for security reasons)')
-                    ->label('Properties')
-                    ->getStateUsing(function ($record) {
-                        $data = $record->properties['attributes'] ?? null;
+                // TextColumn::make('properties')
+                //     ->badge(true)
+                //     ->words(3, end: ' (Hidden for security reasons)')
+                //     ->label('Properties')
+                //     ->getStateUsing(function ($record) {
+                //         $data = $record->properties['attributes'] ?? null;
 
-                        if (! $data) {
-                            return 'Hidden';
-                        }
+                //         if (! $data) {
+                //             return 'Hidden';
+                //         }
 
-                        $json = collect($data)
-                            ->take(3) // show only first 3 keys
-                            ->map(fn($value, $key) => "{$key}: {$value}")
-                            ->implode(', ');
+                //         $json = collect($data)
+                //             ->take(3) // show only first 3 keys
+                //             ->map(fn($value, $key) => "{$key}: {$value}")
+                //             ->implode(', ');
 
-                        return $json . (count($data) > 3 ? ' ...' : '');
-                    })
-                    ->wrap(),
+                //         return $json . (count($data) > 3 ? ' ...' : '');
+                //     })
+                //     ->wrap(),
                 TextColumn::make('created_at')
                     ->label('Created At')
                     ->dateTime('M j, Y g:i A')

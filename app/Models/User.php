@@ -53,7 +53,7 @@ class User extends Authenticatable implements FilamentUser, HasName
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
+            'email_verified_at' => 'datetime',  
             'password' => 'hashed',
         ];
     }

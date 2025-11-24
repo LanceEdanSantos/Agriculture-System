@@ -46,6 +46,11 @@ class CategoriesTable
                     ->since()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('items_count')
+                    ->label('Items in this category')
+                    ->getStateUsing(fn($record) => $record->items()->count())
+                    ->numeric()
+                    ->sortable(),
                 TextColumn::make('updated_at')
                     ->dateTime()
                     ->since()

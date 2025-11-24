@@ -28,7 +28,8 @@ class ItemRequestForm
                         Select::make('user_id')
                             ->searchable()
                             ->preload()
-                            ->hidden()
+                            // ->hidden()
+                            ->dehydrated(true)
                             ->disabled()
                             ->default(auth()->user()->id)
                             ->relationship('user', 'name')
@@ -87,6 +88,7 @@ class ItemRequestForm
                             ->rules([
                                 fn(Get $get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
                                     $item = Item::find($get('item_id'));
+                                    dd($item);
                                     if ($item && $item->stock < $value) {
                                         $fail("Only {$item->stock} {$item->name} left. Reduce quantity.");
                                     }
@@ -135,7 +137,7 @@ class ItemRequestForm
                             ->dehydrated() // make sure disabled field is saved
                             ->required(),
                         Textarea::make('notes')
-                            ->required(),
+                            // ->required(),
                     ]),
             ]);
     }
