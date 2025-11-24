@@ -23,11 +23,11 @@ class ActivityLogsTable
         return $table
             ->columns([
                 TextColumn::make('log_name')
-                    ->label('Log Name')
+                    ->label('Record')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('description')
-                    ->label('Description')
+                    ->label('Action')
                     ->searchable()
                     ->sortable(),
                 // TextColumn::make('subject_type')
@@ -39,7 +39,7 @@ class ActivityLogsTable
                 //     ->searchable()
                 //     ->sortable(),
                 TextColumn::make('causer.name')
-                    ->label('Responsible')
+                    ->label('User')
                     ->state(function (Activity $record): string {
                         // Prefer the loaded relationship; if missing, attempt to find by causer_id
                         $user = $record->causer ?? (isset($record->causer_id) ? User::find($record->causer_id) : null);
