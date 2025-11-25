@@ -88,7 +88,6 @@ class ItemRequestForm
                             ->rules([
                                 fn(Get $get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
                                     $item = Item::find($get('item_id'));
-                                    dd($item);
                                     if ($item && $item->stock < $value) {
                                         $fail("Only {$item->stock} {$item->name} left. Reduce quantity.");
                                     }
