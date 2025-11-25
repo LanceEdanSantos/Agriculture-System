@@ -50,4 +50,9 @@ class StockLog extends Model
             ->logAll()
             ->useLogName('stock_log');
     }
+
+    public function getItemNameAttribute(): string
+    {
+        return $this->item->name;
+    }
 }

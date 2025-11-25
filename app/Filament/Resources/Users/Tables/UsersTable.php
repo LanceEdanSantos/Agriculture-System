@@ -42,6 +42,9 @@ class UsersTable
                     ->label('Contact Number')
                     ->searchable()
                     ->sortable(),
+                TextColumn::make('association')
+                    ->label('Association')
+                    ->searchable(),
                 // IconColumn::make('email_verified_at')
                 //     ->label('Verified')
                 //     ->boolean()

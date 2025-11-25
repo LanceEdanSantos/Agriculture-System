@@ -35,6 +35,8 @@ class UserInfolist
                                 TextEntry::make('number')
                                     ->placeholder("No number set")
                                     ->badge(true),
+                                TextEntry::make('association')
+                                    ->placeholder('No association added')
                             ]),
 
                         Section::make('Timestamps')
@@ -49,17 +51,17 @@ class UserInfolist
                                     ->placeholder('Not available'),
                             ]),
 
-                        Section::make('Activity')
-                            ->description('User activity and statistics')
-                            ->schema([
-                                // Add any additional user statistics or activity here
-                                // For example:
-                                // TextEntry::make('last_login_at')
-                                //     ->label('Last Login')
-                                //     ->dateTime('M j, Y g:i A')
-                                //     ->placeholder('Never')
-                            ])
-                            ->columnSpanFull()
+                        // Section::make('Activity')
+                        //     ->description('User activity and statistics')
+                        //     ->schema([
+                        //         // Add any additional user statistics or activity here
+                        //         // For example:
+                        //         // TextEntry::make('last_login_at')
+                        //         //     ->label('Last Login')
+                        //         //     ->dateTime('M j, Y g:i A')
+                        //         //     ->placeholder('Never')
+                        //     ])
+                        //     ->columnSpanFull()
                     ])
                     ->columnSpanFull(),
             ]);

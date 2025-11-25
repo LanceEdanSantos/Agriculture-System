@@ -6,6 +6,7 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
@@ -50,6 +51,9 @@ class UserForm
                                     ->maxLength(255)
                                     ->unique(ignoreRecord: true),
                                 TextInput::make('number')
+                                    ->maxLength(255),
+                                Textarea::make('association')
+                                    ->rows(3)
                                     ->maxLength(255),
                             ]),
 

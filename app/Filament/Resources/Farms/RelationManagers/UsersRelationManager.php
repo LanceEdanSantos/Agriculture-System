@@ -37,10 +37,16 @@ class UsersRelationManager extends RelationManager
                 }),
                 TextColumn::make('number')->searchable(),
                 TextColumn::make('email')->searchable(),
+                TextColumn::make('association')->searchable(),
             ])
             ->headerActions([
                 AttachAction::make()
                     ->label('Add User')
+                    ->recordTitle(
+                        fn(User $record) =>
+                        Str::headline("{$record->first_name} {$record->middle_name} {$record->last_name} {$record->suffix}")
+                    )
+                    ->recordSelectSearchColumns(['first_name', 'middle_name', 'last_name', 'suffix'])
                     ->preloadRecordSelect() // Preload user list
                     ->multiple(),           // Attach multiple users at once
             ])
@@ -64,6 +70,8 @@ class UsersRelationManager extends RelationManager
                                             ->label('Contact Number'),
                                         TextEntry::make('email')
                                             ->label('Email'),
+                                        TextEntry::make('association')
+                                            ->label('Association'),
                                         ]),
                                 Section::make('Item Requests')
                                         ->schema([

@@ -58,4 +58,9 @@ class ItemRequest extends Model
             ->logAll()
             ->useLogName('item_request');
     }
+
+    public function getItemNameAttribute()
+    {
+        return $this->item->name;
+    }
 }

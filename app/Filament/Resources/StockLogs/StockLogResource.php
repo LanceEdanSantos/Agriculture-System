@@ -26,7 +26,7 @@ class StockLogResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocument;
 
 
-    protected static ?string $recordTitleAttribute = 'item';
+    protected static ?string $recordTitleAttribute = 'item_name';
 
     protected static string|UnitEnum|null $navigationGroup = 'Inventory';
 

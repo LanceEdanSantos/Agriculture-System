@@ -26,7 +26,7 @@ class ItemRequestResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedArchiveBoxArrowDown;
 
-    protected static ?string $recordTitleAttribute = 'id';
+    protected static ?string $recordTitleAttribute = 'item_name';
 
     protected static string|UnitEnum|null $navigationGroup = 'Inventory';
 
@@ -71,4 +71,5 @@ class ItemRequestResource extends Resource
                 SoftDeletingScope::class,
             ]);
     }
+    
 }
