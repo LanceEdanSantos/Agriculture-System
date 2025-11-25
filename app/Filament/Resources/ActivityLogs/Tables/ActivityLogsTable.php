@@ -16,6 +16,7 @@ use Spatie\Activitylog\Models\Activity;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Tables\Filters\SelectFilter;
 
 class ActivityLogsTable
 {
@@ -86,9 +87,16 @@ class ActivityLogsTable
             ])
             ->filters([
                 // TrashedFilter::make(),
-                Filter::make('log_name')
-                    ->label('Record')
-                    ->sortable(),
+                SelectFilter::make('log_name')
+                    ->preload()
+                    ->searchable()
+                    ->options(
+                        \Spatie\Activitylog\Models\Activity::query()
+                            ->distinct()
+                            ->pluck('log_name', 'log_name')
+                            ->toArray()
+                    )
+                    ->label('Record'),
             ])
             ->recordActions([
                 ViewAction::make(),

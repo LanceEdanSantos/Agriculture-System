@@ -36,11 +36,11 @@ class ItemRequestInfolist
                                     ->label('Item'),
                                 TextEntry::make('quantity')
                                     ->numeric(),
-                                // TextEntry::make('status')
-                                //         ->badge()
-                                //         ->color(fn(ItemRequestStatus $state): string => $state->getColor())
-                                //         ->formatStateUsing(fn(ItemRequestStatus $state): string => $state->getLabel())
-                                //         ->label('Status'),
+                                TextEntry::make('status')
+                                        ->badge()
+                                        ->color(fn(ItemRequestStatus $state): string => $state->getColor())
+                                        ->formatStateUsing(fn(ItemRequestStatus $state): string => $state->getLabel())
+                                        ->label('Status'),
                                 TextEntry::make('farm.name')
                                     ->label('Farm'),
                                 TextEntry::make('deleted_at')
