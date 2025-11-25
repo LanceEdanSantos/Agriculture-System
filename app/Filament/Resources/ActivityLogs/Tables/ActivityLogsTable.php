@@ -88,7 +88,6 @@ class ActivityLogsTable
                 // TrashedFilter::make(),
                 Filter::make('log_name')
                     ->label('Record')
-                    ->searchable()
                     ->sortable(),
             ])
             ->recordActions([
