@@ -17,6 +17,16 @@ class StockLogExporter extends Exporter
         return [
             ExportColumn::make('id')
                 ->label('ID'),
+            ExportColumn::make('user.first_name')
+                ->label('First name'),
+            ExportColumn::make('user.middle_name')
+                ->label('Middle name'),
+            ExportColumn::make('user.last_name')
+                ->label('Last name'),
+            ExportColumn::make('user.suffix')
+                ->label('Suffix'),
+            ExportColumn::make('user.email')
+                ->label('Email'),
             ExportColumn::make('item.name')
                 ->label('Item'),
             ExportColumn::make('quantity')
@@ -25,10 +35,23 @@ class StockLogExporter extends Exporter
                 ->label('Created At'),
             ExportColumn::make('farm.name')
                 ->label('Farm'),
-            ExportColumn::make('user.name')
-                ->label('Requester'),
-            ExportColumn::make('status')
-                ->label('Status'),
+
+            // ExportColumn::make('status')
+            //     ->formatStateUsing(function ($state) {
+            //         // Filament sometimes sends ["APPROVED"] or [Enum]
+            //         if (is_array($state)) {
+            //             $state = $state[0] ?? null;
+            //         }
+
+            //         // Enum → return string value
+            //         if ($state instanceof \App\Enums\ItemRequestStatus) {
+            //             return $state->value;
+            //         }
+
+            //         // String or null → return as is
+            //         return $state ?? '';
+            //     })
+            //     ->label('Status'),
         ];
     }
 

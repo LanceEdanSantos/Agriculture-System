@@ -2,6 +2,8 @@
 
 namespace App\Enums;
 
+use Illuminate\Support\Str;
+
 enum ItemRequestStatus: string 
 {
     case PENDING = 'pending';
@@ -27,5 +29,10 @@ enum ItemRequestStatus: string
             self::REJECTED => 'danger',
             self::FULFILLED => 'success',
         };
+    }
+
+    public function label(): string
+    {
+        return Str::headline($this->value);
     }
 }

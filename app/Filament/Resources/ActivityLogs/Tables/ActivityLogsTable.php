@@ -7,6 +7,7 @@ use Filament\Tables\Table;
 use Illuminate\Support\Str;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Tables\Filters\Filter;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
@@ -85,6 +86,10 @@ class ActivityLogsTable
             ])
             ->filters([
                 // TrashedFilter::make(),
+                Filter::make('log_name')
+                    ->label('Record')
+                    ->searchable()
+                    ->sortable(),
             ])
             ->recordActions([
                 ViewAction::make(),

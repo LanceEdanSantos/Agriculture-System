@@ -93,7 +93,7 @@ class ItemRequestForm
                             )
                             ->required(),
                         Textarea::make('notes')
-                            ->required(),
+                           ,
                     ]),     
             ]);
     }
