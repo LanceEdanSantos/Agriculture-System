@@ -14,6 +14,7 @@ use App\Enums\ItemRequestStatus;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Actions\ActionGroup;
+use App\Models\ItemRequestMessage;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Tables\Filters\Filter;
@@ -24,8 +25,10 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\ExportBulkAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreBulkAction;
+use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Columns\SelectColumn;
@@ -193,6 +196,62 @@ class ItemRequestsTable
             ->recordActions([
                 ActionGroup::make([
                     ViewAction::make(),
+                    Action::make('approveRequest')
+                        ->label('Approve Request')
+                        ->color('success')
+                        ->form([
+                            TextInput::make('quantity')
+                                ->label('Quantity')
+                                ->numeric()
+                                ->required()
+                                ->default(fn ($record) => $record->quantity),
+                            Textarea::make('message')
+                                ->label('Message / Reason')
+                                ->required()
+                                ->default(fn ($record) => "Your request for {$record->item->name} has been approved."),
+                        ])
+                        ->modalHeading('Approve Item Request')
+                        ->modalButton('Approve')
+                        ->action(function ($record, array $data) {
+
+                            $previousStock = $record->item->stock;
+                            $quantity = $data['quantity'];
+                            $customMessage = $data['message'];
+
+                            // Update status and quantity
+                            $record->status = ItemRequestStatus::APPROVED->value;
+                            $record->quantity = $quantity;
+                            $record->save();
+
+                            // Adjust stock
+                            $record->item->decrement('stock', $quantity);
+
+                            // Log stock change
+                            StockLog::create([
+                                'user_id' => Auth::user()->id,
+                                'item_id' => $record->item_id,
+                                'quantity' => $quantity,
+                                'type' => TransferType::OUT->value,
+                                'item_request_id' => $record->id,
+                            ]);
+
+                            // Save the message in your model
+                            ItemRequestMessage::create([
+                                'item_request_id' => $record->id,
+                                'user_id' => Auth::user()->id,
+                                'message' => $customMessage . "\nStock before: {$previousStock}\nStock after: {$record->item->stock}",
+                            ]);
+
+                            // Send SMS if the user has a number
+                            if ($record->user->number) {
+                                Log::info('Sending SMS to ' . $record->user->number);
+                                (new \App\Actions\SendMessage())->execute(
+                                    $record->user->number,
+                                    "Your stock has been approved.\n\n$customMessage\n\nStock before: {$previousStock}\nStock after: {$record->item->stock}"
+                                );
+                            }
+                        })
+                        ->visible(fn ($record) => $record->status !== ItemRequestStatus::APPROVED->value),
                     EditAction::make(),
                     DeleteAction::make(),
                     RestoreAction::make(),
