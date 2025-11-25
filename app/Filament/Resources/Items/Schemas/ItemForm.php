@@ -73,7 +73,7 @@ class ItemForm
                                                     ])
                                             ])->columnSpanFull(),
                                     ]),
-                                RichEditor::make('description')
+                                Textarea::make('description')
                                     ->columnSpanFull(),
                             ]),
                         
