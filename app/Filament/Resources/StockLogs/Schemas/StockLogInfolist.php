@@ -36,8 +36,9 @@ class StockLogInfolist
                                 TextEntry::make('quantity')
                                     ->formatStateUsing(fn (string $state, $record) => ($record->type === TransferType::IN->value ? '+' : '-') . ' ' . $state)
                                     ->color(fn (string $state, $record) => $record->type === TransferType::IN->value ? 'success' : 'danger'),
-                                TextEntry::make('full_name')
+                                TextEntry::make('first_name')
                                     ->label('Responsible Person')
+                                    ->formatStateUsing(fn($state, $record) => $record->user->first_name . ' ' . $record->user->middle_name . ' ' . $record->user->last_name . ' ' . $record->user->suffix)
                                     ->placeholder('Not specified'),
                             ]),
                         
