@@ -15,8 +15,6 @@ class StockLogExporter extends Exporter
     public static function getColumns(): array
     {
         return [
-            ExportColumn::make('id')
-                ->label('ID'),
             ExportColumn::make('user.first_name')
                 ->label('First name'),
             ExportColumn::make('user.middle_name')
