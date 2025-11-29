@@ -53,9 +53,6 @@ class ItemsTable
                     ->searchable(),
                 TextColumn::make('stock')
                     ->numeric()
-                    ->sortable(),
-                TextColumn::make('minimum_stock')
-                    ->label('Minimum Stock')
                     ->badge()
                     ->color(
                         fn($record) =>
@@ -65,9 +62,23 @@ class ItemsTable
                     )
                     ->formatStateUsing(
                         fn($record) =>
-                        "{$record->minimum_stock} Min"
+                        "{$record->stock} Left"
                     )
                     ->sortable(),
+                // TextColumn::make('minimum_stock')
+                //     ->label('Minimum Stock')
+                //     ->badge()
+                //     ->color(
+                //         fn($record) =>
+                //         $record->stock < $record->minimum_stock
+                //             ? 'danger'   // red badge
+                //             : 'success'  // green badge
+                //     )
+                //     ->formatStateUsing(
+                //         fn($record) =>
+                //         "{$record->minimum_stock} Min"
+                //     )
+                //     ->sortable(),
                 TextColumn::make('description')
                     ->limit(50)
                     ->markdown(true)
