@@ -71,5 +71,10 @@ class ItemRequestResource extends Resource
                 SoftDeletingScope::class,
             ]);
     }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->sort('created_at', 'desc');
+    }
     
 }

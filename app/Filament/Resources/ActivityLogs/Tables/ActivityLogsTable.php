@@ -40,7 +40,7 @@ class ActivityLogsTable
                 //     ->label('Causer Type')
                 //     ->searchable()
                 //     ->sortable(),
-                TextColumn::make('causer')
+                TextColumn::make('causer_type')
                     ->label('User')
                     ->state(function (Activity $record): string {
                         // Prefer the loaded relationship; if missing, attempt to find by causer_id
