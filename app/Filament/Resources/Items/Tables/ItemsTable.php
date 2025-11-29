@@ -20,6 +20,7 @@ use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Grid;
 use Illuminate\Support\Facades\Route;
 use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\ExportBulkAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Forms\Components\Textarea;
@@ -54,7 +55,18 @@ class ItemsTable
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('minimum_stock')
-                    ->numeric()
+                    ->label('Minimum Stock')
+                    ->badge()
+                    ->color(
+                        fn($record) =>
+                        $record->stock < $record->minimum_stock
+                            ? 'danger'   // red badge
+                            : 'success'  // green badge
+                    )
+                    ->formatStateUsing(
+                        fn($record) =>
+                        "{$record->minimum_stock} Min"
+                    )
                     ->sortable(),
                 TextColumn::make('description')
                     ->limit(50)
@@ -234,6 +246,10 @@ class ItemsTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
+                    ExportBulkAction::make()
+                    ->exporter(\App\Filament\Exports\ItemExporter::class)
+                    ->label('Export')
+                    ->icon('heroicon-o-document-text'),
                     DeleteBulkAction::make(),
                     RestoreBulkAction::make(),
                     ForceDeleteBulkAction::make(),

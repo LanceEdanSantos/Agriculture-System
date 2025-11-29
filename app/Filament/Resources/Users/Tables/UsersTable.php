@@ -93,6 +93,10 @@ class UsersTable
             ])
             ->bulkActions([
                 BulkActionGroup::make([
+                    \Filament\Actions\ExportBulkAction::make()
+                    ->exporter(\App\Filament\Exports\UserExporter::class)
+                    ->label('Export')
+                    ->icon('heroicon-o-document-text'),
                     DeleteBulkAction::make(),
                 ]),
             ]);

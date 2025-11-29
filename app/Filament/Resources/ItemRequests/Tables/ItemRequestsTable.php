@@ -51,7 +51,7 @@ class ItemRequestsTable
                 TextColumn::make('user.first_name')
                     ->label('Requested By')
                     ->state(function (ItemRequest $record): string {
-                        $name = Str::headline($record['user']['first_name'] . ' ' . $record['user']['middle_name'] . ' ' . $record['user']['last_name'] . ' ' . $record['user']['suffix']);
+                        $name = Str::headline($record['user']['first_name'] . ' ' . $record['user']['middle_name'] . ' ' . $record['user']['last_name'] . ' ' . $record['user']['suffix']). ' (' . $record['user']['number'] . ')';
 
                         return "{$name}";
                     })

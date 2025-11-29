@@ -25,10 +25,10 @@ class ItemRequestExporter extends Exporter
                 ->label('Created At'),
             ExportColumn::make('farm.name')
                 ->label('Farm'),
-            ExportColumn::make('user.name')
+            ExportColumn::make('user.first_name')
                 ->label('Requester'),
-            ExportColumn::make('status')
-                ->label('Status'),
+            // ExportColumn::make('status')
+            //     ->label('Status'),
         ];
     }
 
