@@ -36,6 +36,7 @@ class FarmsTable
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('description')
                     ->limit(50)
+                    ->markdown()
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 IconColumn::make('active')
