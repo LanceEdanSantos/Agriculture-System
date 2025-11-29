@@ -74,7 +74,8 @@ class ItemRequestResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->sort('created_at', 'desc');
+        return parent::getEloquentQuery()
+            ->orderBy('created_at', 'desc');
     }
     
 }

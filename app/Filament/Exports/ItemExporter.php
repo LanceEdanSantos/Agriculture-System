@@ -15,8 +15,7 @@ class ItemExporter extends Exporter
     public static function getColumns(): array
     {
         return [
-            ExportColumn::make('slug')
-                ->label('Slug'),
+
             ExportColumn::make('name')
                 ->label('Name'),
             ExportColumn::make('category.name')
@@ -26,16 +25,16 @@ class ItemExporter extends Exporter
             ExportColumn::make('minimum_stock')
                 ->label('Minimum Stock'),
             ExportColumn::make('description')
-                ->label('Description'),
+                ->label('Description')
+                ->formatStateUsing(fn($state) => strip_tags((string) $state)),
             ExportColumn::make('notes')
-                ->label('Notes'),
+                ->label('Notes')
+                ->formatStateUsing(fn($state) => strip_tags((string) $state)),
             ExportColumn::make('active')
                 ->label('Active')
                 ->formatStateUsing(fn(string $state): string => $state ? 'Yes' : 'No'),
-            ExportColumn::make('unit')
+            ExportColumn::make('unit.name')
                 ->label('Unit'),
-            ExportColumn::make('quantity')
-                ->label('Quantity'),
             ExportColumn::make('created_at')
                 ->label('Created At'),
             ExportColumn::make('updated_at')
