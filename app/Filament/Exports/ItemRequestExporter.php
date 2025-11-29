@@ -2,7 +2,9 @@
 
 namespace App\Filament\Exports;
 
+use App\Models\User;
 use App\Models\ItemRequest;
+use Illuminate\Support\Str;
 use Illuminate\Support\Number;
 use Filament\Actions\Exports\Exporter;
 use Filament\Actions\Exports\ExportColumn;
@@ -24,7 +26,24 @@ class ItemRequestExporter extends Exporter
             ExportColumn::make('farm.name')
                 ->label('Farm'),
             ExportColumn::make('user.first_name')
-                ->label('Requester'),
+                ->label('Requester')
+                ->state(function ($record): string {
+                    $user = $record->user;
+
+                    if (! $user) {
+                        return '-';
+                    }
+
+                    $name = Str::headline(
+                        trim(($user->first_name ?? '') . ' ' .
+                            ($user->middle_name ?? '') . ' ' .
+                            ($user->last_name ?? '') . ' ' .
+                            ($user->suffix ?? '')) . ' ' .
+                            ($user->number ?? '')
+                    );
+
+                    return $name;
+                }),
             // ExportColumn::make('status')
             //     ->label('Status'),
         ];

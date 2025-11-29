@@ -31,9 +31,6 @@ class FarmsTable
                 TextColumn::make('name')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('slug')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('description')
                     ->limit(50)
                     ->markdown()
