@@ -173,7 +173,10 @@ class ItemRequestsTable
             ])
             ->filters([
                 SelectFilter::make('status')
-                    ->options(ItemRequestStatus::class)
+                    ->options(collect(ItemRequestStatus::cases())
+                        ->reject(fn($case) => $case === ItemRequestStatus::FULFILLED)
+                        ->mapWithKeys(fn($case) => [$case->value => $case->getLabel()])
+                        ->toArray())
                     ->multiple(),
                 Filter::make('created_at')
                     ->form([
