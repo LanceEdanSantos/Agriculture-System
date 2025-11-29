@@ -15,8 +15,6 @@ class ItemRequestExporter extends Exporter
     public static function getColumns(): array
     {
         return [
-            ExportColumn::make('id')
-                ->label('ID'),
             ExportColumn::make('item.name')
                 ->label('Item'),
             ExportColumn::make('quantity')

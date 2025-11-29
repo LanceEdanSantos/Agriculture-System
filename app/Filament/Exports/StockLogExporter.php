@@ -31,8 +31,6 @@ class StockLogExporter extends Exporter
                 ->label('Quantity'),
             ExportColumn::make('created_at')
                 ->label('Created At'),
-            ExportColumn::make('farm')
-                ->label('Farm'),
 
             // ExportColumn::make('status')
             //     ->formatStateUsing(function ($state) {
