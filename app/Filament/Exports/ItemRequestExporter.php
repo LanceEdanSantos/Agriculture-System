@@ -38,12 +38,13 @@ class ItemRequestExporter extends Exporter
                         trim(($user->first_name ?? '') . ' ' .
                             ($user->middle_name ?? '') . ' ' .
                             ($user->last_name ?? '') . ' ' .
-                            ($user->suffix ?? '')) . ' ' .
-                            ($user->number ?? '')
+                            ($user->suffix ?? ''))
                     );
 
                     return $name;
                 }),
+            ExportColumn::make('user.number')
+                ->label('Contact Number'),
             // ExportColumn::make('status')
             //     ->label('Status'),
         ];

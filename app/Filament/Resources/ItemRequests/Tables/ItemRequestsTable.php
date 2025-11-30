@@ -51,7 +51,7 @@ class ItemRequestsTable
                 TextColumn::make('user.first_name')
                     ->label('Requested By')
                     ->state(function (ItemRequest $record): string {
-                        $name = Str::headline($record['user']['first_name'] . ' ' . $record['user']['middle_name'] . ' ' . $record['user']['last_name'] . ' ' . $record['user']['suffix']). ' (' . $record['user']['number'] . ')';
+                        $name = Str::headline($record['user']['first_name'] . ' ' . $record['user']['middle_name'] . ' ' . $record['user']['last_name'] . ' ' . $record['user']['suffix']) . ' (' . $record['user']['number'] . ')';
 
                         return "{$name}";
                     })
@@ -65,13 +65,13 @@ class ItemRequestsTable
                     ->numeric()
                     ->sortable()
                     ->alignRight(),
-            // TextColumn::make('status')
-            //     ->badge()
-            //     ->color(fn(ItemRequestStatus $state) => $state->getColor())
-            //     ->formatStateUsing(fn(ItemRequestStatus $state) => $state->getLabel())
-            //     ->sortable()
-            //     ->searchable()
-            //     ->label('Status'),
+                // TextColumn::make('status')
+                //     ->badge()
+                //     ->color(fn(ItemRequestStatus $state) => $state->getColor())
+                //     ->formatStateUsing(fn(ItemRequestStatus $state) => $state->getLabel())
+                //     ->sortable()
+                //     ->searchable()
+                //     ->label('Status'),
                 SelectColumn::make('status')
                     ->options(
                         collect(\App\Enums\ItemRequestStatus::cases())
@@ -79,10 +79,10 @@ class ItemRequestsTable
                                 $case->value => $case->getLabel(),
                             ])
                             ->toArray()
-                            )
+                    )
                     ->afterStateUpdated(function ($record, $state) {
                         $recipients = User::role(['Administrator'])->get();
-                        if($state == ItemRequestStatus::APPROVED->value){
+                        if ($state == ItemRequestStatus::APPROVED->value) {
                             StockLog::create([
                                 'user_id' => Auth::user()->id,
                                 'item_id' => $record->item_id,
@@ -103,7 +103,7 @@ class ItemRequestsTable
                             }
                             // (new SendMessage())->execute($recipients, 'An item request has been updated. Click below to view it.');
                         }
-                        if($state == ItemRequestStatus::REJECTED->value){
+                        if ($state == ItemRequestStatus::REJECTED->value) {
                             // StockLog::create([
                             //     'user_id' => $record->user_id,
                             //     'item_id' => $record->item_id,
@@ -207,11 +207,11 @@ class ItemRequestsTable
                                 ->label('Quantity')
                                 ->numeric()
                                 ->required()
-                                ->default(fn ($record) => $record->quantity),
+                                ->default(fn($record) => $record->quantity),
                             Textarea::make('message')
                                 ->label('Message / Reason')
                                 ->required()
-                                ->default(fn ($record) => "Your request for {$record->item->name} has been approved."),
+                                ->default(fn($record) => "Your request for {$record->item->name} has been approved."),
                         ])
                         ->modalHeading('Approve Item Request')
                         ->modalButton('Approve')
@@ -227,7 +227,7 @@ class ItemRequestsTable
                             $record->save();
 
                             // Adjust stock
-                            $record->item->decrement('stock', $quantity);
+                            // $record->item->decrement('stock', $quantity);
 
                             // Log stock change
                             StockLog::create([
@@ -242,7 +242,7 @@ class ItemRequestsTable
                             ItemRequestMessage::create([
                                 'item_request_id' => $record->id,
                                 'user_id' => Auth::user()->id,
-                                'message' => $customMessage . "\nStock before: {$previousStock}\nStock after: {$record->item->stock}",
+                                'message' => $customMessage . "\nStock requested: {$previousStock}\nStock given: {$record->item->stock}",
                             ]);
 
                             // Send SMS if the user has a number
@@ -250,11 +250,60 @@ class ItemRequestsTable
                                 Log::info('Sending SMS to ' . $record->user->number);
                                 (new \App\Actions\SendMessage())->execute(
                                     $record->user->number,
-                                    "Your stock has been approved.\n\n$customMessage\n\nStock before: {$previousStock}\nStock after: {$record->item->stock}"
+                                    "Your stock has been approved.\n\n$customMessage\n\nStock requested: {$previousStock}\nStock given: {$record->item->stock}"
                                 );
                             }
                         })
-                        ->visible(fn ($record) => $record->status !== ItemRequestStatus::APPROVED->value),
+                        ->visible(function ($record) {
+                            return $record->status === ItemRequestStatus::PENDING->value &&
+                                $record->item->stock >= $record->quantity;
+                        })
+                        // ->tooltip(function ($record) {
+                        //     if ($record->status !== ItemRequestStatus::PENDING->value) {
+                        //         return 'This request is no longer pending';
+                        //     }
+                        //     if ($record->item->stock < $record->quantity) {
+                        //         return 'Insufficient stock available';
+                        //     }
+                        //     return null;
+                        // })
+                        ,
+                    Action::make('rejectRequest')
+                        ->label('Reject Request')
+                        ->color('danger')
+                        ->form([
+                            Textarea::make('reason')
+                                ->label('Reason for Rejection')
+                                ->required()
+                                ->default(fn($record) => "Your request for {$record->item->name} has been rejected."),
+                        ])
+                        ->modalHeading('Reject Item Request')
+                        ->modalButton('Reject')
+                        ->action(function ($record, array $data) {
+                            $record->status = ItemRequestStatus::REJECTED->value;
+                            $record->save();
+
+                            // Save rejection reason
+                            ItemRequestMessage::create([
+                                'item_request_id' => $record->id,
+                                'user_id' => Auth::user()->id,
+                                'message' => "Request rejected. Reason: " . $data['reason'],
+                            ]);
+
+                            // Send notification
+                            if ($record->user->number) {
+                                (new SendMessage())->execute(
+                                    $record->user->number,
+                                    "Your request for {$record->item->name} has been rejected.\n\nReason: {$data['reason']}"
+                                );
+                            }
+
+                            Notification::make()
+                                ->title('Request Rejected')
+                                ->success()
+                                ->send();
+                        })
+                        ->visible(fn($record) => $record->status !== ItemRequestStatus::REJECTED->value),
                     EditAction::make(),
                     DeleteAction::make(),
                     RestoreAction::make(),

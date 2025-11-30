@@ -246,6 +246,7 @@ class ItemsTable
                                 ->send();
                         })
                         ->label('Add Stock Log')
+                        ->hidden(fn($record) => $record->deleted_at !== null)
                         ->icon('heroicon-o-plus-circle'),
 
                     ViewAction::make(),

@@ -85,14 +85,14 @@ class ItemRequestForm
                         TextInput::make('quantity')
                             ->required()
                             ->live()
-                            ->rules([
-                                fn(Get $get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
-                                    $item = Item::find($get('item_id'));
-                                    if ($item && $item->stock < $value) {
-                                        $fail("Only {$item->stock} {$item->name} left. Reduce quantity.");
-                                    }
-                                },
-                            ])
+                            // ->rules([
+                            //     fn(Get $get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
+                            //         $item = Item::find($get('item_id'));
+                            //         if ($item && $item->stock < $value) {
+                            //             $fail("Only {$item->stock} {$item->name} left. Reduce quantity.");
+                            //         }
+                            //     },
+                            // ])
                             ->default(0)
                             ->numeric(),
                        Select::make('farm_id')
