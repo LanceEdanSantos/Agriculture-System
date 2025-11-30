@@ -255,8 +255,7 @@ class ItemRequestsTable
                             }
                         })
                         ->visible(function ($record) {
-                            return $record->status === ItemRequestStatus::PENDING->value &&
-                                $record->item->stock >= $record->quantity;
+                            return $record->status === ItemRequestStatus::PENDING->value;
                         })
                     // ->tooltip(function ($record) {
                     //     if ($record->status !== ItemRequestStatus::PENDING->value) {
