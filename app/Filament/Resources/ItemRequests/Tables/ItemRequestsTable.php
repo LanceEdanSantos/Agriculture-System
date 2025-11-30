@@ -242,7 +242,7 @@ class ItemRequestsTable
                             ItemRequestMessage::create([
                                 'item_request_id' => $record->id,
                                 'user_id' => Auth::user()->id,
-                                'message' => $customMessage . "\nStock requested: {$previousStock}\nStock given: {$record->item->stock}",
+                                'message' => $customMessage . "\nQuantity Requested: {$record->quantity}\nQuantity Given: {$quantity}",
                             ]);
 
                             // Send SMS if the user has a number
@@ -250,7 +250,7 @@ class ItemRequestsTable
                                 Log::info('Sending SMS to ' . $record->user->number);
                                 (new \App\Actions\SendMessage())->execute(
                                     $record->user->number,
-                                    "Your stock has been approved.\n\n$customMessage\n\nStock requested: {$previousStock}\nStock given: {$record->item->stock}"
+                                    "Your request has been approved.\n\n$customMessage\n\nQuantity Requested: {$record->quantity}\nQuantity Given: {$quantity}"
                                 );
                             }
                         })
@@ -258,16 +258,16 @@ class ItemRequestsTable
                             return $record->status === ItemRequestStatus::PENDING->value &&
                                 $record->item->stock >= $record->quantity;
                         })
-                        // ->tooltip(function ($record) {
-                        //     if ($record->status !== ItemRequestStatus::PENDING->value) {
-                        //         return 'This request is no longer pending';
-                        //     }
-                        //     if ($record->item->stock < $record->quantity) {
-                        //         return 'Insufficient stock available';
-                        //     }
-                        //     return null;
-                        // })
-                        ,
+                    // ->tooltip(function ($record) {
+                    //     if ($record->status !== ItemRequestStatus::PENDING->value) {
+                    //         return 'This request is no longer pending';
+                    //     }
+                    //     if ($record->item->stock < $record->quantity) {
+                    //         return 'Insufficient stock available';
+                    //     }
+                    //     return null;
+                    // })
+                    ,
                     Action::make('rejectRequest')
                         ->label('Reject Request')
                         ->color('danger')
