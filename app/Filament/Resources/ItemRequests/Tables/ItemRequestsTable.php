@@ -254,9 +254,7 @@ class ItemRequestsTable
                                 );
                             }
                         })
-                        ->visible(function ($record) {
-                            return $record->status === ItemRequestStatus::PENDING->value;
-                        })
+                        ->visible(ItemRequestStatus::PENDING->value === 'pending')
                     // ->tooltip(function ($record) {
                     //     if ($record->status !== ItemRequestStatus::PENDING->value) {
                     //         return 'This request is no longer pending';
