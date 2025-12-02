@@ -8,4 +8,8 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateStockLog extends CreateRecord
 {
     protected static string $resource = StockLogResource::class;
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 }
