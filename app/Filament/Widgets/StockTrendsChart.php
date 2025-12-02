@@ -54,6 +54,7 @@ class StockTrendsChart extends ChartWidget
             'items.name as item_name'
         )
             ->join('items', 'stock_logs.item_id', '=', 'items.id')
+            ->whereNull('items.deleted_at')
             ->whereBetween('stock_logs.created_at', [$startDate, $endDate])
             ->groupBy('item_id', 'items.name')
             ->orderBy('net_movement', 'desc')
