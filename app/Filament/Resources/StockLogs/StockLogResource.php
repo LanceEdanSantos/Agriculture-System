@@ -9,7 +9,9 @@ use Filament\Tables\Table;
 use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\StockLogs\Pages\EditStockLog;
 use App\Filament\Resources\StockLogs\Pages\ViewStockLog;
@@ -71,5 +73,22 @@ class StockLogResource extends Resource
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]);
+    }
+    public static function getGlobalSearchResultTitle(Model $record): string | Htmlable
+    {
+        return $record->id;
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['id', 'quantity', 'type', 'notes'];
+    }
+
+    public static function getGlobalSearchResultsQuery(string $search): Builder
+    {
+        return parent::getGlobalSearchResultsQuery($search)
+            ->orWhereHas('item', function ($query) use ($search) {
+                $query->where('name', 'like', "%{$search}%");
+            });
     }
 }

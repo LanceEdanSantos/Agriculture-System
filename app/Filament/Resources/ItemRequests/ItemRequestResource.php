@@ -4,21 +4,23 @@ namespace App\Filament\Resources\ItemRequests;
 
 use UnitEnum;
 use BackedEnum;
-use App\Models\ItemRequest;
 use Filament\Tables\Table;
+use App\Models\ItemRequest;
 use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ItemRequests\Pages\EditItemRequest;
 use App\Filament\Resources\ItemRequests\Pages\ViewItemRequest;
 use App\Filament\Resources\ItemRequests\Pages\ListItemRequests;
 use App\Filament\Resources\ItemRequests\Pages\CreateItemRequest;
-use App\Filament\Resources\ItemRequests\RelationManagers\MessagesRelationManager;
 use App\Filament\Resources\ItemRequests\Schemas\ItemRequestForm;
 use App\Filament\Resources\ItemRequests\Tables\ItemRequestsTable;
 use App\Filament\Resources\ItemRequests\Schemas\ItemRequestInfolist;
+use App\Filament\Resources\ItemRequests\RelationManagers\MessagesRelationManager;
 
 class ItemRequestResource extends Resource
 {
@@ -77,5 +79,20 @@ class ItemRequestResource extends Resource
         return parent::getEloquentQuery()
             ->orderBy('created_at', 'desc');
     }
-    
+    public static function getGlobalSearchResultTitle(Model $record): string | Htmlable
+    {
+        return $record->id;
+    }
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['id', 'quantity', 'status', 'farm_id', 'notes'];
+    }
+
+    public static function getGlobalSearchResultsQuery(string $search): Builder
+    {
+        return parent::getGlobalSearchResultsQuery($search)
+            ->orWhereHas('item', function ($query) use ($search) {
+                $query->where('name', 'like', "%{$search}%");
+            });
+    }
 }

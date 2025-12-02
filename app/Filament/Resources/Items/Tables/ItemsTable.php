@@ -55,14 +55,18 @@ class ItemsTable
                     ->numeric()
                     ->badge()
                     ->color(
-                        fn($record) =>
-                        $record->stock < $record->minimum_stock
-                            ? 'danger'   // red badge
-                            : 'success'  // green badge
+                        fn($record) => match (true) {
+                            $record->stock <= 0 => 'danger',
+                            $record->stock < $record->minimum_stock => 'warning',
+                            default => 'success'
+                        }
                     )
                     ->formatStateUsing(
-                        fn($record) =>
-                        "{$record->stock} Left"
+                        fn($record) => match (true) {
+                            $record->stock <= 0 => 'Out of Stock',
+                            $record->stock < $record->minimum_stock => 'Low Stock - ' . $record->stock . ' Left',
+                            default => $record->stock . ' Left'
+                        }
                     )
                     ->sortable(),
                 // TextColumn::make('minimum_stock')
@@ -86,6 +90,11 @@ class ItemsTable
                     ->toggleable(isToggledHiddenByDefault: true),
                 IconColumn::make('active')
                     ->boolean(),
+                TextColumn::make('expiration_date')
+                    ->dateTime()
+                    ->since()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->since()

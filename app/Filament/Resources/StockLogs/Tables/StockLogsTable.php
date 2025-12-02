@@ -53,7 +53,7 @@ class StockLogsTable
                     ->formatStateUsing(fn (string $state, $record) => ($record->type === TransferType::IN->value ? '+' : '-') . $state),
                 TextColumn::make('first_name')
                     ->label('Responsible')
-                    ->state(function (StockLog $record): string {
+                ->state(function (StockLog $record): string {
                         $name = Str::headline($record['user']['first_name'] . ' ' . $record['user']['middle_name'] . ' ' . $record['user']['last_name'] . ' ' . $record['user']['suffix']);
 
                         return "{$name}";

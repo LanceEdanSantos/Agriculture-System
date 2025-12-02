@@ -80,6 +80,13 @@ class ItemRequestsTable
                             ])
                             ->toArray()
                     )
+                    ->disableOptionWhen(function ($value, $record) {
+                        $insufficientStock = $record->item->stock < $record->quantity;
+                        return $insufficientStock && in_array($value, [
+                            \App\Enums\ItemRequestStatus::APPROVED->value,
+                            \App\Enums\ItemRequestStatus::REJECTED->value,
+                        ]);
+                    })
                     ->afterStateUpdated(function ($record, $state) {
                         $recipients = User::role(['Administrator'])->get();
                         if ($state == ItemRequestStatus::APPROVED->value) {
@@ -174,7 +181,6 @@ class ItemRequestsTable
             ->filters([
                 SelectFilter::make('status')
                     ->options(collect(ItemRequestStatus::cases())
-                        ->reject(fn($case) => $case === ItemRequestStatus::FULFILLED)
                         ->mapWithKeys(fn($case) => [$case->value => $case->getLabel()])
                         ->toArray())
                     ->multiple(),

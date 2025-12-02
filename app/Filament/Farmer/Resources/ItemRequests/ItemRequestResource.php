@@ -9,7 +9,9 @@ use App\Models\ItemRequest;
 use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Farmer\Resources\ItemRequests\Pages\EditItemRequest;
 use App\Filament\Farmer\Resources\ItemRequests\Pages\ViewItemRequest;
@@ -72,6 +74,24 @@ class ItemRequestResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->where('user_id', auth()->id());
+        return parent::getEloquentQuery()->where('user_id', auth()->id())->orderBy('created_at', 'desc');
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['id', 'quantity', 'status', 'notes'];
+    }
+
+    public static function getGlobalSearchResultTitle(Model $record): string | Htmlable
+    {
+        return "Item Request #{$record->id}";
+    }
+
+    public static function getGlobalSearchResultsQuery(string $search): Builder
+    {
+        return parent::getGlobalSearchResultsQuery($search)
+            ->orWhereHas('item', function ($query) use ($search) {
+                $query->where('name', 'like', "%{$search}%");
+            });
     }
 }

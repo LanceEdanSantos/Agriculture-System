@@ -12,6 +12,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\RichEditor;
 use App\Filament\Resources\Categories\Schemas\CategoryForm;
+use Filament\Forms\Components\DatePicker;
 
 class ItemForm
 {
@@ -42,6 +43,7 @@ class ItemForm
                                     ->relationship('unit', 'name')
                                     ->searchable()
                                     ->preload(),
+                                DatePicker::make('expiration_date'),
                                 Select::make('category_id')
                                     ->relationship('category', 'name')
                                     ->searchable()
