@@ -82,7 +82,7 @@ class ItemRequestsTable
                     )
                     ->disableOptionWhen(function ($value, $record) {
                         $insufficientStock = $record->item->stock < $record->quantity;
-                        return $insufficientStock && in_array($value, [
+                        return in_array($value, [
                             \App\Enums\ItemRequestStatus::APPROVED->value,
                             \App\Enums\ItemRequestStatus::REJECTED->value,
                         ]);
@@ -223,32 +223,29 @@ class ItemRequestsTable
                         ->modalButton('Approve')
                         ->action(function ($record, array $data) {
 
-                            $previousStock = $record->item->stock;
                             $quantity = $data['quantity'];
                             $customMessage = $data['message'];
 
                             // Update status and quantity
                             $record->status = ItemRequestStatus::APPROVED->value;
-                            $record->quantity = $quantity;
+                            // $record->quantity = $quantity;
                             $record->save();
 
-                            // Adjust stock
-                            // $record->item->decrement('stock', $quantity);
-
-                            // Log stock change
+                            // Log the transaction without modifying stock
                             StockLog::create([
                                 'user_id' => Auth::user()->id,
                                 'item_id' => $record->item_id,
                                 'quantity' => $quantity,
                                 'type' => TransferType::OUT->value,
                                 'item_request_id' => $record->id,
+                                'notes' => 'Requested: ' . $record->getOriginal('quantity') . ', Given: ' . $quantity
                             ]);
 
                             // Save the message in your model
                             ItemRequestMessage::create([
                                 'item_request_id' => $record->id,
                                 'user_id' => Auth::user()->id,
-                                'message' => $customMessage . "\nQuantity Requested: {$record->quantity}\nQuantity Given: {$quantity}",
+                                'message' => $customMessage . "\nQuantity Requested: " . $record->getOriginal('quantity') . "\nQuantity Given: {$quantity}",
                             ]);
 
                             // Send SMS if the user has a number

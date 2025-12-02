@@ -22,7 +22,6 @@ class FarmerOverview extends BaseWidget
         $pending     = (clone $query)->where('status', ItemRequestStatus::PENDING)->where('user_id', $user->id)->count();
         $approved    = (clone $query)->where('status', ItemRequestStatus::APPROVED)->where('user_id', $user->id)->count();
         $rejected    = (clone $query)->where('status', ItemRequestStatus::REJECTED)->where('user_id', $user->id)->count();
-        $fulfilled   = (clone $query)->where('status', ItemRequestStatus::FULFILLED)->where('user_id', $user->id)->count();
 
         return [
             Stat::make('Pending', $pending)
@@ -39,11 +38,6 @@ class FarmerOverview extends BaseWidget
                 ->description('Denied requests')
                 ->descriptionIcon(Heroicon::OutlinedXCircle)
                 ->color(ItemRequestStatus::REJECTED->getColor()),
-
-            // Stat::make('Fulfilled', $fulfilled)
-            //     ->description('Completed / issued')
-            //     ->descriptionIcon(Heroicon::OutlinedCheckBadge)
-            //     ->color(ItemRequestStatus::FULFILLED->getColor()),
         ];
     }
 }
