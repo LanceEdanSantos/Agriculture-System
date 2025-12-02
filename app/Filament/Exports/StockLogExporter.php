@@ -32,22 +32,19 @@ class StockLogExporter extends Exporter
             ExportColumn::make('created_at')
                 ->label('Created At'),
 
-            // ExportColumn::make('status')
-            //     ->formatStateUsing(function ($state) {
-            //         // Filament sometimes sends ["APPROVED"] or [Enum]
-            //         if (is_array($state)) {
-            //             $state = $state[0] ?? null;
-            //         }
+            ExportColumn::make('type')
+                ->formatStateUsing(function ($state) {
+                    if (is_array($state)) {
+                        $state = $state[0] ?? null;
+                    }
 
-            //         // Enum → return string value
-            //         if ($state instanceof \App\Enums\ItemRequestStatus) {
-            //             return $state->value;
-            //         }
+                    if ($state instanceof \App\Enums\TransferType) {
+                        return $state->value;
+                    }
 
-            //         // String or null → return as is
-            //         return $state ?? '';
-            //     })
-            //     ->label('Status'),
+                    return $state ?? '';
+                })
+                ->label('Type'),
         ];
     }
 
