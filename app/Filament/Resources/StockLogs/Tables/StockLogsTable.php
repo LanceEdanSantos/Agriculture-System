@@ -51,7 +51,7 @@ class StockLogsTable
                     ->sortable()
                     ->color(fn (string $state, $record) => $record->type === TransferType::IN->value ? 'success' : 'danger')
                     ->formatStateUsing(fn (string $state, $record) => ($record->type === TransferType::IN->value ? '+' : '-') . $state),
-                TextColumn::make('first_name')
+                TextColumn::make('user.first_name')
                     ->label('Responsible')
                 ->state(function (StockLog $record): string {
                         $name = Str::headline($record['user']['first_name'] . ' ' . $record['user']['middle_name'] . ' ' . $record['user']['last_name'] . ' ' . $record['user']['suffix']);
