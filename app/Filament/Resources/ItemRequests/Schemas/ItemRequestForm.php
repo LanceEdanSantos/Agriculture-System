@@ -77,6 +77,7 @@ class ItemRequestForm
                                 },
                             ])
                             ->default(0)
+                            ->minValue(1)
                             ->numeric(),
                         Select::make('farm_id')
                             ->searchable()

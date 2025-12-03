@@ -213,7 +213,9 @@ class ItemRequestsTable
                                 ->label('Quantity')
                                 ->numeric()
                                 ->required()
-                                ->default(fn($record) => $record->quantity),
+                                ->minValue(1)
+                                ->maxValue(fn($record) => $record->item->stock)
+                                ->default(fn($record) => min($record->quantity, $record->item->stock)),
                             Textarea::make('message')
                                 ->label('Message / Reason')
                                 ->required()
