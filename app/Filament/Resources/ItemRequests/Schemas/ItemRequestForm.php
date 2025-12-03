@@ -78,6 +78,7 @@ class ItemRequestForm
                             ])
                             ->default(0)
                             ->minValue(1)
+                            ->maxValue(fn(Get $get): int => Item::find($get('item_id'))->stock)
                             ->numeric(),
                         Select::make('farm_id')
                             ->searchable()
