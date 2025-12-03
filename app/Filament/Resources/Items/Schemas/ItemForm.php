@@ -48,33 +48,34 @@ class ItemForm
                                     ->relationship('category', 'name')
                                     ->searchable()
                                     ->preload()
-                                    ->createOptionForm([
-                                        Grid::make()
-                                            ->columns([
-                                                'sm' => 1,
-                                                'md' => 2,
-                                                'xl' => 2,
-                                            ])->schema([
-                                                Section::make('Name')
-                                                    ->description('Name and description of your category')
-                                                    ->components([
-                                                        TextInput::make('name')
-                                                            ->required()
-                                                            ->rules([
-                                                                'string',
-                                                                'max:255',
-                                                            ]),
-                                                        Textarea::make('description')
-                                                        ->columnSpanFull(),
-                                                    ]),
-                                                Section::make('Active')
-                                                    ->description('This will show if this category should be used or not')
-                                                    ->schema([
-                                                        Toggle::make('active')
-                                                            ->default(true),
-                                                    ])
-                                            ])->columnSpanFull(),
-                                    ]),
+                                    // ->createOptionForm([
+                                    //     Grid::make()
+                                    //         ->columns([
+                                    //             'sm' => 1,
+                                    //             'md' => 2,
+                                    //             'xl' => 2,
+                                    //         ])->schema([
+                                    //             Section::make('Name')
+                                    //                 ->description('Name and description of your category')
+                                    //                 ->components([
+                                    //                     TextInput::make('name')
+                                    //                         ->required()
+                                    //                         ->rules([
+                                    //                             'string',
+                                    //                             'max:255',
+                                    //                         ]),
+                                    //                     Textarea::make('description')
+                                    //                     ->columnSpanFull(),
+                                    //                 ]),
+                                    //             Section::make('Active')
+                                    //                 ->description('This will show if this category should be used or not')
+                                    //                 ->schema([
+                                    //                     Toggle::make('active')
+                                    //                         ->default(true),
+                                    //                 ])
+                                    //         ])->columnSpanFull(),
+                                    // ]),
+                                    ,
                                 Textarea::make('description')
                                     ->columnSpanFull(),
                             ]),
