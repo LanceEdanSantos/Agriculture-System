@@ -64,9 +64,9 @@ class ItemsTable
                     )
                     ->formatStateUsing(
                         fn($record) => match (true) {
-                            $record->stock <= 0 => 'Out of Stock' . $record->stock . $record->unit->name . ' Left',
-                            $record->stock < $record->minimum_stock => 'Low Stock' . $record->stock . $record->unit->name . ' Left',
-                            default => $record->stock . $record->unit->name . ' Left'
+                            $record->stock <= 0 => 'Out of Stock' . $record->stock . ' ' . $record->unit->symbol . ' Left',
+                            $record->stock < $record->minimum_stock => 'Low Stock' . $record->stock . ' ' . $record->unit->symbol . ' Left',
+                            default => $record->stock . ' ' . $record->unit->symbol . ' Left'
                         }
                     )
                     ->sortable(),
