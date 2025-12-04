@@ -45,6 +45,7 @@ class ItemsTable
         return $table
             ->columns([
                 TextColumn::make('name')
+                    ->label('Item')
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('category.name')
@@ -63,9 +64,9 @@ class ItemsTable
                     )
                     ->formatStateUsing(
                         fn($record) => match (true) {
-                            $record->stock <= 0 => 'Out of Stock',
-                            $record->stock < $record->minimum_stock => 'Low Stock - ' . $record->stock . ' Left',
-                            default => $record->stock . ' Left'
+                            $record->stock <= 0 => 'Out of Stock' . $record->stock . $record->unit->name . ' Left',
+                            $record->stock < $record->minimum_stock => 'Low Stock' . $record->stock . $record->unit->name . ' Left',
+                            default => $record->stock . $record->unit->name . ' Left'
                         }
                     )
                     ->sortable(),

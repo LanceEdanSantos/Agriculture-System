@@ -4,6 +4,7 @@ namespace App\Filament\Resources\ItemRequests\Tables;
 
 use App\Models\User;
 use App\Models\StockLog;
+use Closure;
 use Filament\Tables\Table;
 use App\Enums\TransferType;
 use App\Models\ItemRequest;
@@ -215,6 +216,13 @@ class ItemRequestsTable
                                 ->required()
                                 ->minValue(1)
                                 ->maxValue(fn($record) => $record->item->stock)
+                                ->rule(function ($record) {
+                                    return function (string $attribute, $value, Closure $fail) use ($record) {
+                                        if ($value > $record->item->stock) {
+                                            $fail('The quantity may not be greater than the available stock of ' . $record->item->stock . '.');
+                                        }
+                                    };
+                                })
                                 ->default(fn($record) => min($record->quantity, $record->item->stock)),
                             Textarea::make('message')
                                 ->label('Message / Reason')
@@ -227,6 +235,19 @@ class ItemRequestsTable
 
                             $quantity = $data['quantity'];
                             $customMessage = $data['message'];
+
+                            // Ensure there is enough stock before approving
+                            $availableStock = $record->item->stock;
+
+                            if ($quantity > $availableStock) {
+                                Notification::make()
+                                    ->title('Insufficient stock')
+                                    ->danger()
+                                    ->body('The available stock is only ' . $availableStock . ' and cannot cover the requested quantity of ' . $quantity . '.')
+                                    ->send();
+
+                                return;
+                            }
 
                             // Update status and quantity
                             $record->status = ItemRequestStatus::APPROVED->value;

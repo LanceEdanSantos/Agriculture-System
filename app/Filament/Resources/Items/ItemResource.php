@@ -31,9 +31,9 @@ class ItemResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
-    protected static ?string $navigationLabel = 'Inventory Item';
+    protected static ?string $navigationLabel = 'Items';
 
-    protected static ?string $modelLabel = 'Inventory Item';
+    protected static ?string $modelLabel = 'Items';
 
     public static function form(Schema $schema): Schema
     {
