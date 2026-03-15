@@ -7,8 +7,6 @@ use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Permission;
-use BezhanSalleh\FilamentShield\Support\Utils;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class RolesAndPermissionsSeeder extends Seeder
 {
@@ -78,7 +76,12 @@ class RolesAndPermissionsSeeder extends Seeder
         $user = User::updateOrCreate([
             'email' => 'admin@doa.gov.ph',
         ], [
-            'name' => 'Admin User',
+            'first_name' => 'Admin',
+            'middle_name' => null,
+            'last_name' => 'User',
+            'suffix' => null,
+            'number' => '09999999999',
+            'association' => 'Department of Agriculture',
             'password' => Hash::make('password'),
             'email_verified_at' => now(),
         ]);
@@ -114,7 +117,12 @@ class RolesAndPermissionsSeeder extends Seeder
         $user = User::updateOrCreate([
             'email' => 'farmer@example.com',
         ], [
-            'name' => 'Farmer User',
+            'first_name' => 'Farmer',
+            'middle_name' => null,
+            'last_name' => 'User',
+            'suffix' => null,
+            'number' => '09171234567',
+            'association' => 'Local Farming Cooperative',
             'password' => Hash::make('password'),
             'email_verified_at' => now(),
         ]);
